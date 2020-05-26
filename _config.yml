@@ -24,10 +24,25 @@ github_username:  alis0nc
 
 # Build settings
 markdown: kramdown
-theme: minima
+excerpt_separator: "<!-- fold -->"
+remote_theme: yous/whiteglass
 plugins:
   - jekyll-feed
-permalink: /:categories/:title
+  - jekyll-archives
+  - jekyll-paginate
+  - jekyll-sitemap
+permalink: /:categories/:title/
+paginate_path: /posts/:num/
+paginate: 5
+
+jekyll-archives:
+  enabled:
+    - categories
+    - tags
+  layout: category_archives
+  permalinks:
+    category: /categories/:name/
+    tag: /tags/:name/
 
 # Exclude from processing.
 # The following items will not be processed, by default. Create a custom list

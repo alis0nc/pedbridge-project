@@ -1,0 +1,28 @@
+---
+# front matter
+---
+@import "whiteglass";
+
+div.gallery {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr;
+}
+
+div.gallery-item {
+  padding: 3px;
+  margin: 0 auto;
+}
+
+@include media-query($on-palm) {
+  div.gallery {
+    grid-template-columns: 1fr;
+  }
+}
+
+figcaption {
+  text-align: center;
+}
+
+figure > img {
+  margin: 0 auto;
+}
