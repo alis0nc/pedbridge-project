@@ -13,7 +13,7 @@ services:
       # Commands that set up the basic preview infrastructure
       init:
         - apt-get update
-        - apt-get install ruby-full
+        - apt-get install ruby-full zlib1g-dev
         - gem install bundler
 
       build:
