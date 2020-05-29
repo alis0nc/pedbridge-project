@@ -14,6 +14,7 @@ services:
       init:
         - apt-get update
         - apt-get install ruby-full
+        - export PATH="$PATH:$HOME/.gem/ruby/2.5.0/bin"
         - gem install bundler --user
 
       build:
