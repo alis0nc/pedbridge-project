@@ -14,8 +14,7 @@ services:
       init:
         - apt-get update
         - apt-get install ruby-full
-        - export PATH="$PATH:/root/.gem/ruby/2.5.0/bin"
-        - gem install bundler --user
+        - gem install bundler
 
       build:
         # jekyll's command to build your static site
