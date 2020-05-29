@@ -6,7 +6,7 @@ services:
   #   2. Exposes port 80 to the Tugboat HTTP proxy
   #   3. Routes requests to the preview URL to this service
   jekyll:
-    image: tugboatqa/debian:latest
+    image: tugboatqa/httpd
 
     # A set of commands to run while building this service
     commands:
