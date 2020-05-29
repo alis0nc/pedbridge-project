@@ -24,4 +24,5 @@ services:
         bundle exec jekyll build
 
         # Link the document root to the expected path.
+        ln -snf "${TUGBOAT_ROOT}/tugboat.html" "${DOCROOT}/index.html"
         ln -snf "${TUGBOAT_ROOT}/_site" "${DOCROOT}/pedbridge-project"
