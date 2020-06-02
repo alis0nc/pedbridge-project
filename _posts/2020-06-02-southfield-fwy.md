@@ -33,13 +33,13 @@ nearby [Ambassador Bridge].
   description="A planter behind the sign." %}
 {% include imgur.html
   hash="A8EWf1K"
-  description="View westbound down the bridge, toward the Bagley Shared Street. Taken by Nix with his drone." %}
+  description="View westbound down the bridge, toward the Bagley Shared Street. (Taken by Nix with his drone)" %}
 {% include imgur.html 
   hash="N3bg63b"
-  description="View eastbound down the bridge, toward FREC and Plaza del Norte. There were a couple skateboarders on the bridge. Taken by Nix with his drone." %}
+  description="View eastbound down the bridge, toward FREC and Plaza del Norte. There were a couple skateboarders on the bridge. (Taken by Nix with his drone)" %}
 {% include imgur.html 
   hash="piKxAlL" 
-  description="View eastbound from the west end of the bridge. Taken by Nix with his drone." %}
+  description="View eastbound from the west end of the bridge. (Taken by Nix with his drone)" %}
 {% include gallery_end.html %}
 
 Mentioned in captions:
@@ -58,7 +58,32 @@ the barricade on the other side. Since Nix and his drone were with me, though,
 he got aerial shots of the bridge and of the views to the north and south. We 
 found out that the bridge was closed due to poor pavement conditions. 
 
-(insert gallery here)
+{% include gallery_start.html %}
+{% include imgur.html 
+  hash="JeHxqya" 
+  description="Eastern approach, showing multiple barricades up the helical ramp and at the main span." %}
+{% include imgur.html 
+  hash="6AnRtXI" 
+  description="View north toward 8 Mile Road/city limits. (aerial)" %}
+{% include imgur.html
+  hash="bfLAATd"
+  description="View south toward the 7 Mile Road and McNichols Road exits. (aerial)" %}
+{% include imgur.html 
+  hash="ZXBc5xH" 
+  description="3/4 view from the southwest. (aerial)" %}
+{% include imgur.html
+  hash="V9FCitK"
+  description="3/4 view from the northeast. (aerial)" %}
+{% include imgur.html 
+  hash="jPIs5M9"
+  description="Western approach, showing overgrown vegetation and multiple barricades. (aerial)" %}
+{% include imgur.html 
+  hash="Y6k2hyX" 
+  description="Wooden and wire barricade at the start of the main span. (aerial)" %}
+{% include imgur.html 
+  hash="q6jZS54" 
+  description="An aerial view of the bridge, showing poor pavement condition. (aerial)" %}
+{% include gallery_end.html %}
 
 The next pedbridge to the south was **Glendale Street**, which was [demolished in 2017] 
 but (as of Saturday) is still mapped on Google Maps. 
@@ -67,7 +92,23 @@ the view south from the bridge.
 
 [demolished in 2017]: https://www.michigan.gov/mdot/0,4616,7-151--452003--,00.html
 
-(insert gallery here)
+{% include gallery_start.html %}
+{% include imgur.html 
+  hash="KAYHNGJ" 
+  description="The former site of the bridge's helical ramp on the east side of the freeway." %}
+{% include imgur.html 
+  hash="zowobyI" 
+  description="A Google Maps screenshot showing the now-nonexistent bridge." %}
+{% include imgur.html
+  hash="xovxGI4"
+  description="View south toward the I-96 interchange. (aerial)" %}
+{% include imgur.html 
+  hash="MfrtEw8" 
+  description="The former site of the helical ramp on the east side. (aerial)" %}
+{% include imgur.html
+  hash="h6XKytz"
+  description="The former site of the helical ramp on the west side. (aerial)" %}
+{% include gallery_end.html %}
 
 We followed the freeway south to the gorgeous, recently constructed **Cathedral Street** 
 bridge. In 2014, it was [knocked down by a truck travelling on the freeway], 
