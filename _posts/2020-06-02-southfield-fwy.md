@@ -124,10 +124,81 @@ that obviously didn't happen.
 [Cody High School]: https://www.detroitk12.org/Cody
 [replaced the bridge]: https://www.detroitnews.com/story/news/local/detroit-city/2015/09/25/mdot-replacing-southfield-freeway-pedestrian-bridges/72792010/
 
-(insert gallery here)
+{% include gallery_start.html %}
+{% include imgur.html 
+  hash="YJ3IAdO" 
+  description="A sign on the southbound service drive warning motorists of the pedestrian crossing ahead." %}
+{% include imgur.html
+  hash="TVsZL3u"
+  description="The well-marked pedestrian crossing." %}
+{% include imgur.html 
+  hash="SojngYe" 
+  description="The western approach." %}
+{% include imgur.html
+  hash="WMfFfoh"
+  description="Detail of the bas-re-leafs on the western ramp." %}
+{% include imgur.html 
+  hash="OnzCEVp" 
+  description='&ldquo;Growing Together&rdquo; logo and solar-powered streetlamp.' %}
+{% include imgur.html
+  hash="GkZFTnF"
+  description="View north from the bridge; the I-96 interchange is visible in the distance." %}
+{% include imgur.html
+  hash="mijNFUx"
+  description="View south toward Joy Road and Warren Avenue." %}
+{% include imgur.html
+  hash="w1P3Klu"
+  description="View west down Cathedral Street." %}
+{% include imgur.html
+  hash="0bDlV4X"
+  description="3/4 view from the northeast. The ramp on the west side is longer because the service drive is at a lower elevation. (aerial)" %}
+{% include imgur.html
+  hash="plgCZyH"
+  description="3/4 view from the southwest. (aerial)" %}
+{% include gallery_end.html %}
 
 Finally, the southernmost pedbridge across the Southfield Freeway is **Sawyer Street**, 
 which connects the Warrendale neighbourhood west of the freeway to the Simanek Playfield and 
 former Ruddiman Middle School/Cody High 9th grade campus.
 
-(insert gallery here)
+{% include gallery_start.html %}
+{% include imgur.html 
+  hash="ngkglFU" 
+  description="Approaching the bridge from the west. No, there isn't a curb cut." %}
+{% include imgur.html
+  hash="aeAjHQH" 
+  description="A drainage grate that isn't flush with the pavement. This is a trip hazard and a hazard to folks making their way across the bridge on wheels." %}
+{% include imgur.html
+  hash="GLFog2v"
+  description="Nix's drone." %}
+{% include imgur.html
+  hash="Z5pZWy9"
+  description="View north toward Tireman Avenue and Joy Road." %}
+{% include imgur.html 
+  hash="MDo0XW2" 
+  description="View south toward Warren Avenue and Ford Road." %}
+{% include imgur.html
+  hash="BHrRJJM"
+  description="&ldquo;Fuck TJ&rdquo; graffiti on the bridge." %}
+{% include imgur.html 
+  hash="8xzqbGQ" 
+  description="Plywood bolted over missing drainage grates. Another trip/wheels hazard." %}
+{% include imgur.html
+  hash="ubtw8zg"
+  description="View of the bridge and the service drive from the east. The wall has more of the bas-re-leafs on it that we initially saw on the Cathedral bridge." %}
+{% include imgur.html
+  hash="JNeBSGo"
+  description="The former Ruddiman Middle School/Cody 9th grade campus." %}
+{% include imgur.html
+  hash="TNEdgCT"
+  description="Some of the few remaining fancy railing sections, on the east side of the bridge. (aerial)" %}
+{% include imgur.html
+  hash="A2zIWjd"
+  description="Sousveillance via drone. (aerial)" %}
+{% include imgur.html
+  hash="vME18Ns"
+  description="3/4 view from the northwest. (aerial)" %}
+{% include imgur.html
+  hash="SDPdVta"
+  description="3/4 view from the southwest. (aerial)" %}
+{% include gallery_end.html %}
