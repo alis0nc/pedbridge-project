@@ -24,7 +24,29 @@ nearby [Ambassador Bridge].
 [Bagley Pedestrian Bridge]: https://inhabitat.com/bagley-pedestrian-bridge-in-detroit-provides-safe-access-to-canada/
 [Ambassador Bridge]: https://en.wikipedia.org/wiki/Ambassador_Bridge
 
-(insert gallery here)
+{% include gallery_start.html %}
+{% include imgur.html 
+  hash="o4Z2Iu5" 
+  description="The Bagley Pedestrian Bridge sign on the west side of the bridge." %}
+{% include imgur.html 
+  hash="Mh2lruK" 
+  description="A planter behind the sign." %}
+{% include imgur.html
+  hash="A8EWf1K"
+  description="View westbound down the bridge, toward the Bagley Shared Street. Taken by Nix with his drone." %}
+{% include imgur.html 
+  hash="N3bg63b"
+  description="View eastbound down the bridge, toward FREC and Plaza del Norte. There were a couple skateboarders on the bridge. Taken by Nix with his drone." %}
+{% include imgur.html 
+  hash="piKxAlL" 
+  description="View eastbound from the west end of the bridge. Taken by Nix with his drone." %}
+{% include gallery_end.html %}
+
+Mentioned in captions:
+
+ * [Bagley Shared Street](https://detroit.curbed.com/2020/1/16/21068713/bagley-street-mexicantown-detroit-shared-street)
+ * [FREC](https://www.fordfund.org/FRECSouthwest)
+ * [Plaza del Norte](https://www.facebook.com/pages/Plaza-Del-Norte/115952085132134)
 
 After the Bagley bridge, we headed up to the suburbs for some errands, then back 
 down to the city to document the pedbridges on the Southfield Freeway from north 
