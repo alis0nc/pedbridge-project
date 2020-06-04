@@ -85,12 +85,14 @@ found out that the bridge was closed due to poor pavement conditions.
   description="An aerial view of the bridge, showing poor pavement condition. (aerial)" %}
 {% include gallery_end.html %}
 
-The next pedbridge to the south was **Glendale Street**, which was [demolished in 2017] 
+The next pedbridge to the south was **Glendale Street**, which had been [disused since 2007]
+according to historical Google Street View imagery. It was [demolished in 2017] 
 but (as of Saturday) is still mapped on Google Maps. 
 We photographed the former sites of the helical ramps and what would have been 
 the view south from the bridge.
 
 [demolished in 2017]: https://www.michigan.gov/mdot/0,4616,7-151--452003--,00.html
+[disused since 2007]: https://www.google.com/maps/@42.382835,-83.21707,3a,75y,149.48h,89.79t/data=!3m6!1e1!3m4!1sVc4qXYRYYjWNZwbIkzRYDw!2e0!7i3328!8i1664
 
 {% include gallery_start.html %}
 {% include imgur.html 
