@@ -160,3 +160,12 @@ five blocks north of 8 Mile Road.
   hash="Odk1Ksi"
   description="A lump of asphalt bridging the height difference between the bridge ramp and the sidewalk. This isn't ADA compliant!" %}
 {% include gallery_end.html %}
+
+**Addendum**: I was curious about who *Jynx* was. Armed with nothing but a 
+date of birth, date of death, and the vague hunch that they lived, died, or 
+were buried in Michigan, I was able to find this [Find A Grave entry]. 
+Jynx's full name was *Amanda Rose Roeske*, and she's buried in [Hiawatha Cemetery]
+in the Upper Peninsula. May her memory be a blessing.
+
+[Find A Grave entry]: https://www.findagrave.com/memorial/203751536/amanda-rose-roeske
+[Hiawatha Cemetery]: https://www.findagrave.com/cemetery/702/hiawatha-cemetery
