@@ -4,6 +4,9 @@ title:  "Lodge Freeway and Holden Street"
 date:   2020-05-27 11:19:00 -0400
 categories: m10
 description: Lodge Freeway and Holden Street
+location:
+  - latitude: 42.363048
+  - longitude: -83.078823
 ---
 
 This morning, I had to go to [Henry Ford Hospital](https://www.henryford.com/locations/henry-ford-hospital)
