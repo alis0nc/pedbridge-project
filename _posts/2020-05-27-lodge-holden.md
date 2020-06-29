@@ -51,3 +51,5 @@ Mentioned in captions:
  * [New Center U-Haul](https://www.uhaul.com/Locations/Truck-Rentals-near-Detroit-MI-48202/754024/)
  * [Renaissance Center](https://gmrencen.com/)
  * [Desirepath](https://en.wikipedia.org/wiki/Desire_path) ([there's a subreddit for that](https://www.reddit.com/r/DesirePath/))
+
+{% google_map %}

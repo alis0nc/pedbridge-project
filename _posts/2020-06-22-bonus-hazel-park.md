@@ -185,3 +185,5 @@ in the Upper Peninsula. May her memory be a blessing.
 
 [Find A Grave entry]: https://www.findagrave.com/memorial/203751536/amanda-rose-roeske
 [Hiawatha Cemetery]: https://www.findagrave.com/cemetery/702/hiawatha-cemetery
+
+{% google_map %}

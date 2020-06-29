@@ -220,3 +220,5 @@ former Ruddiman Middle School/Cody High 9th grade campus.
   hash="SDPdVta"
   description="3/4 view from the southwest. (aerial)" %}
 {% include gallery_end.html %}
+
+{% google_map %}
