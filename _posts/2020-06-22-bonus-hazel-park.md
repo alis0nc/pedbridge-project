@@ -91,9 +91,6 @@ from each side of the bridge.
   hash="0DMGNxr" 
   description="The south end of the Highland bridge, with Tabernacle Baptist Church in the background." %}
 {% include imgur.html 
-  hash="2y1b2aE" 
-  description="Hazelcrest Place Apartments." %}
-{% include imgur.html 
   hash="2aQddfx" 
   description="Looking north down the bridge." %}
 {% include imgur.html
