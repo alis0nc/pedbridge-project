@@ -20,6 +20,7 @@ gem "jekyll-whiteglass", "~> 1.9"
 group :jekyll_plugins do
   gem "jekyll-feed", "~> 0.6"
   gem "jekyll-archives", "~> 2.2"
+  gem "jekyll-maps"
 end
 
 # Windows does not include zoneinfo files, so bundle the tzinfo-data gem

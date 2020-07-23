@@ -4,6 +4,22 @@ title:  "Bonus: Hazel Park"
 date:   2020-06-22 19:50:00 -0400
 categories: i75
 description: "I-75 in Hazel Park: Browning, Orchard, Highland, Harry, Bernhard"
+location:
+  - title: I-75 and Browning Avenue
+    latitude: 42.471153
+    longitude: -83.110076
+  - title: I-75 and Orchard Avenue
+    latitude: 42.465095
+    longitude: -83.107531
+  - title: I-75 and Highland Avenue
+    latitude: 42.458290
+    longitude: -83.100050
+  - title: I-75 and Harry Avenue
+    latitude: 42.455894
+    longitude: -83.096283
+  - title: I-75 and Bernhard Avenue
+    latitude: 42.451152
+    longitude: -83.095052
 ---
 
 I really don't have an excuse for delaying this post so long, considering I 
@@ -166,3 +182,5 @@ in the Upper Peninsula. May her memory be a blessing.
 
 [Find A Grave entry]: https://www.findagrave.com/memorial/203751536/amanda-rose-roeske
 [Hiawatha Cemetery]: https://www.findagrave.com/cemetery/702/hiawatha-cemetery
+
+{% google_map %}

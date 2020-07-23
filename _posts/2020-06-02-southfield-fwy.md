@@ -4,6 +4,22 @@ title:  "Southfield Freeway + Bagley Pedestrian Bridge"
 date:   2020-06-02 12:20:00 -0400
 categories: m39 i75
 description: All three pedbridges along the Southfield Freeway, plus the Bagley Pedestrian Bridge
+location:
+  - title: Bagley Pedestrian Bridge
+    latitude: 42.323977
+    longitude: -83.083219
+  - title: Southfield Freeway and Vassar Drive
+    latitude: 42.433786
+    longitude: -83.219479
+  - title: Southfield Freeway and Glendale Street
+    latitude: 42.382634
+    longitude: -83.217434
+  - title: Southfield Freeway and Cathedral Street
+    latitude: 42.361479
+    longitude: -83.216421
+  - title: Southfield Freeway and Sawyer Street
+    latitude: 42.346523
+    longitude: -83.216194
 ---
 
 Last Saturday (30 May), I picked up my friend [Nixill]'s Kroger order for him, 
@@ -204,3 +220,5 @@ former Ruddiman Middle School/Cody High 9th grade campus.
   hash="SDPdVta"
   description="3/4 view from the southwest. (aerial)" %}
 {% include gallery_end.html %}
+
+{% google_map %}
