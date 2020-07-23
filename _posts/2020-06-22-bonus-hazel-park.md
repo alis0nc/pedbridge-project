@@ -22,6 +22,11 @@ location:
     longitude: -83.095052
 ---
 
+**Update 2020-07-22**: See [Hazel Park updates] for the state of Hazel Park's pedbridges
+as of late July 2020.
+
+[Hazel Park updates]: {% post_url 2020-07-18-hazel-park-update %}
+
 I really don't have an excuse for delaying this post so long, considering I 
 rode across all the pedestrian bridges in Hazel Park *ten days ago* on 
 the morning of 12 June. My route started at [my partner]'s house, which is 
