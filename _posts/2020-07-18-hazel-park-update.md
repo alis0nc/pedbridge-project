@@ -6,7 +6,7 @@ categories: i75
 description: "Hazel Park updates"
 ---
 
-*Updated 2020-07-22:* Added dashcam frame grabs illustrating the recent 
+**Update 2020-07-22**: Added dashcam frame grabs illustrating the recent
 developments in Hazel Park.
 
 This past Thursday I was driving down I-75 on the way back from [Micro Center].
