@@ -36,5 +36,5 @@ from Ferdinand Street in Southwest Detroit, to Leland Street in Midtown/Forest P
 There used to be several more south of Ferdinand, but they're either barricaded
 (Northampton Street, by the Marathon refinery) or completely demolished due to 
 I-75 and [Gordie Howe International Bridge] construction. Similarly to the 
-[Lower Lodge] post, I didn't necessarily ride these bridges in order so I will 
-present them from south to north.
+[Lower Lodge] post, I didn't necessarily ride these bridges in order or on the
+same day, so I will present them from south to north.
