@@ -290,3 +290,5 @@ actually across the Lodge. It's the **Brooklyn Avenue** (signed)/**Trumbull Cros
   hash="V7VlMDt" 
   description="A panorama from Adams Field to Trumbull Crossing." %}
 {% include gallery_end.html %}
+
+{% google_map %}
