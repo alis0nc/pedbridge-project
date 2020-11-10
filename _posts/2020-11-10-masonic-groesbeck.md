@@ -5,9 +5,8 @@ date:   2020-11-10 00:14:00 -0500
 categories: 
 description: "A weird pedbridge at Groesbeck Highway and Masonic in Fraser"
 location:
-  - title: Groesbeck Highway and Masonic
-    latitude: 42.431716
-    longitude: -82.940704
+  latitude: 42.531741
+  longitude: -82.940763
 ---
 
 Back on the early morning of 25 September, [Nixill] messaged me a photo that they'd 
