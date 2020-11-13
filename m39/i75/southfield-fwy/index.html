@@ -1,0 +1,771 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  
+  
+  <title>Southfield Freeway + Bagley Pedestrian Bridge</title>
+  <meta name="description" content="All three pedbridges along the Southfield Freeway, plus the Bagley Pedestrian Bridge">
+  
+
+  <link rel="stylesheet" href="/pedbridge-project/assets/main.css">
+  <link rel="canonical" href="https://alisonc.net/pedbridge-project/m39/i75/southfield-fwy/">
+  
+  
+  <link rel="alternate" type="application/rss+xml" title="Detroit Pedbridge Project" href="https://alisonc.net/pedbridge-project/feed.xml">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/pedbridge-project/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/pedbridge-project/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/pedbridge-project/favicon-16x16.png">
+<link rel="manifest" href="/pedbridge-project/site.webmanifest">
+
+
+  
+  <meta property="og:title" content="Southfield Freeway + Bagley Pedestrian Bridge">
+  <meta property="og:site_name" content="Detroit Pedbridge Project">
+  <meta property="og:url" content="https://alisonc.net/pedbridge-project/m39/i75/southfield-fwy/">
+  <meta property="og:description" content="All three pedbridges along the Southfield Freeway, plus the Bagley Pedestrian Bridge">
+  
+  
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:site" content="alisonc42">
+  <meta name="twitter:title" content="Southfield Freeway + Bagley Pedestrian Bridge">
+  <meta name="twitter:description" content="All three pedbridges along the Southfield Freeway, plus the Bagley Pedestrian Bridge">
+  
+    <meta name="twitter:creator" content="alisonc42">
+  
+  
+
+  <link rel="dns-prefetch" href="https://fonts.gstatic.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css?family=Bitter:400,400i,700&display=swap" rel="stylesheet">
+
+  
+
+<script type='text/javascript'>
+  /* global google */
+/* global MarkerClusterer */
+// eslint-disable-next-line no-unused-vars
+var jekyllMaps = (function() {
+  'use strict'
+  var clusterSettings = {}
+  var clusterReady = false
+  var mapReady = false
+  var options = {}
+  var data = []
+  var maps = []
+
+  return {
+    initializeMap: initializeMap,
+    initializeCluster: initializeCluster,
+    register: register
+  }
+
+  /**
+   * Setup Google Maps options and call renderer.
+   */
+  function initializeMap() {
+    options = {
+      mapTypeId: google.maps.MapTypeId.ROADMAP,
+      center: new google.maps.LatLng(0, 0),
+      styles: []
+    }
+    mapReady = true
+    render()
+  }
+
+  /**
+   * Register map data to be rendered once Google Maps API is loaded.
+   *
+   * @param string id
+   * @param Array locations
+   * @param Object settings
+   */
+  function register(id, locations, options) {
+    data.push({ id: id, locations: locations, options: options })
+    render()
+  }
+
+  /**
+   * Render maps data if Google Maps API is loaded.
+   */
+  function render() {
+    if (!mapReady) return
+
+    while (data.length > 0) {
+      var item = data.pop()
+      var bounds = new google.maps.LatLngBounds()
+      var mapOptions = Object.assign({}, options, item.options)
+      var map = new google.maps.Map(
+        document.getElementById(item.id),
+        mapOptions
+      )
+      var infoWindow = new google.maps.InfoWindow()
+      var markers = item.locations.map(createMarker)
+
+      map.fitBounds(bounds)
+      google.maps.event.addListenerOnce(map, 'idle', function() {
+        if (this.customZoom) this.setZoom(this.customZoom)
+      })
+      if (mapOptions.useCluster) {
+        maps.push({ map: map, markers: markers })
+        processCluster()
+      }
+    }
+
+    function createMarker(location) {
+      var position = new google.maps.LatLng(
+        location.latitude,
+        location.longitude
+      )
+      bounds.extend(position)
+      if (!mapOptions.showMarker) return false
+
+      var marker = new google.maps.Marker({
+        position: position,
+        title: location.title,
+        image: location.image,
+        popup_html: location.popup_html,
+        icon: location.icon || mapOptions.markerIcon,
+        url: markerUrl(mapOptions.baseUrl, location.url),
+        url_text: location.url_text,
+        map: map
+      })
+      if (mapOptions.showMarkerPopup) marker.addListener('click', markerPopup)
+
+      return marker
+    }
+
+    function markerUrl(baseUrl, url) {
+      if (/^(https?|\/\/)/.test(url)) return url
+
+      return url.length > 0 ? baseUrl + url : ''
+    }
+
+    function markerPopup() {
+      var content = '<div class="map-info-window"><h5>' + this.title + '</h5>'
+      if (this.popup_html.length > 0) {
+        content += this.popup_html
+      }
+      else {
+        var imageTag =
+          this.image.length > 0 &&
+          '<img src="' + this.image + '" alt="' + this.title + '"/>'
+        if (this.url.length > 0) {
+          var linkContent = imageTag || this.url_text || 'View'
+          content += '<a href="' + this.url + '">' + linkContent + '</a>'
+        } else if (imageTag) {
+          content += imageTag
+        }
+      }
+      content += '</div>'
+      infoWindow.setContent(content)
+      infoWindow.open(map, this)
+    }
+  }
+
+  function initializeCluster(settings) {
+    clusterReady = true
+    clusterSettings = settings || {}
+    processCluster()
+  }
+
+  function processCluster() {
+    if (!clusterReady) return
+
+    while (maps.length > 0) {
+      var obj = maps.pop()
+      // eslint-disable-next-line no-new
+      new MarkerClusterer(obj.map, obj.markers, {
+        gridSize: clusterSettings.grid_size || 25,
+        imagePath:
+          'https://cdn.rawgit.com/googlemaps/js-marker-clusterer/gh-pages/images/m'
+      })
+    }
+  }
+})()
+/* Object.assign polyfill */
+if (typeof Object.assign !== 'function') {
+  Object.assign = function(target) {
+    'use strict'
+    if (target == null) {
+      throw new TypeError('Cannot convert undefined or null to object')
+    }
+
+    target = Object(target)
+    for (var index = 1; index < arguments.length; index++) {
+      var source = arguments[index]
+      if (source != null) {
+        for (var key in source) {
+          if (Object.prototype.hasOwnProperty.call(source, key)) {
+            target[key] = source[key]
+          }
+        }
+      }
+    }
+    return target
+  }
+}
+
+</script>
+</head>
+
+
+  <body>
+
+    <header class="site-header">
+
+  <div class="wrapper">
+
+    <a class="site-title" href="/pedbridge-project/">Detroit Pedbridge Project</a>
+
+    <nav class="site-nav">
+      
+        
+        <a class="page-link" href="/pedbridge-project/about/">About</a>
+      
+        
+        <a class="page-link" href="/pedbridge-project/map/">Map</a>
+      
+        
+        <a class="page-link" href="https://alisonc.net/">alisonc.net</a>
+      
+    </nav>
+
+  </div>
+
+</header>
+
+
+    <main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+
+  <header class="post-header">
+    
+      <h1 class="post-title" itemprop="name headline">Southfield Freeway + Bagley Pedestrian Bridge</h1>
+    
+    <p class="post-meta"><time datetime="2020-06-02T16:20:00+00:00" itemprop="datePublished">Jun 2, 2020</time> •
+  
+    
+    
+      
+    
+      
+    
+      
+        <a href="/pedbridge-project/categories/m39/">m39</a>,
+      
+    
+      
+    
+  
+    
+    
+      
+    
+      
+    
+      
+    
+      
+        <a href="/pedbridge-project/categories/i75/">i75</a>
+      
+    
+  
+
+
+
+</p>
+  </header>
+
+  <div class="post-content" itemprop="articleBody">
+    <p>Last Saturday (30 May), I picked up my friend <a href="https://twitter.com/ShadowFoxNixill">Nixill</a>’s Kroger order for him, 
+then we took a car trip down the Southfield Freeway to document the pedbridges 
+there. Nix wants to build his aerial photography portfolio, and we both saw a 
+Pedbridge Project trip as a good way to do that.</p>
+
+<!-- fold -->
+
+<p>We started at the <strong><a href="https://inhabitat.com/bagley-pedestrian-bridge-in-detroit-provides-safe-access-to-canada/">Bagley Pedestrian Bridge</a></strong> in Southwest Detroit after stopping 
+at my apartment to drop off a frozen pizza that I’d added to his Kroger order. 
+I only took a few photos as this bridge is easy for me to ride my bike to, and 
+I’d like to photograph it after dark because of the lighting on it and the 
+nearby <a href="https://en.wikipedia.org/wiki/Ambassador_Bridge">Ambassador Bridge</a>.</p>
+
+<div class="gallery">
+<div class="gallery-item">
+  <figure class="gallery-image">
+    <img src="https://i.imgur.com/o4Z2Iu5b.jpg" alt="The Bagley Pedestrian Bridge sign on the west side of the bridge." />
+    <figcaption>
+      The Bagley Pedestrian Bridge sign on the west side of the bridge. (<a href="https://i.imgur.com/o4Z2Iu5.jpg">embiggen</a>)
+    </figcaption>
+  </figure>
+</div>
+<div class="gallery-item">
+  <figure class="gallery-image">
+    <img src="https://i.imgur.com/Mh2lruKb.jpg" alt="A planter behind the sign." />
+    <figcaption>
+      A planter behind the sign. (<a href="https://i.imgur.com/Mh2lruK.jpg">embiggen</a>)
+    </figcaption>
+  </figure>
+</div>
+<div class="gallery-item">
+  <figure class="gallery-image">
+    <img src="https://i.imgur.com/A8EWf1Kb.jpg" alt="View westbound down the bridge, toward the Bagley Shared Street. (Taken by Nix with his drone)" />
+    <figcaption>
+      View westbound down the bridge, toward the Bagley Shared Street. (Taken by Nix with his drone) (<a href="https://i.imgur.com/A8EWf1K.jpg">embiggen</a>)
+    </figcaption>
+  </figure>
+</div>
+<div class="gallery-item">
+  <figure class="gallery-image">
+    <img src="https://i.imgur.com/N3bg63bb.jpg" alt="View eastbound down the bridge, toward FREC and Plaza del Norte. There were a couple skateboarders on the bridge. (Taken by Nix with his drone)" />
+    <figcaption>
+      View eastbound down the bridge, toward FREC and Plaza del Norte. There were a couple skateboarders on the bridge. (Taken by Nix with his drone) (<a href="https://i.imgur.com/N3bg63b.jpg">embiggen</a>)
+    </figcaption>
+  </figure>
+</div>
+<div class="gallery-item">
+  <figure class="gallery-image">
+    <img src="https://i.imgur.com/piKxAlLb.jpg" alt="View eastbound from the west end of the bridge. (Taken by Nix with his drone)" />
+    <figcaption>
+      View eastbound from the west end of the bridge. (Taken by Nix with his drone) (<a href="https://i.imgur.com/piKxAlL.jpg">embiggen</a>)
+    </figcaption>
+  </figure>
+</div>
+</div>
+
+<p>Mentioned in captions:</p>
+
+<ul>
+  <li><a href="https://detroit.curbed.com/2020/1/16/21068713/bagley-street-mexicantown-detroit-shared-street">Bagley Shared Street</a></li>
+  <li><a href="https://www.fordfund.org/FRECSouthwest">FREC</a></li>
+  <li><a href="https://www.facebook.com/pages/Plaza-Del-Norte/115952085132134">Plaza del Norte</a></li>
+</ul>
+
+<p>After the Bagley bridge, we headed up to the suburbs for some errands, then back 
+down to the city to document the pedbridges on the Southfield Freeway from north 
+to south. The northernmost bridge carries <strong>Vassar Drive</strong> across the freeway; when 
+we parked up on Vassar the residents of a house on the corner informed us the 
+bridge was closed. Normally, what I’d do here is photograph the barricade on the 
+side of the bridge I approached it from, then cross the freeway and photograph 
+the barricade on the other side. Since Nix and his drone were with me, though, 
+he got aerial shots of the bridge and of the views to the north and south. We 
+found out that the bridge was closed due to poor pavement conditions.</p>
+
+<div class="gallery">
+<div class="gallery-item">
+  <figure class="gallery-image">
+    <img src="https://i.imgur.com/JeHxqyab.jpg" alt="Eastern approach, showing multiple barricades up the helical ramp and at the main span." />
+    <figcaption>
+      Eastern approach, showing multiple barricades up the helical ramp and at the main span. (<a href="https://i.imgur.com/JeHxqya.jpg">embiggen</a>)
+    </figcaption>
+  </figure>
+</div>
+<div class="gallery-item">
+  <figure class="gallery-image">
+    <img src="https://i.imgur.com/6AnRtXIb.jpg" alt="View north toward 8 Mile Road/city limits. (aerial)" />
+    <figcaption>
+      View north toward 8 Mile Road/city limits. (aerial) (<a href="https://i.imgur.com/6AnRtXI.jpg">embiggen</a>)
+    </figcaption>
+  </figure>
+</div>
+<div class="gallery-item">
+  <figure class="gallery-image">
+    <img src="https://i.imgur.com/bfLAATdb.jpg" alt="View south toward the 7 Mile Road and McNichols Road exits. (aerial)" />
+    <figcaption>
+      View south toward the 7 Mile Road and McNichols Road exits. (aerial) (<a href="https://i.imgur.com/bfLAATd.jpg">embiggen</a>)
+    </figcaption>
+  </figure>
+</div>
+<div class="gallery-item">
+  <figure class="gallery-image">
+    <img src="https://i.imgur.com/ZXBc5xHb.jpg" alt="3/4 view from the southwest. (aerial)" />
+    <figcaption>
+      3/4 view from the southwest. (aerial) (<a href="https://i.imgur.com/ZXBc5xH.jpg">embiggen</a>)
+    </figcaption>
+  </figure>
+</div>
+<div class="gallery-item">
+  <figure class="gallery-image">
+    <img src="https://i.imgur.com/V9FCitKb.jpg" alt="3/4 view from the northeast. (aerial)" />
+    <figcaption>
+      3/4 view from the northeast. (aerial) (<a href="https://i.imgur.com/V9FCitK.jpg">embiggen</a>)
+    </figcaption>
+  </figure>
+</div>
+<div class="gallery-item">
+  <figure class="gallery-image">
+    <img src="https://i.imgur.com/jPIs5M9b.jpg" alt="Western approach, showing overgrown vegetation and multiple barricades. (aerial)" />
+    <figcaption>
+      Western approach, showing overgrown vegetation and multiple barricades. (aerial) (<a href="https://i.imgur.com/jPIs5M9.jpg">embiggen</a>)
+    </figcaption>
+  </figure>
+</div>
+<div class="gallery-item">
+  <figure class="gallery-image">
+    <img src="https://i.imgur.com/Y6k2hyXb.jpg" alt="Wooden and wire barricade at the start of the main span. (aerial)" />
+    <figcaption>
+      Wooden and wire barricade at the start of the main span. (aerial) (<a href="https://i.imgur.com/Y6k2hyX.jpg">embiggen</a>)
+    </figcaption>
+  </figure>
+</div>
+<div class="gallery-item">
+  <figure class="gallery-image">
+    <img src="https://i.imgur.com/q6jZS54b.jpg" alt="An aerial view of the bridge, showing poor pavement condition. (aerial)" />
+    <figcaption>
+      An aerial view of the bridge, showing poor pavement condition. (aerial) (<a href="https://i.imgur.com/q6jZS54.jpg">embiggen</a>)
+    </figcaption>
+  </figure>
+</div>
+</div>
+
+<p>The next pedbridge to the south was <strong>Glendale Street</strong>, which had been <a href="https://www.google.com/maps/@42.382835,-83.21707,3a,75y,149.48h,89.79t/data=!3m6!1e1!3m4!1sVc4qXYRYYjWNZwbIkzRYDw!2e0!7i3328!8i1664">disused since 2007</a>
+according to historical Google Street View imagery. It was <a href="https://www.michigan.gov/mdot/0,4616,7-151--452003--,00.html">demolished in 2017</a> 
+but (as of Saturday) is still mapped on Google Maps. 
+We photographed the former sites of the helical ramps and what would have been 
+the view south from the bridge.</p>
+
+<div class="gallery">
+<div class="gallery-item">
+  <figure class="gallery-image">
+    <img src="https://i.imgur.com/KAYHNGJb.jpg" alt="The former site of the bridge's helical ramp on the east side of the freeway." />
+    <figcaption>
+      The former site of the bridge's helical ramp on the east side of the freeway. (<a href="https://i.imgur.com/KAYHNGJ.jpg">embiggen</a>)
+    </figcaption>
+  </figure>
+</div>
+<div class="gallery-item">
+  <figure class="gallery-image">
+    <img src="https://i.imgur.com/zowobyIb.jpg" alt="A Google Maps screenshot showing the now-nonexistent bridge." />
+    <figcaption>
+      A Google Maps screenshot showing the now-nonexistent bridge. (<a href="https://i.imgur.com/zowobyI.jpg">embiggen</a>)
+    </figcaption>
+  </figure>
+</div>
+<div class="gallery-item">
+  <figure class="gallery-image">
+    <img src="https://i.imgur.com/xovxGI4b.jpg" alt="View south toward the I-96 interchange. (aerial)" />
+    <figcaption>
+      View south toward the I-96 interchange. (aerial) (<a href="https://i.imgur.com/xovxGI4.jpg">embiggen</a>)
+    </figcaption>
+  </figure>
+</div>
+<div class="gallery-item">
+  <figure class="gallery-image">
+    <img src="https://i.imgur.com/MfrtEw8b.jpg" alt="The former site of the helical ramp on the east side. (aerial)" />
+    <figcaption>
+      The former site of the helical ramp on the east side. (aerial) (<a href="https://i.imgur.com/MfrtEw8.jpg">embiggen</a>)
+    </figcaption>
+  </figure>
+</div>
+<div class="gallery-item">
+  <figure class="gallery-image">
+    <img src="https://i.imgur.com/h6XKytzb.jpg" alt="The former site of the helical ramp on the west side. (aerial)" />
+    <figcaption>
+      The former site of the helical ramp on the west side. (aerial) (<a href="https://i.imgur.com/h6XKytz.jpg">embiggen</a>)
+    </figcaption>
+  </figure>
+</div>
+</div>
+
+<p>We followed the freeway south to the gorgeous, recently constructed <strong>Cathedral Street</strong> 
+bridge. In 2014, it was <a href="https://www.freep.com/story/news/local/michigan/detroit/2014/09/26/southfield-freeway-pedestrian-bridge-collapse/16252769/">knocked down by a truck travelling on the freeway</a>, 
+resulting in the death of the truck’s driver. Without the bridge, students at 
+nearby <a href="https://www.detroitk12.org/Cody">Cody High School</a> faced a significantly longer walk across the freeway, 
+as the next nearest crossings are at Fitzpatrick Street (1/4 mile to the north)
+and Joy Road (1/4 mile to the south). MDOT <a href="https://www.detroitnews.com/story/news/local/detroit-city/2015/09/25/mdot-replacing-southfield-freeway-pedestrian-bridges/72792010/">replaced the bridge</a> the following 
+year, incorporating lighting and aesthetic improvements. That news article 
+also claims that the Vassar Drive pedbridge was to be replaced in 2017; 
+that obviously didn’t happen.</p>
+
+<div class="gallery">
+<div class="gallery-item">
+  <figure class="gallery-image">
+    <img src="https://i.imgur.com/YJ3IAdOb.jpg" alt="A sign on the southbound service drive warning motorists of the pedestrian crossing ahead." />
+    <figcaption>
+      A sign on the southbound service drive warning motorists of the pedestrian crossing ahead. (<a href="https://i.imgur.com/YJ3IAdO.jpg">embiggen</a>)
+    </figcaption>
+  </figure>
+</div>
+<div class="gallery-item">
+  <figure class="gallery-image">
+    <img src="https://i.imgur.com/TVsZL3ub.jpg" alt="The well-marked pedestrian crossing." />
+    <figcaption>
+      The well-marked pedestrian crossing. (<a href="https://i.imgur.com/TVsZL3u.jpg">embiggen</a>)
+    </figcaption>
+  </figure>
+</div>
+<div class="gallery-item">
+  <figure class="gallery-image">
+    <img src="https://i.imgur.com/SojngYeb.jpg" alt="The western approach." />
+    <figcaption>
+      The western approach. (<a href="https://i.imgur.com/SojngYe.jpg">embiggen</a>)
+    </figcaption>
+  </figure>
+</div>
+<div class="gallery-item">
+  <figure class="gallery-image">
+    <img src="https://i.imgur.com/WMfFfohb.jpg" alt="Detail of the bas-re-leafs on the western ramp." />
+    <figcaption>
+      Detail of the bas-re-leafs on the western ramp. (<a href="https://i.imgur.com/WMfFfoh.jpg">embiggen</a>)
+    </figcaption>
+  </figure>
+</div>
+<div class="gallery-item">
+  <figure class="gallery-image">
+    <img src="https://i.imgur.com/OnzCEVpb.jpg" alt="&ldquo;Growing Together&rdquo; logo and solar-powered streetlamp." />
+    <figcaption>
+      &ldquo;Growing Together&rdquo; logo and solar-powered streetlamp. (<a href="https://i.imgur.com/OnzCEVp.jpg">embiggen</a>)
+    </figcaption>
+  </figure>
+</div>
+<div class="gallery-item">
+  <figure class="gallery-image">
+    <img src="https://i.imgur.com/GkZFTnFb.jpg" alt="View north from the bridge; the I-96 interchange is visible in the distance." />
+    <figcaption>
+      View north from the bridge; the I-96 interchange is visible in the distance. (<a href="https://i.imgur.com/GkZFTnF.jpg">embiggen</a>)
+    </figcaption>
+  </figure>
+</div>
+<div class="gallery-item">
+  <figure class="gallery-image">
+    <img src="https://i.imgur.com/mijNFUxb.jpg" alt="View south toward Joy Road and Warren Avenue." />
+    <figcaption>
+      View south toward Joy Road and Warren Avenue. (<a href="https://i.imgur.com/mijNFUx.jpg">embiggen</a>)
+    </figcaption>
+  </figure>
+</div>
+<div class="gallery-item">
+  <figure class="gallery-image">
+    <img src="https://i.imgur.com/w1P3Klub.jpg" alt="View west down Cathedral Street." />
+    <figcaption>
+      View west down Cathedral Street. (<a href="https://i.imgur.com/w1P3Klu.jpg">embiggen</a>)
+    </figcaption>
+  </figure>
+</div>
+<div class="gallery-item">
+  <figure class="gallery-image">
+    <img src="https://i.imgur.com/0bDlV4Xb.jpg" alt="3/4 view from the northeast. The ramp on the west side is longer because the service drive is at a lower elevation. (aerial)" />
+    <figcaption>
+      3/4 view from the northeast. The ramp on the west side is longer because the service drive is at a lower elevation. (aerial) (<a href="https://i.imgur.com/0bDlV4X.jpg">embiggen</a>)
+    </figcaption>
+  </figure>
+</div>
+<div class="gallery-item">
+  <figure class="gallery-image">
+    <img src="https://i.imgur.com/plgCZyHb.jpg" alt="3/4 view from the southwest. (aerial)" />
+    <figcaption>
+      3/4 view from the southwest. (aerial) (<a href="https://i.imgur.com/plgCZyH.jpg">embiggen</a>)
+    </figcaption>
+  </figure>
+</div>
+</div>
+
+<p>Finally, the southernmost pedbridge across the Southfield Freeway is <strong>Sawyer Street</strong>, 
+which connects the Warrendale neighbourhood west of the freeway to the Simanek Playfield and 
+former Ruddiman Middle School/Cody High 9th grade campus.</p>
+
+<div class="gallery">
+<div class="gallery-item">
+  <figure class="gallery-image">
+    <img src="https://i.imgur.com/ngkglFUb.jpg" alt="Approaching the bridge from the west. No, there isn't a curb cut." />
+    <figcaption>
+      Approaching the bridge from the west. No, there isn't a curb cut. (<a href="https://i.imgur.com/ngkglFU.jpg">embiggen</a>)
+    </figcaption>
+  </figure>
+</div>
+<div class="gallery-item">
+  <figure class="gallery-image">
+    <img src="https://i.imgur.com/aeAjHQHb.jpg" alt="A drainage grate that isn't flush with the pavement. This is a trip hazard and a hazard to folks making their way across the bridge on wheels." />
+    <figcaption>
+      A drainage grate that isn't flush with the pavement. This is a trip hazard and a hazard to folks making their way across the bridge on wheels. (<a href="https://i.imgur.com/aeAjHQH.jpg">embiggen</a>)
+    </figcaption>
+  </figure>
+</div>
+<div class="gallery-item">
+  <figure class="gallery-image">
+    <img src="https://i.imgur.com/GLFog2vb.jpg" alt="Nix's drone." />
+    <figcaption>
+      Nix's drone. (<a href="https://i.imgur.com/GLFog2v.jpg">embiggen</a>)
+    </figcaption>
+  </figure>
+</div>
+<div class="gallery-item">
+  <figure class="gallery-image">
+    <img src="https://i.imgur.com/Z5pZWy9b.jpg" alt="View north toward Tireman Avenue and Joy Road." />
+    <figcaption>
+      View north toward Tireman Avenue and Joy Road. (<a href="https://i.imgur.com/Z5pZWy9.jpg">embiggen</a>)
+    </figcaption>
+  </figure>
+</div>
+<div class="gallery-item">
+  <figure class="gallery-image">
+    <img src="https://i.imgur.com/MDo0XW2b.jpg" alt="View south toward Warren Avenue and Ford Road." />
+    <figcaption>
+      View south toward Warren Avenue and Ford Road. (<a href="https://i.imgur.com/MDo0XW2.jpg">embiggen</a>)
+    </figcaption>
+  </figure>
+</div>
+<div class="gallery-item">
+  <figure class="gallery-image">
+    <img src="https://i.imgur.com/BHrRJJMb.jpg" alt="&ldquo;Fuck TJ&rdquo; graffiti on the bridge." />
+    <figcaption>
+      &ldquo;Fuck TJ&rdquo; graffiti on the bridge. (<a href="https://i.imgur.com/BHrRJJM.jpg">embiggen</a>)
+    </figcaption>
+  </figure>
+</div>
+<div class="gallery-item">
+  <figure class="gallery-image">
+    <img src="https://i.imgur.com/8xzqbGQb.jpg" alt="Plywood bolted over missing drainage grates. Another trip/wheels hazard." />
+    <figcaption>
+      Plywood bolted over missing drainage grates. Another trip/wheels hazard. (<a href="https://i.imgur.com/8xzqbGQ.jpg">embiggen</a>)
+    </figcaption>
+  </figure>
+</div>
+<div class="gallery-item">
+  <figure class="gallery-image">
+    <img src="https://i.imgur.com/ubtw8zgb.jpg" alt="View of the bridge and the service drive from the east. The wall has more of the bas-re-leafs on it that we initially saw on the Cathedral bridge." />
+    <figcaption>
+      View of the bridge and the service drive from the east. The wall has more of the bas-re-leafs on it that we initially saw on the Cathedral bridge. (<a href="https://i.imgur.com/ubtw8zg.jpg">embiggen</a>)
+    </figcaption>
+  </figure>
+</div>
+<div class="gallery-item">
+  <figure class="gallery-image">
+    <img src="https://i.imgur.com/JNeBSGob.jpg" alt="The former Ruddiman Middle School/Cody 9th grade campus." />
+    <figcaption>
+      The former Ruddiman Middle School/Cody 9th grade campus. (<a href="https://i.imgur.com/JNeBSGo.jpg">embiggen</a>)
+    </figcaption>
+  </figure>
+</div>
+<div class="gallery-item">
+  <figure class="gallery-image">
+    <img src="https://i.imgur.com/TNEdgCTb.jpg" alt="Some of the few remaining fancy railing sections, on the east side of the bridge. (aerial)" />
+    <figcaption>
+      Some of the few remaining fancy railing sections, on the east side of the bridge. (aerial) (<a href="https://i.imgur.com/TNEdgCT.jpg">embiggen</a>)
+    </figcaption>
+  </figure>
+</div>
+<div class="gallery-item">
+  <figure class="gallery-image">
+    <img src="https://i.imgur.com/A2zIWjdb.jpg" alt="Sousveillance via drone. (aerial)" />
+    <figcaption>
+      Sousveillance via drone. (aerial) (<a href="https://i.imgur.com/A2zIWjd.jpg">embiggen</a>)
+    </figcaption>
+  </figure>
+</div>
+<div class="gallery-item">
+  <figure class="gallery-image">
+    <img src="https://i.imgur.com/vME18Nsb.jpg" alt="3/4 view from the northwest. (aerial)" />
+    <figcaption>
+      3/4 view from the northwest. (aerial) (<a href="https://i.imgur.com/vME18Ns.jpg">embiggen</a>)
+    </figcaption>
+  </figure>
+</div>
+<div class="gallery-item">
+  <figure class="gallery-image">
+    <img src="https://i.imgur.com/SDPdVtab.jpg" alt="3/4 view from the southwest. (aerial)" />
+    <figcaption>
+      3/4 view from the southwest. (aerial) (<a href="https://i.imgur.com/SDPdVta.jpg">embiggen</a>)
+    </figcaption>
+  </figure>
+</div>
+</div>
+
+<div id="f703a846-8029-4dfc-bad1-3a85aae19355" style="width:600px;height:400px;" class=" jekyll-map"></div>
+<script type="text/javascript">
+  jekyllMaps.register(
+    'f703a846-8029-4dfc-bad1-3a85aae19355',
+    [{"latitude":42.323977,"longitude":-83.083219,"title":"Bagley Pedestrian Bridge","icon":null,"url":"","url_text":null,"image":"","popup_html":""},{"latitude":42.433786,"longitude":-83.219479,"title":"Southfield Freeway and Vassar Drive","icon":null,"url":"","url_text":null,"image":"","popup_html":""},{"latitude":42.382634,"longitude":-83.217434,"title":"Southfield Freeway and Glendale Street","icon":null,"url":"","url_text":null,"image":"","popup_html":""},{"latitude":42.361479,"longitude":-83.216421,"title":"Southfield Freeway and Cathedral Street","icon":null,"url":"","url_text":null,"image":"","popup_html":""},{"latitude":42.346523,"longitude":-83.216194,"title":"Southfield Freeway and Sawyer Street","icon":null,"url":"","url_text":null,"image":"","popup_html":""}],
+    {"baseUrl":"/pedbridge-project","useCluster":true,"showMarker":true,"showMarkerPopup":true,"markerIcon":null,"styles":"[]"}
+  );
+</script>
+
+
+  </div>
+
+  
+
+</article>
+
+      </div>
+    </main>
+
+    <footer class="site-footer">
+
+  <div class="wrapper">
+
+    <p>
+      
+
+&copy;  - Powered by <a href="https://jekyllrb.com">Jekyll</a> &amp; <a href="https://github.com/yous/whiteglass">whiteglass</a> - Subscribe via <a href="https://alisonc.net/pedbridge-project/feed.xml">RSS</a>
+
+    </p>
+
+  </div>
+
+</footer>
+
+
+            <script async defer>
+
+
+            // Load maps only when DOM is loaded
+            document.addEventListener("DOMContentLoaded", function() {
+                if (window.google && window.google.maps && jekyllMaps) {
+                  // Maps script already loaded -> Execute callback method
+                  jekyllMaps.initializeMap();
+                } else if (!('IntersectionObserver' in window) ||
+                !('IntersectionObserverEntry' in window) ||
+                !('intersectionRatio' in window.IntersectionObserverEntry.prototype)) {
+                  // Intersection Observer -> Backup solution : load maps now
+                  lazyLoadGoogleMap();
+                } else {
+                  // Google Maps not loaded & Intersection Observer working -> Enable it
+                  enableMapsObserver();
+                }
+            });
+
+            function enableMapsObserver() {
+              // Enable Observer on all Maps
+              var maps = document.getElementsByClassName('jekyll-map');
+
+              const observer = new IntersectionObserver(function(entries, observer) {
+                // Test if one of the maps is in the viewport
+                var isIntersecting = typeof entries[0].isIntersecting === 'boolean' ? entries[0].isIntersecting : entries[0].intersectionRatio > 0;
+                if (isIntersecting) {
+                  lazyLoadGoogleMap();
+                  observer.disconnect();
+                }
+              });
+
+              for(var i = 0; i < maps.length; i++) {
+                observer.observe(maps[i]);
+              }
+            }
+
+            function lazyLoadGoogleMap() {
+                // If google maps api script not already loaded
+                if(!window.google || !window.google.maps) {
+                  var fjs = document.getElementsByTagName('script')[0];
+                  var js = document.createElement('script');
+                  js.id = 'gmap-api';
+                  js.setAttribute('async', '');
+                  js.setAttribute('defer', '');
+                  js.src = "//maps.google.com/maps/api/js?key=AIzaSyBLS8-GjYsP5N6i7zyJgJA58RmY41PwsBE&callback=jekyllMaps.initializeMap";
+                  fjs.parentNode.insertBefore(js, fjs);
+                }
+            }
+          </script>
+
+
+</body>
+
+</html>

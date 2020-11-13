@@ -1,0 +1,724 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  
+  
+  <title>I-75 in Southwest Detroit</title>
+  <meta name="description" content="I-75 in Southwest Detroit">
+  
+
+  <link rel="stylesheet" href="/pedbridge-project/assets/main.css">
+  <link rel="canonical" href="https://alisonc.net/pedbridge-project/i75/75-sw-detroit/">
+  
+  
+  <link rel="alternate" type="application/rss+xml" title="Detroit Pedbridge Project" href="https://alisonc.net/pedbridge-project/feed.xml">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/pedbridge-project/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/pedbridge-project/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/pedbridge-project/favicon-16x16.png">
+<link rel="manifest" href="/pedbridge-project/site.webmanifest">
+
+
+  
+  <meta property="og:title" content="I-75 in Southwest Detroit">
+  <meta property="og:site_name" content="Detroit Pedbridge Project">
+  <meta property="og:url" content="https://alisonc.net/pedbridge-project/i75/75-sw-detroit/">
+  <meta property="og:description" content="I-75 in Southwest Detroit">
+  
+  
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:site" content="alisonc42">
+  <meta name="twitter:title" content="I-75 in Southwest Detroit">
+  <meta name="twitter:description" content="I-75 in Southwest Detroit">
+  
+    <meta name="twitter:creator" content="alisonc42">
+  
+  
+
+  <link rel="dns-prefetch" href="https://fonts.gstatic.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css?family=Bitter:400,400i,700&display=swap" rel="stylesheet">
+
+  
+
+<script type='text/javascript'>
+  /* global google */
+/* global MarkerClusterer */
+// eslint-disable-next-line no-unused-vars
+var jekyllMaps = (function() {
+  'use strict'
+  var clusterSettings = {}
+  var clusterReady = false
+  var mapReady = false
+  var options = {}
+  var data = []
+  var maps = []
+
+  return {
+    initializeMap: initializeMap,
+    initializeCluster: initializeCluster,
+    register: register
+  }
+
+  /**
+   * Setup Google Maps options and call renderer.
+   */
+  function initializeMap() {
+    options = {
+      mapTypeId: google.maps.MapTypeId.ROADMAP,
+      center: new google.maps.LatLng(0, 0),
+      styles: []
+    }
+    mapReady = true
+    render()
+  }
+
+  /**
+   * Register map data to be rendered once Google Maps API is loaded.
+   *
+   * @param string id
+   * @param Array locations
+   * @param Object settings
+   */
+  function register(id, locations, options) {
+    data.push({ id: id, locations: locations, options: options })
+    render()
+  }
+
+  /**
+   * Render maps data if Google Maps API is loaded.
+   */
+  function render() {
+    if (!mapReady) return
+
+    while (data.length > 0) {
+      var item = data.pop()
+      var bounds = new google.maps.LatLngBounds()
+      var mapOptions = Object.assign({}, options, item.options)
+      var map = new google.maps.Map(
+        document.getElementById(item.id),
+        mapOptions
+      )
+      var infoWindow = new google.maps.InfoWindow()
+      var markers = item.locations.map(createMarker)
+
+      map.fitBounds(bounds)
+      google.maps.event.addListenerOnce(map, 'idle', function() {
+        if (this.customZoom) this.setZoom(this.customZoom)
+      })
+      if (mapOptions.useCluster) {
+        maps.push({ map: map, markers: markers })
+        processCluster()
+      }
+    }
+
+    function createMarker(location) {
+      var position = new google.maps.LatLng(
+        location.latitude,
+        location.longitude
+      )
+      bounds.extend(position)
+      if (!mapOptions.showMarker) return false
+
+      var marker = new google.maps.Marker({
+        position: position,
+        title: location.title,
+        image: location.image,
+        popup_html: location.popup_html,
+        icon: location.icon || mapOptions.markerIcon,
+        url: markerUrl(mapOptions.baseUrl, location.url),
+        url_text: location.url_text,
+        map: map
+      })
+      if (mapOptions.showMarkerPopup) marker.addListener('click', markerPopup)
+
+      return marker
+    }
+
+    function markerUrl(baseUrl, url) {
+      if (/^(https?|\/\/)/.test(url)) return url
+
+      return url.length > 0 ? baseUrl + url : ''
+    }
+
+    function markerPopup() {
+      var content = '<div class="map-info-window"><h5>' + this.title + '</h5>'
+      if (this.popup_html.length > 0) {
+        content += this.popup_html
+      }
+      else {
+        var imageTag =
+          this.image.length > 0 &&
+          '<img src="' + this.image + '" alt="' + this.title + '"/>'
+        if (this.url.length > 0) {
+          var linkContent = imageTag || this.url_text || 'View'
+          content += '<a href="' + this.url + '">' + linkContent + '</a>'
+        } else if (imageTag) {
+          content += imageTag
+        }
+      }
+      content += '</div>'
+      infoWindow.setContent(content)
+      infoWindow.open(map, this)
+    }
+  }
+
+  function initializeCluster(settings) {
+    clusterReady = true
+    clusterSettings = settings || {}
+    processCluster()
+  }
+
+  function processCluster() {
+    if (!clusterReady) return
+
+    while (maps.length > 0) {
+      var obj = maps.pop()
+      // eslint-disable-next-line no-new
+      new MarkerClusterer(obj.map, obj.markers, {
+        gridSize: clusterSettings.grid_size || 25,
+        imagePath:
+          'https://cdn.rawgit.com/googlemaps/js-marker-clusterer/gh-pages/images/m'
+      })
+    }
+  }
+})()
+/* Object.assign polyfill */
+if (typeof Object.assign !== 'function') {
+  Object.assign = function(target) {
+    'use strict'
+    if (target == null) {
+      throw new TypeError('Cannot convert undefined or null to object')
+    }
+
+    target = Object(target)
+    for (var index = 1; index < arguments.length; index++) {
+      var source = arguments[index]
+      if (source != null) {
+        for (var key in source) {
+          if (Object.prototype.hasOwnProperty.call(source, key)) {
+            target[key] = source[key]
+          }
+        }
+      }
+    }
+    return target
+  }
+}
+
+</script>
+</head>
+
+
+  <body>
+
+    <header class="site-header">
+
+  <div class="wrapper">
+
+    <a class="site-title" href="/pedbridge-project/">Detroit Pedbridge Project</a>
+
+    <nav class="site-nav">
+      
+        
+        <a class="page-link" href="/pedbridge-project/about/">About</a>
+      
+        
+        <a class="page-link" href="/pedbridge-project/map/">Map</a>
+      
+        
+        <a class="page-link" href="https://alisonc.net/">alisonc.net</a>
+      
+    </nav>
+
+  </div>
+
+</header>
+
+
+    <main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+
+  <header class="post-header">
+    
+      <h1 class="post-title" itemprop="name headline">I-75 in Southwest Detroit</h1>
+    
+    <p class="post-meta"><time datetime="2020-07-31T15:12:00+00:00" itemprop="datePublished">Jul 31, 2020</time> •
+  
+    
+    
+      
+    
+      
+    
+      
+    
+      
+        <a href="/pedbridge-project/categories/i75/">i75</a>
+      
+    
+  
+
+
+
+</p>
+  </header>
+
+  <div class="post-content" itemprop="articleBody">
+    <p>This post is a compilation of all the extant pedestrian bridges across I-75
+in <a href="https://visitdetroit.com/southwest-detroit-neighborhood/">Southwest Detroit</a>. Similarly to the <a href="/pedbridge-project/m10/i94/lower-lodge/">Lower Lodge</a> post, I didn’t necessarily ride 
+these bridges in order or on the same day, so I will present them from south 
+to north.</p>
+
+<p>I live in Southwest Detroit, so this post will be a bit more opinionated 
+and text-heavy than most of my other posts.</p>
+
+<!-- fold -->
+
+<p>The southernmost bridge in the City of Detroit is <strong>Northampton Street</strong>, 
+located in the <a href="https://en.wikipedia.org/wiki/Boynton%E2%80%93Oakwood_Heights_(Detroit)">Boynton-Oakwood Heights</a> neighbourhood across from the 
+<a href="https://en.wikipedia.org/wiki/Boynton%E2%80%93Oakwood_Heights_(Detroit)#Industry">Marathon Petroleum refinery</a>. According to historical Street View imagery, 
+it was closed and barricaded sometime between October 2016 and July 2018. 
+When it was open, it connected the refinery with the residential neighbourhood 
+to its southeast across Fort Street and I-75.</p>
+
+<p>I’ve never attempted to ride my bike over this bridge as there’s a lot of 
+industrial areas and nonexistent bike infrastructure between my apartment and
+Boynton that make it unpleasant to get there from here. I know that this bridge 
+is closed from driving through the area multiple times this spring.</p>
+
+<p>According to historical Google satellite imagery, there were previously bridges 
+across I-75 at <strong>Solvay Street</strong>, <strong>Beard Street</strong>, <strong>Casgrain Street</strong>, and 
+<strong>Cavalry Street</strong>. They’ve all been demolished since 2018 
+due to <a href="https://www.gordiehoweinternationalbridge.com/en">Gordie Howe International Bridge</a> construction, but when they were standing 
+Southwest Detroit was <em>exceptionally</em> well connected to Delray across I-75. 
+Counting both vehicle overpasses and pedbridges, there was a bridge across the 
+freeway approximately <em>every other block</em> between Springwells Street and West 
+Grand Boulevard.</p>
+
+<p>According to a <a href="https://www.detroitnews.com/story/news/local/detroit-city/2020/01/09/design-pedestrian-bridges-over-75-detroit-selected/4422143002/">January 2020 article</a> in the <em>Detroit News</em>, the design for 
+five replacement bridges across I-75 has been selected and construction of them 
+is scheduled to begin this year. (As of the writing of this post on 31 July, bridge
+construction hasn’t started yet.) The new bridges will be built across Solvay Street, 
+Beard Street, Waterman Street, Junction Avenue, and Lansing Street. They won’t all 
+be direct replacements for the demolished bridges, but after they’re built 
+connectivity across I-75 in Southwest Detroit will be about as good as it was 
+pre-2018 except for the stretch dedicated to bridge entrance and exit ramps 
+to the freeway.</p>
+
+<p>You’ll note that in <a href="/pedbridge-project/i75/bonus-hazel-park/">Hazel Park</a>, bridges were replaced in a matter of months. 
+But in Detroit, bridges were demolished and the design for their replacements 
+wasn’t even selected until over a year later. <a href="https://en.wikipedia.org/wiki/Institutional_racism">I wonder why</a>.</p>
+
+<p>And as we’ll see from the <strong>Ferdinand Street</strong> bridge (which I assume from 
+satellite and Street View imagery is pretty much identical to the now-demolished 
+bridges), these new bridges will be a much-needed improvement in aesthetics and 
+accessibility. This bridge is hideous, inaccessible, and in poor condition.</p>
+
+<div class="gallery">
+<div class="gallery-item">
+  <figure class="gallery-image">
+    <img src="https://i.imgur.com/0hRAdqfb.jpg" alt="Approaching the Ferdinand bridge from the north on Ferdinand Street." />
+    <figcaption>
+      Approaching the Ferdinand bridge from the north on Ferdinand Street. (<a href="https://i.imgur.com/0hRAdqf.jpg">embiggen</a>)
+    </figcaption>
+  </figure>
+</div>
+<div class="gallery-item">
+  <figure class="gallery-image">
+    <img src="https://i.imgur.com/Nh2vzR2b.jpg" alt="There's no curb cut on the north side of the bridge." />
+    <figcaption>
+      There's no curb cut on the north side of the bridge. (<a href="https://i.imgur.com/Nh2vzR2.jpg">embiggen</a>)
+    </figcaption>
+  </figure>
+</div>
+<div class="gallery-item">
+  <figure class="gallery-image">
+    <img src="https://i.imgur.com/eI8b9jTb.jpg" alt="Cracked concrete is a trip hazard." />
+    <figcaption>
+      Cracked concrete is a trip hazard. (<a href="https://i.imgur.com/eI8b9jT.jpg">embiggen</a>)
+    </figcaption>
+  </figure>
+</div>
+<div class="gallery-item">
+  <figure class="gallery-image">
+    <img src="https://i.imgur.com/ZWXGKtLb.jpg" alt="The concrete is stained brown from decades of rust from the bridge enclosure." />
+    <figcaption>
+      The concrete is stained brown from decades of rust from the bridge enclosure. (<a href="https://i.imgur.com/ZWXGKtL.jpg">embiggen</a>)
+    </figcaption>
+  </figure>
+</div>
+<div class="gallery-item">
+  <figure class="gallery-image">
+    <img src="https://i.imgur.com/DZfFSYqb.jpg" alt="Looking northeast from the bridge, toward downtown and the Ambassador Bridge." />
+    <figcaption>
+      Looking northeast from the bridge, toward downtown and the Ambassador Bridge. (<a href="https://i.imgur.com/DZfFSYq.jpg">embiggen</a>)
+    </figcaption>
+  </figure>
+</div>
+<div class="gallery-item">
+  <figure class="gallery-image">
+    <img src="https://i.imgur.com/LAkFj1tb.jpg" alt="Looking southwest from the bridge, toward several demolished pedbridges and the future Gordie Howe International Bridge." />
+    <figcaption>
+      Looking southwest from the bridge, toward several demolished pedbridges and the future Gordie Howe International Bridge. (<a href="https://i.imgur.com/LAkFj1t.jpg">embiggen</a>)
+    </figcaption>
+  </figure>
+</div>
+<div class="gallery-item">
+  <figure class="gallery-image">
+    <img src="https://i.imgur.com/FKuOoGub.jpg" alt="The bridge's south ramp is in very poor condition." />
+    <figcaption>
+      The bridge's south ramp is in very poor condition. (<a href="https://i.imgur.com/FKuOoGu.jpg">embiggen</a>)
+    </figcaption>
+  </figure>
+</div>
+<div class="gallery-item">
+  <figure class="gallery-image">
+    <img src="https://i.imgur.com/SIsrUHmb.jpg" alt="The back of the Southwest Public Safety Center, aka Detroit Police Department 4th Precinct." />
+    <figcaption>
+      The back of the Southwest Public Safety Center, aka Detroit Police Department 4th Precinct. (<a href="https://i.imgur.com/SIsrUHm.jpg">embiggen</a>)
+    </figcaption>
+  </figure>
+</div>
+</div>
+
+<p>Mentioned in captions:</p>
+
+<ul>
+  <li><a href="http://www.ambassadorbridge.com/">Ambassador Bridge</a></li>
+  <li><a href="https://www.yelp.com/biz/southwest-public-safety-center-detroit">Southwest Public Safety Center</a></li>
+</ul>
+
+<p>The next bridge to the north is <strong>Hubbard Street</strong>, which is (naturally)
+more aesthetically pleasing and in better repair, considering it abuts the 
+<a href="https://en.wikipedia.org/wiki/Hubbard_Farms%2C_Detroit">Hubbard Farms</a> historic district. Can’t have the residents of an historically 
+affluent area living next to a shitty bridge, amirite?</p>
+
+<div class="gallery">
+<div class="gallery-item">
+  <figure class="gallery-image">
+    <img src="https://i.imgur.com/jvK5ZnJb.jpg" alt="Approaching the Hubbard bridge from the south." />
+    <figcaption>
+      Approaching the Hubbard bridge from the south. (<a href="https://i.imgur.com/jvK5ZnJ.jpg">embiggen</a>)
+    </figcaption>
+  </figure>
+</div>
+<div class="gallery-item">
+  <figure class="gallery-image">
+    <img src="https://i.imgur.com/SSS3GCKb.jpg" alt="A trip hazard, but not as egregious as the one on Ferdinand." />
+    <figcaption>
+      A trip hazard, but not as egregious as the one on Ferdinand. (<a href="https://i.imgur.com/SSS3GCK.jpg">embiggen</a>)
+    </figcaption>
+  </figure>
+</div>
+<div class="gallery-item">
+  <figure class="gallery-image">
+    <img src="https://i.imgur.com/iXtn7opb.jpg" alt="Looking northward down the bridge. More stained concrete from the rusty bridge enclosure." />
+    <figcaption>
+      Looking northward down the bridge. More stained concrete from the rusty bridge enclosure. (<a href="https://i.imgur.com/iXtn7op.jpg">embiggen</a>)
+    </figcaption>
+  </figure>
+</div>
+<div class="gallery-item">
+  <figure class="gallery-image">
+    <img src="https://i.imgur.com/cNq2kLAb.jpg" alt="Public art? On my bridge? It's more likely than you think!" />
+    <figcaption>
+      Public art? On my bridge? It's more likely than you think! (<a href="https://i.imgur.com/cNq2kLA.jpg">embiggen</a>)
+    </figcaption>
+  </figure>
+</div>
+<div class="gallery-item">
+  <figure class="gallery-image">
+    <img src="https://i.imgur.com/fn9d6Vkb.jpg" alt="Looking northeast from the bridge, toward downtown and the Ambassador Bridge." />
+    <figcaption>
+      Looking northeast from the bridge, toward downtown and the Ambassador Bridge. (<a href="https://i.imgur.com/fn9d6Vk.jpg">embiggen</a>)
+    </figcaption>
+  </figure>
+</div>
+<div class="gallery-item">
+  <figure class="gallery-image">
+    <img src="https://i.imgur.com/a9I3Hufb.jpg" alt="Looking southwest from the bridge, toward the GHIB site and so many demolished bridges." />
+    <figcaption>
+      Looking southwest from the bridge, toward the GHIB site and so many demolished bridges. (<a href="https://i.imgur.com/a9I3Huf.jpg">embiggen</a>)
+    </figcaption>
+  </figure>
+</div>
+<div class="gallery-item">
+  <figure class="gallery-image">
+    <img src="https://i.imgur.com/JEuRhYYb.jpg" alt="A sound barrier wall? It's more likely than you think! (Again, affluent neighbourhood to its north.)" />
+    <figcaption>
+      A sound barrier wall? It's more likely than you think! (Again, affluent neighbourhood to its north.) (<a href="https://i.imgur.com/JEuRhYY.jpg">embiggen</a>)
+    </figcaption>
+  </figure>
+</div>
+<div class="gallery-item">
+  <figure class="gallery-image">
+    <img src="https://i.imgur.com/P9WBU6wb.jpg" alt="The Hotel Yorba, made famous by a White Stripes song, lies at the north end of the Hubbard bridge." />
+    <figcaption>
+      The Hotel Yorba, made famous by a White Stripes song, lies at the north end of the Hubbard bridge. (<a href="https://i.imgur.com/P9WBU6w.jpg">embiggen</a>)
+    </figcaption>
+  </figure>
+</div>
+</div>
+
+<p>Mentioned in captions:</p>
+
+<ul>
+  <li><a href="https://historicdetroit.org/buildings/hotel-yorba">Hotel Yorba</a></li>
+  <li><a href="https://www.youtube.com/watch?v=DZPEUyiNcjA">White Stripes song</a></li>
+</ul>
+
+<p>The last bridge in Southwest Detroit proper lies just outside the Hubbard 
+Farms neighbourhood. It’s the 
+<strong>Bagley Pedestrian Bridge</strong>, which I have visited many times since it’s on my 
+bike route between home and downtown. I first blogged about it when my friend 
+<a href="https://twitter.nixill.net/">Nix</a> and I visited the bridges along the <a href="/pedbridge-project/m39/i75/southfield-fwy/">Southfield Freeway</a> back in late May, 
+but now I’m back with more photos.</p>
+
+<div class="gallery">
+<div class="gallery-item">
+  <figure class="gallery-image">
+    <img src="https://i.imgur.com/dSbIzavb.jpg" alt="Approaching the bridge by the Bagley Shared Street." />
+    <figcaption>
+      Approaching the bridge by the Bagley Shared Street. (<a href="https://i.imgur.com/dSbIzav.jpg">embiggen</a>)
+    </figcaption>
+  </figure>
+</div>
+<div class="gallery-item">
+  <figure class="gallery-image">
+    <img src="https://i.imgur.com/HiV0bBPb.jpg" alt="A view of the bridge from the Fisher Service Drive at Bagley." />
+    <figcaption>
+      A view of the bridge from the Fisher Service Drive at Bagley. (<a href="https://i.imgur.com/HiV0bBP.jpg">embiggen</a>)
+    </figcaption>
+  </figure>
+</div>
+<div class="gallery-item">
+  <figure class="gallery-image">
+    <img src="https://i.imgur.com/o4Z2Iu5b.jpg" alt="The Bagley Pedestrian Bridge sign on the west side of the bridge. (2020-05-30)" />
+    <figcaption>
+      The Bagley Pedestrian Bridge sign on the west side of the bridge. (2020-05-30) (<a href="https://i.imgur.com/o4Z2Iu5.jpg">embiggen</a>)
+    </figcaption>
+  </figure>
+</div>
+<div class="gallery-item">
+  <figure class="gallery-image">
+    <img src="https://i.imgur.com/Mh2lruKb.jpg" alt="A planter behind the sign. (2020-05-30)" />
+    <figcaption>
+      A planter behind the sign. (2020-05-30) (<a href="https://i.imgur.com/Mh2lruK.jpg">embiggen</a>)
+    </figcaption>
+  </figure>
+</div>
+<div class="gallery-item">
+  <figure class="gallery-image">
+    <img src="https://i.imgur.com/A8EWf1Kb.jpg" alt="View westbound down the bridge, toward the Bagley Shared Street. (Taken by Nix with his drone 2020-05-30)" />
+    <figcaption>
+      View westbound down the bridge, toward the Bagley Shared Street. (Taken by Nix with his drone 2020-05-30) (<a href="https://i.imgur.com/A8EWf1K.jpg">embiggen</a>)
+    </figcaption>
+  </figure>
+</div>
+<div class="gallery-item">
+  <figure class="gallery-image">
+    <img src="https://i.imgur.com/N3bg63bb.jpg" alt="View eastbound down the bridge, toward FREC and Plaza del Norte. There were a couple skateboarders on the bridge. (Taken by Nix with his drone 2020-05-30)" />
+    <figcaption>
+      View eastbound down the bridge, toward FREC and Plaza del Norte. There were a couple skateboarders on the bridge. (Taken by Nix with his drone 2020-05-30) (<a href="https://i.imgur.com/N3bg63b.jpg">embiggen</a>)
+    </figcaption>
+  </figure>
+</div>
+<div class="gallery-item">
+  <figure class="gallery-image">
+    <img src="https://i.imgur.com/piKxAlLb.jpg" alt="View eastbound from the west end of the bridge. (Taken by Nix with his drone 2020-05-30)" />
+    <figcaption>
+      View eastbound from the west end of the bridge. (Taken by Nix with his drone 2020-05-30) (<a href="https://i.imgur.com/piKxAlL.jpg">embiggen</a>)
+    </figcaption>
+  </figure>
+</div>
+<div class="gallery-item">
+  <figure class="gallery-image">
+    <img src="https://i.imgur.com/f0OIhSab.jpg" alt="The view south from the bridge, toward the Ambassador Bridge and the twin spires of Ste. Anne de Detroit church." />
+    <figcaption>
+      The view south from the bridge, toward the Ambassador Bridge and the twin spires of Ste. Anne de Detroit church. (<a href="https://i.imgur.com/f0OIhSa.jpg">embiggen</a>)
+    </figcaption>
+  </figure>
+</div>
+<div class="gallery-item">
+  <figure class="gallery-image">
+    <img src="https://i.imgur.com/8fAEPQEb.jpg" alt="The view north from the bridge, toward Corktown and Core City." />
+    <figcaption>
+      The view north from the bridge, toward Corktown and Core City. (<a href="https://i.imgur.com/8fAEPQE.jpg">embiggen</a>)
+    </figcaption>
+  </figure>
+</div>
+<div class="gallery-item">
+  <figure class="gallery-image">
+    <img src="https://i.imgur.com/8bSS5Dqb.jpg" alt="A statue on the east end of the bridge, Spiral Kinship by Hubert Massey." />
+    <figcaption>
+      A statue on the east end of the bridge, Spiral Kinship by Hubert Massey. (<a href="https://i.imgur.com/8bSS5Dq.jpg">embiggen</a>)
+    </figcaption>
+  </figure>
+</div>
+<div class="gallery-item">
+  <figure class="gallery-image">
+    <img src="https://i.imgur.com/AKTtLm6b.jpg" alt="Spiral Kinship's information plaque." />
+    <figcaption>
+      Spiral Kinship's information plaque. (<a href="https://i.imgur.com/AKTtLm6.jpg">embiggen</a>)
+    </figcaption>
+  </figure>
+</div>
+<div class="gallery-item">
+  <figure class="gallery-image">
+    <img src="https://i.imgur.com/7EZuCMRb.jpg" alt="A mosaic on the east end of the bridge, The Spiral of Life by Hubert Massey." />
+    <figcaption>
+      A mosaic on the east end of the bridge, The Spiral of Life by Hubert Massey. (<a href="https://i.imgur.com/7EZuCMR.jpg">embiggen</a>)
+    </figcaption>
+  </figure>
+</div>
+<div class="gallery-item">
+  <figure class="gallery-image">
+    <img src="https://i.imgur.com/5FXQQoUb.jpg" alt="The Spiral of Life's information plaque." />
+    <figcaption>
+      The Spiral of Life's information plaque. (<a href="https://i.imgur.com/5FXQQoU.jpg">embiggen</a>)
+    </figcaption>
+  </figure>
+</div>
+<div class="gallery-item">
+  <figure class="gallery-image">
+    <img src="https://i.imgur.com/zH23aCFb.jpg" alt="A row of bike racks in the bridge plaza." />
+    <figcaption>
+      A row of bike racks in the bridge plaza. (<a href="https://i.imgur.com/zH23aCF.jpg">embiggen</a>)
+    </figcaption>
+  </figure>
+</div>
+</div>
+
+<p>Mentioned in captions:</p>
+
+<ul>
+  <li><a href="https://detroit.curbed.com/2020/1/16/21068713/bagley-street-mexicantown-detroit-shared-street">Bagley Shared Street</a></li>
+  <li><a href="https://www.fordfund.org/FRECSouthwest">FREC</a></li>
+  <li><a href="https://www.facebook.com/pages/Plaza-Del-Norte/115952085132134">Plaza del Norte</a></li>
+  <li><a href="https://ste-anne.org/">Ste. Anne de Detroit</a></li>
+</ul>
+
+<p>Transcriptions of the artworks’ information plaques:</p>
+
+<ul>
+  <li><strong>Spiral Kinship</strong>: The globe form represents universal kinship between 
+ both countries and the aluminium spiral, unity. ¶ Aluminium Sculpture, 
+ Hubert Massey, Detroit MI © 2010. ¶ Commissioned by the Michigan 
+ Department of Transportation.</li>
+  <li><strong>The Spiral of Life</strong>: This mural is inspired by a resident’s comment at a 
+ community forum about how life spirals onward, and that challenges take you 
+ to a higher place. ¶ A hand grasps a ribbon of fabric that flows 
+ throughout the artwork and bears the patterning of the community’s diverse 
+ cultural groups. The resilience of the community and its orientation toward 
+ families is celebrated and its culture and history is illustrated by the spires of 
+ St. Anne’s Church, which is set at a diagonal near the center of the 
+ composition, and the Ambassador Bridge and the Detroit River in the upper right.
+ ¶ The three sisters – corn, squash, and beans – and other vegetation 
+ refer to urban farming since many people who came to Detroit were farm workers. 
+ The migrations to and from Mexico are represented by a suitcase in the lower 
+ left. ¶ Along the top are images of extended families set amidst a 
+ decorative pattern of spirals and the perimeter of the composition displays 
+ Detroit’s surrounding landscape in a spiral. ¶ Ceramic Tile Mosaic Mural, 
+ Hubert Massey, Detroit MI © 2010. ¶ Commissioned by the Michigan 
+ Department of Transportation. ¶ Artwork production space provided by 
+ Ladybug Gallery, Detroit MI</li>
+</ul>
+
+<div id="82a8ebfb-bc89-4d3c-be5d-e8053bbadfd1" style="width:600px;height:400px;" class=" jekyll-map"></div>
+<script type="text/javascript">
+  jekyllMaps.register(
+    '82a8ebfb-bc89-4d3c-be5d-e8053bbadfd1',
+    [{"latitude":42.312019,"longitude":-83.095055,"title":"I-75 and Ferdinand Street","icon":null,"url":"","url_text":null,"image":"","popup_html":""},{"latitude":42.315236,"longitude":-83.086764,"title":"I-75 and Hubbard Street","icon":null,"url":"","url_text":null,"image":"","popup_html":""},{"latitude":42.323977,"longitude":-83.083219,"title":"Bagley Pedestrian Bridge","icon":null,"url":"","url_text":null,"image":"","popup_html":""}],
+    {"baseUrl":"/pedbridge-project","useCluster":true,"showMarker":true,"showMarkerPopup":true,"markerIcon":null,"styles":"[]"}
+  );
+</script>
+
+
+  </div>
+
+  
+
+</article>
+
+      </div>
+    </main>
+
+    <footer class="site-footer">
+
+  <div class="wrapper">
+
+    <p>
+      
+
+&copy;  - Powered by <a href="https://jekyllrb.com">Jekyll</a> &amp; <a href="https://github.com/yous/whiteglass">whiteglass</a> - Subscribe via <a href="https://alisonc.net/pedbridge-project/feed.xml">RSS</a>
+
+    </p>
+
+  </div>
+
+</footer>
+
+
+            <script async defer>
+
+
+            // Load maps only when DOM is loaded
+            document.addEventListener("DOMContentLoaded", function() {
+                if (window.google && window.google.maps && jekyllMaps) {
+                  // Maps script already loaded -> Execute callback method
+                  jekyllMaps.initializeMap();
+                } else if (!('IntersectionObserver' in window) ||
+                !('IntersectionObserverEntry' in window) ||
+                !('intersectionRatio' in window.IntersectionObserverEntry.prototype)) {
+                  // Intersection Observer -> Backup solution : load maps now
+                  lazyLoadGoogleMap();
+                } else {
+                  // Google Maps not loaded & Intersection Observer working -> Enable it
+                  enableMapsObserver();
+                }
+            });
+
+            function enableMapsObserver() {
+              // Enable Observer on all Maps
+              var maps = document.getElementsByClassName('jekyll-map');
+
+              const observer = new IntersectionObserver(function(entries, observer) {
+                // Test if one of the maps is in the viewport
+                var isIntersecting = typeof entries[0].isIntersecting === 'boolean' ? entries[0].isIntersecting : entries[0].intersectionRatio > 0;
+                if (isIntersecting) {
+                  lazyLoadGoogleMap();
+                  observer.disconnect();
+                }
+              });
+
+              for(var i = 0; i < maps.length; i++) {
+                observer.observe(maps[i]);
+              }
+            }
+
+            function lazyLoadGoogleMap() {
+                // If google maps api script not already loaded
+                if(!window.google || !window.google.maps) {
+                  var fjs = document.getElementsByTagName('script')[0];
+                  var js = document.createElement('script');
+                  js.id = 'gmap-api';
+                  js.setAttribute('async', '');
+                  js.setAttribute('defer', '');
+                  js.src = "//maps.google.com/maps/api/js?key=AIzaSyBLS8-GjYsP5N6i7zyJgJA58RmY41PwsBE&callback=jekyllMaps.initializeMap";
+                  fjs.parentNode.insertBefore(js, fjs);
+                }
+            }
+          </script>
+
+
+</body>
+
+</html>

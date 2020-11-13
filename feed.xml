@@ -1,0 +1,2575 @@
+<script type='text/javascript'>
+  /* global google */
+/* global MarkerClusterer */
+// eslint-disable-next-line no-unused-vars
+var jekyllMaps = (function() {
+  'use strict'
+  var clusterSettings = {}
+  var clusterReady = false
+  var mapReady = false
+  var options = {}
+  var data = []
+  var maps = []
+
+  return {
+    initializeMap: initializeMap,
+    initializeCluster: initializeCluster,
+    register: register
+  }
+
+  /**
+   * Setup Google Maps options and call renderer.
+   */
+  function initializeMap() {
+    options = {
+      mapTypeId: google.maps.MapTypeId.ROADMAP,
+      center: new google.maps.LatLng(0, 0),
+      styles: []
+    }
+    mapReady = true
+    render()
+  }
+
+  /**
+   * Register map data to be rendered once Google Maps API is loaded.
+   *
+   * @param string id
+   * @param Array locations
+   * @param Object settings
+   */
+  function register(id, locations, options) {
+    data.push({ id: id, locations: locations, options: options })
+    render()
+  }
+
+  /**
+   * Render maps data if Google Maps API is loaded.
+   */
+  function render() {
+    if (!mapReady) return
+
+    while (data.length > 0) {
+      var item = data.pop()
+      var bounds = new google.maps.LatLngBounds()
+      var mapOptions = Object.assign({}, options, item.options)
+      var map = new google.maps.Map(
+        document.getElementById(item.id),
+        mapOptions
+      )
+      var infoWindow = new google.maps.InfoWindow()
+      var markers = item.locations.map(createMarker)
+
+      map.fitBounds(bounds)
+      google.maps.event.addListenerOnce(map, 'idle', function() {
+        if (this.customZoom) this.setZoom(this.customZoom)
+      })
+      if (mapOptions.useCluster) {
+        maps.push({ map: map, markers: markers })
+        processCluster()
+      }
+    }
+
+    function createMarker(location) {
+      var position = new google.maps.LatLng(
+        location.latitude,
+        location.longitude
+      )
+      bounds.extend(position)
+      if (!mapOptions.showMarker) return false
+
+      var marker = new google.maps.Marker({
+        position: position,
+        title: location.title,
+        image: location.image,
+        popup_html: location.popup_html,
+        icon: location.icon || mapOptions.markerIcon,
+        url: markerUrl(mapOptions.baseUrl, location.url),
+        url_text: location.url_text,
+        map: map
+      })
+      if (mapOptions.showMarkerPopup) marker.addListener('click', markerPopup)
+
+      return marker
+    }
+
+    function markerUrl(baseUrl, url) {
+      if (/^(https?|\/\/)/.test(url)) return url
+
+      return url.length > 0 ? baseUrl + url : ''
+    }
+
+    function markerPopup() {
+      var content = '<div class="map-info-window"><h5>' + this.title + '</h5>'
+      if (this.popup_html.length > 0) {
+        content += this.popup_html
+      }
+      else {
+        var imageTag =
+          this.image.length > 0 &&
+          '<img src="' + this.image + '" alt="' + this.title + '"/>'
+        if (this.url.length > 0) {
+          var linkContent = imageTag || this.url_text || 'View'
+          content += '<a href="' + this.url + '">' + linkContent + '</a>'
+        } else if (imageTag) {
+          content += imageTag
+        }
+      }
+      content += '</div>'
+      infoWindow.setContent(content)
+      infoWindow.open(map, this)
+    }
+  }
+
+  function initializeCluster(settings) {
+    clusterReady = true
+    clusterSettings = settings || {}
+    processCluster()
+  }
+
+  function processCluster() {
+    if (!clusterReady) return
+
+    while (maps.length > 0) {
+      var obj = maps.pop()
+      // eslint-disable-next-line no-new
+      new MarkerClusterer(obj.map, obj.markers, {
+        gridSize: clusterSettings.grid_size || 25,
+        imagePath:
+          'https://cdn.rawgit.com/googlemaps/js-marker-clusterer/gh-pages/images/m'
+      })
+    }
+  }
+})()
+/* Object.assign polyfill */
+if (typeof Object.assign !== 'function') {
+  Object.assign = function(target) {
+    'use strict'
+    if (target == null) {
+      throw new TypeError('Cannot convert undefined or null to object')
+    }
+
+    target = Object(target)
+    for (var index = 1; index < arguments.length; index++) {
+      var source = arguments[index]
+      if (source != null) {
+        for (var key in source) {
+          if (Object.prototype.hasOwnProperty.call(source, key)) {
+            target[key] = source[key]
+          }
+        }
+      }
+    }
+    return target
+  }
+}
+
+</script>
+<script type='text/javascript'>
+  /* global google */
+/* global MarkerClusterer */
+// eslint-disable-next-line no-unused-vars
+var jekyllMaps = (function() {
+  'use strict'
+  var clusterSettings = {}
+  var clusterReady = false
+  var mapReady = false
+  var options = {}
+  var data = []
+  var maps = []
+
+  return {
+    initializeMap: initializeMap,
+    initializeCluster: initializeCluster,
+    register: register
+  }
+
+  /**
+   * Setup Google Maps options and call renderer.
+   */
+  function initializeMap() {
+    options = {
+      mapTypeId: google.maps.MapTypeId.ROADMAP,
+      center: new google.maps.LatLng(0, 0),
+      styles: []
+    }
+    mapReady = true
+    render()
+  }
+
+  /**
+   * Register map data to be rendered once Google Maps API is loaded.
+   *
+   * @param string id
+   * @param Array locations
+   * @param Object settings
+   */
+  function register(id, locations, options) {
+    data.push({ id: id, locations: locations, options: options })
+    render()
+  }
+
+  /**
+   * Render maps data if Google Maps API is loaded.
+   */
+  function render() {
+    if (!mapReady) return
+
+    while (data.length > 0) {
+      var item = data.pop()
+      var bounds = new google.maps.LatLngBounds()
+      var mapOptions = Object.assign({}, options, item.options)
+      var map = new google.maps.Map(
+        document.getElementById(item.id),
+        mapOptions
+      )
+      var infoWindow = new google.maps.InfoWindow()
+      var markers = item.locations.map(createMarker)
+
+      map.fitBounds(bounds)
+      google.maps.event.addListenerOnce(map, 'idle', function() {
+        if (this.customZoom) this.setZoom(this.customZoom)
+      })
+      if (mapOptions.useCluster) {
+        maps.push({ map: map, markers: markers })
+        processCluster()
+      }
+    }
+
+    function createMarker(location) {
+      var position = new google.maps.LatLng(
+        location.latitude,
+        location.longitude
+      )
+      bounds.extend(position)
+      if (!mapOptions.showMarker) return false
+
+      var marker = new google.maps.Marker({
+        position: position,
+        title: location.title,
+        image: location.image,
+        popup_html: location.popup_html,
+        icon: location.icon || mapOptions.markerIcon,
+        url: markerUrl(mapOptions.baseUrl, location.url),
+        url_text: location.url_text,
+        map: map
+      })
+      if (mapOptions.showMarkerPopup) marker.addListener('click', markerPopup)
+
+      return marker
+    }
+
+    function markerUrl(baseUrl, url) {
+      if (/^(https?|\/\/)/.test(url)) return url
+
+      return url.length > 0 ? baseUrl + url : ''
+    }
+
+    function markerPopup() {
+      var content = '<div class="map-info-window"><h5>' + this.title + '</h5>'
+      if (this.popup_html.length > 0) {
+        content += this.popup_html
+      }
+      else {
+        var imageTag =
+          this.image.length > 0 &&
+          '<img src="' + this.image + '" alt="' + this.title + '"/>'
+        if (this.url.length > 0) {
+          var linkContent = imageTag || this.url_text || 'View'
+          content += '<a href="' + this.url + '">' + linkContent + '</a>'
+        } else if (imageTag) {
+          content += imageTag
+        }
+      }
+      content += '</div>'
+      infoWindow.setContent(content)
+      infoWindow.open(map, this)
+    }
+  }
+
+  function initializeCluster(settings) {
+    clusterReady = true
+    clusterSettings = settings || {}
+    processCluster()
+  }
+
+  function processCluster() {
+    if (!clusterReady) return
+
+    while (maps.length > 0) {
+      var obj = maps.pop()
+      // eslint-disable-next-line no-new
+      new MarkerClusterer(obj.map, obj.markers, {
+        gridSize: clusterSettings.grid_size || 25,
+        imagePath:
+          'https://cdn.rawgit.com/googlemaps/js-marker-clusterer/gh-pages/images/m'
+      })
+    }
+  }
+})()
+/* Object.assign polyfill */
+if (typeof Object.assign !== 'function') {
+  Object.assign = function(target) {
+    'use strict'
+    if (target == null) {
+      throw new TypeError('Cannot convert undefined or null to object')
+    }
+
+    target = Object(target)
+    for (var index = 1; index < arguments.length; index++) {
+      var source = arguments[index]
+      if (source != null) {
+        for (var key in source) {
+          if (Object.prototype.hasOwnProperty.call(source, key)) {
+            target[key] = source[key]
+          }
+        }
+      }
+    }
+    return target
+  }
+}
+
+</script>
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <generator uri="http://jekyllrb.com" version="4.1.0">Jekyll</generator>
+  
+  
+  <link href="https://alisonc.net/pedbridge-project/feed.xml" rel="self" type="application/atom+xml" />
+  <link href="https://alisonc.net/pedbridge-project/" rel="alternate" type="text/html" />
+  <updated>2020-11-13T03:21:35+00:00</updated>
+  <id>https://alisonc.net/pedbridge-project//</id>
+
+  
+    <title type="html">Detroit Pedbridge Project</title>
+  
+
+  
+    <subtitle>Riding my bike over every pedestrian bridge in Detroit, plus some outside the city limits.</subtitle>
+  
+
+  
+
+  
+  
+    <entry>
+      
+      <title type="html">Groesbeck and Masonic</title>
+      
+      
+      <link href="https://alisonc.net/pedbridge-project/masonic-groesbeck/" rel="alternate" type="text/html" title="Groesbeck and Masonic" />
+      
+      <published>2020-11-10T05:14:00+00:00</published>
+      <updated>2020-11-10T05:14:00+00:00</updated>
+      <id>https://alisonc.net/pedbridge-project/masonic-groesbeck</id>
+      <content type="html" xml:base="https://alisonc.net/pedbridge-project/masonic-groesbeck/">&lt;p&gt;Back on the early morning of 25 September, &lt;a href=&quot;https://twitter.com/ShadowFoxNixill&quot;&gt;Nixill&lt;/a&gt; messaged me a photo that they’d 
+just taken. They’d ridden their bike up to the location of an interesting pedestrian 
+bridge. It spans the intersection of Groesbeck Highway and Masonic (13½ Mile Road) 
+in the northeastern suburb of Fraser, in the middle of an industrial district 
+spanning both sides of Groesbeck. The closest residential area is about 500 feet 
+to the east, and the closest schools are &lt;a href=&quot;https://artsacad.net/&quot;&gt;Arts Academy in the Woods&lt;/a&gt; and 
+&lt;a href=&quot;https://www.fraser.k12.mi.us/Emerson&quot;&gt;Emerson Elementary&lt;/a&gt; over half a mile to the west.&lt;/p&gt;
+
+&lt;p&gt;In 2017, the Michigan Department of Transportation &lt;a href=&quot;https://www.macombdaily.com/news/nation-world-news/pedestrian-bridge-over-groesbeck-in-fraser-to-stay/article_a1ee2577-742e-50d6-8080-4a87fda4c1ec.html&quot;&gt;considered demolishing the bridge&lt;/a&gt;, 
+citing its age and lack of ADA compliance. (It’s one of only a few extant local pedbridges I 
+can think of that has stairs, rather than some sort of ramp.) Fraser City Council 
+members acknowledged that it isn’t heavily trafficked, but said it’s in good condition and 
+provides an important alternative to crossing the seven-lane Groesbeck Highway at-grade, 
+so the bridge stayed.&lt;/p&gt;
+
+&lt;div class=&quot;gallery&quot;&gt;
+&lt;div class=&quot;gallery-item&quot;&gt;
+  &lt;figure class=&quot;gallery-image&quot;&gt;
+    &lt;img src=&quot;https://i.imgur.com/3tualMCb.jpg&quot; alt=&quot;The Groesbeck/Masonic bridge at around 02:00.&quot; /&gt;
+    &lt;figcaption&gt;
+      The Groesbeck/Masonic bridge at around 02:00. (&lt;a href=&quot;https://i.imgur.com/3tualMC.jpg&quot;&gt;embiggen&lt;/a&gt;)
+    &lt;/figcaption&gt;
+  &lt;/figure&gt;
+&lt;/div&gt;
+&lt;/div&gt;</content>
+
+      
+      
+      
+      
+      
+
+      
+
+      
+
+      
+
+      
+        <summary type="html">Back on the early morning of 25 September, Nixill messaged me a photo that they’d just taken. They’d ridden their bike up to the location of an interesting pedestrian bridge. It spans the intersection of Groesbeck Highway and Masonic (13½ Mile Road) in the northeastern suburb of Fraser, in the middle of an industrial district spanning both sides of Groesbeck. The closest residential area is about 500 feet to the east, and the closest schools are Arts Academy in the Woods and Emerson Elementary over half a mile to the west. In 2017, the Michigan Department of Transportation considered demolishing the bridge, citing its age and lack of ADA compliance. (It’s one of only a few extant local pedbridges I can think of that has stairs, rather than some sort of ramp.) Fraser City Council members acknowledged that it isn’t heavily trafficked, but said it’s in good condition and provides an important alternative to crossing the seven-lane Groesbeck Highway at-grade, so the bridge stayed. The Groesbeck/Masonic bridge at around 02:00. (embiggen)</summary>
+      
+
+      
+      
+    </entry>
+  
+  
+  
+    <entry>
+      
+      <title type="html">I-75 in Southwest Detroit</title>
+      
+      
+      <link href="https://alisonc.net/pedbridge-project/i75/75-sw-detroit/" rel="alternate" type="text/html" title="I-75 in Southwest Detroit" />
+      
+      <published>2020-07-31T15:12:00+00:00</published>
+      <updated>2020-07-31T15:12:00+00:00</updated>
+      <id>https://alisonc.net/pedbridge-project/i75/75-sw-detroit</id>
+      <content type="html" xml:base="https://alisonc.net/pedbridge-project/i75/75-sw-detroit/">&lt;p&gt;This post is a compilation of all the extant pedestrian bridges across I-75
+in &lt;a href=&quot;https://visitdetroit.com/southwest-detroit-neighborhood/&quot;&gt;Southwest Detroit&lt;/a&gt;. Similarly to the &lt;a href=&quot;/pedbridge-project/m10/i94/lower-lodge/&quot;&gt;Lower Lodge&lt;/a&gt; post, I didn’t necessarily ride 
+these bridges in order or on the same day, so I will present them from south 
+to north.&lt;/p&gt;
+
+&lt;p&gt;I live in Southwest Detroit, so this post will be a bit more opinionated 
+and text-heavy than most of my other posts.&lt;/p&gt;
+
+&lt;!-- fold --&gt;
+
+&lt;p&gt;The southernmost bridge in the City of Detroit is &lt;strong&gt;Northampton Street&lt;/strong&gt;, 
+located in the &lt;a href=&quot;https://en.wikipedia.org/wiki/Boynton%E2%80%93Oakwood_Heights_(Detroit)&quot;&gt;Boynton-Oakwood Heights&lt;/a&gt; neighbourhood across from the 
+&lt;a href=&quot;https://en.wikipedia.org/wiki/Boynton%E2%80%93Oakwood_Heights_(Detroit)#Industry&quot;&gt;Marathon Petroleum refinery&lt;/a&gt;. According to historical Street View imagery, 
+it was closed and barricaded sometime between October 2016 and July 2018. 
+When it was open, it connected the refinery with the residential neighbourhood 
+to its southeast across Fort Street and I-75.&lt;/p&gt;
+
+&lt;p&gt;I’ve never attempted to ride my bike over this bridge as there’s a lot of 
+industrial areas and nonexistent bike infrastructure between my apartment and
+Boynton that make it unpleasant to get there from here. I know that this bridge 
+is closed from driving through the area multiple times this spring.&lt;/p&gt;
+
+&lt;p&gt;According to historical Google satellite imagery, there were previously bridges 
+across I-75 at &lt;strong&gt;Solvay Street&lt;/strong&gt;, &lt;strong&gt;Beard Street&lt;/strong&gt;, &lt;strong&gt;Casgrain Street&lt;/strong&gt;, and 
+&lt;strong&gt;Cavalry Street&lt;/strong&gt;. They’ve all been demolished since 2018 
+due to &lt;a href=&quot;https://www.gordiehoweinternationalbridge.com/en&quot;&gt;Gordie Howe International Bridge&lt;/a&gt; construction, but when they were standing 
+Southwest Detroit was &lt;em&gt;exceptionally&lt;/em&gt; well connected to Delray across I-75. 
+Counting both vehicle overpasses and pedbridges, there was a bridge across the 
+freeway approximately &lt;em&gt;every other block&lt;/em&gt; between Springwells Street and West 
+Grand Boulevard.&lt;/p&gt;
+
+&lt;p&gt;According to a &lt;a href=&quot;https://www.detroitnews.com/story/news/local/detroit-city/2020/01/09/design-pedestrian-bridges-over-75-detroit-selected/4422143002/&quot;&gt;January 2020 article&lt;/a&gt; in the &lt;em&gt;Detroit News&lt;/em&gt;, the design for 
+five replacement bridges across I-75 has been selected and construction of them 
+is scheduled to begin this year. (As of the writing of this post on 31 July, bridge
+construction hasn’t started yet.) The new bridges will be built across Solvay Street, 
+Beard Street, Waterman Street, Junction Avenue, and Lansing Street. They won’t all 
+be direct replacements for the demolished bridges, but after they’re built 
+connectivity across I-75 in Southwest Detroit will be about as good as it was 
+pre-2018 except for the stretch dedicated to bridge entrance and exit ramps 
+to the freeway.&lt;/p&gt;
+
+&lt;p&gt;You’ll note that in &lt;a href=&quot;/pedbridge-project/i75/bonus-hazel-park/&quot;&gt;Hazel Park&lt;/a&gt;, bridges were replaced in a matter of months. 
+But in Detroit, bridges were demolished and the design for their replacements 
+wasn’t even selected until over a year later. &lt;a href=&quot;https://en.wikipedia.org/wiki/Institutional_racism&quot;&gt;I wonder why&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;And as we’ll see from the &lt;strong&gt;Ferdinand Street&lt;/strong&gt; bridge (which I assume from 
+satellite and Street View imagery is pretty much identical to the now-demolished 
+bridges), these new bridges will be a much-needed improvement in aesthetics and 
+accessibility. This bridge is hideous, inaccessible, and in poor condition.&lt;/p&gt;
+
+&lt;div class=&quot;gallery&quot;&gt;
+&lt;div class=&quot;gallery-item&quot;&gt;
+  &lt;figure class=&quot;gallery-image&quot;&gt;
+    &lt;img src=&quot;https://i.imgur.com/0hRAdqfb.jpg&quot; alt=&quot;Approaching the Ferdinand bridge from the north on Ferdinand Street.&quot; /&gt;
+    &lt;figcaption&gt;
+      Approaching the Ferdinand bridge from the north on Ferdinand Street. (&lt;a href=&quot;https://i.imgur.com/0hRAdqf.jpg&quot;&gt;embiggen&lt;/a&gt;)
+    &lt;/figcaption&gt;
+  &lt;/figure&gt;
+&lt;/div&gt;
+&lt;div class=&quot;gallery-item&quot;&gt;
+  &lt;figure class=&quot;gallery-image&quot;&gt;
+    &lt;img src=&quot;https://i.imgur.com/Nh2vzR2b.jpg&quot; alt=&quot;There's no curb cut on the north side of the bridge.&quot; /&gt;
+    &lt;figcaption&gt;
+      There's no curb cut on the north side of the bridge. (&lt;a href=&quot;https://i.imgur.com/Nh2vzR2.jpg&quot;&gt;embiggen&lt;/a&gt;)
+    &lt;/figcaption&gt;
+  &lt;/figure&gt;
+&lt;/div&gt;
+&lt;div class=&quot;gallery-item&quot;&gt;
+  &lt;figure class=&quot;gallery-image&quot;&gt;
+    &lt;img src=&quot;https://i.imgur.com/eI8b9jTb.jpg&quot; alt=&quot;Cracked concrete is a trip hazard.&quot; /&gt;
+    &lt;figcaption&gt;
+      Cracked concrete is a trip hazard. (&lt;a href=&quot;https://i.imgur.com/eI8b9jT.jpg&quot;&gt;embiggen&lt;/a&gt;)
+    &lt;/figcaption&gt;
+  &lt;/figure&gt;
+&lt;/div&gt;
+&lt;div class=&quot;gallery-item&quot;&gt;
+  &lt;figure class=&quot;gallery-image&quot;&gt;
+    &lt;img src=&quot;https://i.imgur.com/ZWXGKtLb.jpg&quot; alt=&quot;The concrete is stained brown from decades of rust from the bridge enclosure.&quot; /&gt;
+    &lt;figcaption&gt;
+      The concrete is stained brown from decades of rust from the bridge enclosure. (&lt;a href=&quot;https://i.imgur.com/ZWXGKtL.jpg&quot;&gt;embiggen&lt;/a&gt;)
+    &lt;/figcaption&gt;
+  &lt;/figure&gt;
+&lt;/div&gt;
+&lt;div class=&quot;gallery-item&quot;&gt;
+  &lt;figure class=&quot;gallery-image&quot;&gt;
+    &lt;img src=&quot;https://i.imgur.com/DZfFSYqb.jpg&quot; alt=&quot;Looking northeast from the bridge, toward downtown and the Ambassador Bridge.&quot; /&gt;
+    &lt;figcaption&gt;
+      Looking northeast from the bridge, toward downtown and the Ambassador Bridge. (&lt;a href=&quot;https://i.imgur.com/DZfFSYq.jpg&quot;&gt;embiggen&lt;/a&gt;)
+    &lt;/figcaption&gt;
+  &lt;/figure&gt;
+&lt;/div&gt;
+&lt;div class=&quot;gallery-item&quot;&gt;
+  &lt;figure class=&quot;gallery-image&quot;&gt;
+    &lt;img src=&quot;https://i.imgur.com/LAkFj1tb.jpg&quot; alt=&quot;Looking southwest from the bridge, toward several demolished pedbridges and the future Gordie Howe International Bridge.&quot; /&gt;
+    &lt;figcaption&gt;
+      Looking southwest from the bridge, toward several demolished pedbridges and the future Gordie Howe International Bridge. (&lt;a href=&quot;https://i.imgur.com/LAkFj1t.jpg&quot;&gt;embiggen&lt;/a&gt;)
+    &lt;/figcaption&gt;
+  &lt;/figure&gt;
+&lt;/div&gt;
+&lt;div class=&quot;gallery-item&quot;&gt;
+  &lt;figure class=&quot;gallery-image&quot;&gt;
+    &lt;img src=&quot;https://i.imgur.com/FKuOoGub.jpg&quot; alt=&quot;The bridge's south ramp is in very poor condition.&quot; /&gt;
+    &lt;figcaption&gt;
+      The bridge's south ramp is in very poor condition. (&lt;a href=&quot;https://i.imgur.com/FKuOoGu.jpg&quot;&gt;embiggen&lt;/a&gt;)
+    &lt;/figcaption&gt;
+  &lt;/figure&gt;
+&lt;/div&gt;
+&lt;div class=&quot;gallery-item&quot;&gt;
+  &lt;figure class=&quot;gallery-image&quot;&gt;
+    &lt;img src=&quot;https://i.imgur.com/SIsrUHmb.jpg&quot; alt=&quot;The back of the Southwest Public Safety Center, aka Detroit Police Department 4th Precinct.&quot; /&gt;
+    &lt;figcaption&gt;
+      The back of the Southwest Public Safety Center, aka Detroit Police Department 4th Precinct. (&lt;a href=&quot;https://i.imgur.com/SIsrUHm.jpg&quot;&gt;embiggen&lt;/a&gt;)
+    &lt;/figcaption&gt;
+  &lt;/figure&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;p&gt;Mentioned in captions:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;a href=&quot;http://www.ambassadorbridge.com/&quot;&gt;Ambassador Bridge&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://www.yelp.com/biz/southwest-public-safety-center-detroit&quot;&gt;Southwest Public Safety Center&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;The next bridge to the north is &lt;strong&gt;Hubbard Street&lt;/strong&gt;, which is (naturally)
+more aesthetically pleasing and in better repair, considering it abuts the 
+&lt;a href=&quot;https://en.wikipedia.org/wiki/Hubbard_Farms%2C_Detroit&quot;&gt;Hubbard Farms&lt;/a&gt; historic district. Can’t have the residents of an historically 
+affluent area living next to a shitty bridge, amirite?&lt;/p&gt;
+
+&lt;div class=&quot;gallery&quot;&gt;
+&lt;div class=&quot;gallery-item&quot;&gt;
+  &lt;figure class=&quot;gallery-image&quot;&gt;
+    &lt;img src=&quot;https://i.imgur.com/jvK5ZnJb.jpg&quot; alt=&quot;Approaching the Hubbard bridge from the south.&quot; /&gt;
+    &lt;figcaption&gt;
+      Approaching the Hubbard bridge from the south. (&lt;a href=&quot;https://i.imgur.com/jvK5ZnJ.jpg&quot;&gt;embiggen&lt;/a&gt;)
+    &lt;/figcaption&gt;
+  &lt;/figure&gt;
+&lt;/div&gt;
+&lt;div class=&quot;gallery-item&quot;&gt;
+  &lt;figure class=&quot;gallery-image&quot;&gt;
+    &lt;img src=&quot;https://i.imgur.com/SSS3GCKb.jpg&quot; alt=&quot;A trip hazard, but not as egregious as the one on Ferdinand.&quot; /&gt;
+    &lt;figcaption&gt;
+      A trip hazard, but not as egregious as the one on Ferdinand. (&lt;a href=&quot;https://i.imgur.com/SSS3GCK.jpg&quot;&gt;embiggen&lt;/a&gt;)
+    &lt;/figcaption&gt;
+  &lt;/figure&gt;
+&lt;/div&gt;
+&lt;div class=&quot;gallery-item&quot;&gt;
+  &lt;figure class=&quot;gallery-image&quot;&gt;
+    &lt;img src=&quot;https://i.imgur.com/iXtn7opb.jpg&quot; alt=&quot;Looking northward down the bridge. More stained concrete from the rusty bridge enclosure.&quot; /&gt;
+    &lt;figcaption&gt;
+      Looking northward down the bridge. More stained concrete from the rusty bridge enclosure. (&lt;a href=&quot;https://i.imgur.com/iXtn7op.jpg&quot;&gt;embiggen&lt;/a&gt;)
+    &lt;/figcaption&gt;
+  &lt;/figure&gt;
+&lt;/div&gt;
+&lt;div class=&quot;gallery-item&quot;&gt;
+  &lt;figure class=&quot;gallery-image&quot;&gt;
+    &lt;img src=&quot;https://i.imgur.com/cNq2kLAb.jpg&quot; alt=&quot;Public art? On my bridge? It's more likely than you think!&quot; /&gt;
+    &lt;figcaption&gt;
+      Public art? On my bridge? It's more likely than you think! (&lt;a href=&quot;https://i.imgur.com/cNq2kLA.jpg&quot;&gt;embiggen&lt;/a&gt;)
+    &lt;/figcaption&gt;
+  &lt;/figure&gt;
+&lt;/div&gt;
+&lt;div class=&quot;gallery-item&quot;&gt;
+  &lt;figure class=&quot;gallery-image&quot;&gt;
+    &lt;img src=&quot;https://i.imgur.com/fn9d6Vkb.jpg&quot; alt=&quot;Looking northeast from the bridge, toward downtown and the Ambassador Bridge.&quot; /&gt;
+    &lt;figcaption&gt;
+      Looking northeast from the bridge, toward downtown and the Ambassador Bridge. (&lt;a href=&quot;https://i.imgur.com/fn9d6Vk.jpg&quot;&gt;embiggen&lt;/a&gt;)
+    &lt;/figcaption&gt;
+  &lt;/figure&gt;
+&lt;/div&gt;
+&lt;div class=&quot;gallery-item&quot;&gt;
+  &lt;figure class=&quot;gallery-image&quot;&gt;
+    &lt;img src=&quot;https://i.imgur.com/a9I3Hufb.jpg&quot; alt=&quot;Looking southwest from the bridge, toward the GHIB site and so many demolished bridges.&quot; /&gt;
+    &lt;figcaption&gt;
+      Looking southwest from the bridge, toward the GHIB site and so many demolished bridges. (&lt;a href=&quot;https://i.imgur.com/a9I3Huf.jpg&quot;&gt;embiggen&lt;/a&gt;)
+    &lt;/figcaption&gt;
+  &lt;/figure&gt;
+&lt;/div&gt;
+&lt;div class=&quot;gallery-item&quot;&gt;
+  &lt;figure class=&quot;gallery-image&quot;&gt;
+    &lt;img src=&quot;https://i.imgur.com/JEuRhYYb.jpg&quot; alt=&quot;A sound barrier wall? It's more likely than you think! (Again, affluent neighbourhood to its north.)&quot; /&gt;
+    &lt;figcaption&gt;
+      A sound barrier wall? It's more likely than you think! (Again, affluent neighbourhood to its north.) (&lt;a href=&quot;https://i.imgur.com/JEuRhYY.jpg&quot;&gt;embiggen&lt;/a&gt;)
+    &lt;/figcaption&gt;
+  &lt;/figure&gt;
+&lt;/div&gt;
+&lt;div class=&quot;gallery-item&quot;&gt;
+  &lt;figure class=&quot;gallery-image&quot;&gt;
+    &lt;img src=&quot;https://i.imgur.com/P9WBU6wb.jpg&quot; alt=&quot;The Hotel Yorba, made famous by a White Stripes song, lies at the north end of the Hubbard bridge.&quot; /&gt;
+    &lt;figcaption&gt;
+      The Hotel Yorba, made famous by a White Stripes song, lies at the north end of the Hubbard bridge. (&lt;a href=&quot;https://i.imgur.com/P9WBU6w.jpg&quot;&gt;embiggen&lt;/a&gt;)
+    &lt;/figcaption&gt;
+  &lt;/figure&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;p&gt;Mentioned in captions:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;a href=&quot;https://historicdetroit.org/buildings/hotel-yorba&quot;&gt;Hotel Yorba&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://www.youtube.com/watch?v=DZPEUyiNcjA&quot;&gt;White Stripes song&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;The last bridge in Southwest Detroit proper lies just outside the Hubbard 
+Farms neighbourhood. It’s the 
+&lt;strong&gt;Bagley Pedestrian Bridge&lt;/strong&gt;, which I have visited many times since it’s on my 
+bike route between home and downtown. I first blogged about it when my friend 
+&lt;a href=&quot;https://twitter.nixill.net/&quot;&gt;Nix&lt;/a&gt; and I visited the bridges along the &lt;a href=&quot;/pedbridge-project/m39/i75/southfield-fwy/&quot;&gt;Southfield Freeway&lt;/a&gt; back in late May, 
+but now I’m back with more photos.&lt;/p&gt;
+
+&lt;div class=&quot;gallery&quot;&gt;
+&lt;div class=&quot;gallery-item&quot;&gt;
+  &lt;figure class=&quot;gallery-image&quot;&gt;
+    &lt;img src=&quot;https://i.imgur.com/dSbIzavb.jpg&quot; alt=&quot;Approaching the bridge by the Bagley Shared Street.&quot; /&gt;
+    &lt;figcaption&gt;
+      Approaching the bridge by the Bagley Shared Street. (&lt;a href=&quot;https://i.imgur.com/dSbIzav.jpg&quot;&gt;embiggen&lt;/a&gt;)
+    &lt;/figcaption&gt;
+  &lt;/figure&gt;
+&lt;/div&gt;
+&lt;div class=&quot;gallery-item&quot;&gt;
+  &lt;figure class=&quot;gallery-image&quot;&gt;
+    &lt;img src=&quot;https://i.imgur.com/HiV0bBPb.jpg&quot; alt=&quot;A view of the bridge from the Fisher Service Drive at Bagley.&quot; /&gt;
+    &lt;figcaption&gt;
+      A view of the bridge from the Fisher Service Drive at Bagley. (&lt;a href=&quot;https://i.imgur.com/HiV0bBP.jpg&quot;&gt;embiggen&lt;/a&gt;)
+    &lt;/figcaption&gt;
+  &lt;/figure&gt;
+&lt;/div&gt;
+&lt;div class=&quot;gallery-item&quot;&gt;
+  &lt;figure class=&quot;gallery-image&quot;&gt;
+    &lt;img src=&quot;https://i.imgur.com/o4Z2Iu5b.jpg&quot; alt=&quot;The Bagley Pedestrian Bridge sign on the west side of the bridge. (2020-05-30)&quot; /&gt;
+    &lt;figcaption&gt;
+      The Bagley Pedestrian Bridge sign on the west side of the bridge. (2020-05-30) (&lt;a href=&quot;https://i.imgur.com/o4Z2Iu5.jpg&quot;&gt;embiggen&lt;/a&gt;)
+    &lt;/figcaption&gt;
+  &lt;/figure&gt;
+&lt;/div&gt;
+&lt;div class=&quot;gallery-item&quot;&gt;
+  &lt;figure class=&quot;gallery-image&quot;&gt;
+    &lt;img src=&quot;https://i.imgur.com/Mh2lruKb.jpg&quot; alt=&quot;A planter behind the sign. (2020-05-30)&quot; /&gt;
+    &lt;figcaption&gt;
+      A planter behind the sign. (2020-05-30) (&lt;a href=&quot;https://i.imgur.com/Mh2lruK.jpg&quot;&gt;embiggen&lt;/a&gt;)
+    &lt;/figcaption&gt;
+  &lt;/figure&gt;
+&lt;/div&gt;
+&lt;div class=&quot;gallery-item&quot;&gt;
+  &lt;figure class=&quot;gallery-image&quot;&gt;
+    &lt;img src=&quot;https://i.imgur.com/A8EWf1Kb.jpg&quot; alt=&quot;View westbound down the bridge, toward the Bagley Shared Street. (Taken by Nix with his drone 2020-05-30)&quot; /&gt;
+    &lt;figcaption&gt;
+      View westbound down the bridge, toward the Bagley Shared Street. (Taken by Nix with his drone 2020-05-30) (&lt;a href=&quot;https://i.imgur.com/A8EWf1K.jpg&quot;&gt;embiggen&lt;/a&gt;)
+    &lt;/figcaption&gt;
+  &lt;/figure&gt;
+&lt;/div&gt;
+&lt;div class=&quot;gallery-item&quot;&gt;
+  &lt;figure class=&quot;gallery-image&quot;&gt;
+    &lt;img src=&quot;https://i.imgur.com/N3bg63bb.jpg&quot; alt=&quot;View eastbound down the bridge, toward FREC and Plaza del Norte. There were a couple skateboarders on the bridge. (Taken by Nix with his drone 2020-05-30)&quot; /&gt;
+    &lt;figcaption&gt;
+      View eastbound down the bridge, toward FREC and Plaza del Norte. There were a couple skateboarders on the bridge. (Taken by Nix with his drone 2020-05-30) (&lt;a href=&quot;https://i.imgur.com/N3bg63b.jpg&quot;&gt;embiggen&lt;/a&gt;)
+    &lt;/figcaption&gt;
+  &lt;/figure&gt;
+&lt;/div&gt;
+&lt;div class=&quot;gallery-item&quot;&gt;
+  &lt;figure class=&quot;gallery-image&quot;&gt;
+    &lt;img src=&quot;https://i.imgur.com/piKxAlLb.jpg&quot; alt=&quot;View eastbound from the west end of the bridge. (Taken by Nix with his drone 2020-05-30)&quot; /&gt;
+    &lt;figcaption&gt;
+      View eastbound from the west end of the bridge. (Taken by Nix with his drone 2020-05-30) (&lt;a href=&quot;https://i.imgur.com/piKxAlL.jpg&quot;&gt;embiggen&lt;/a&gt;)
+    &lt;/figcaption&gt;
+  &lt;/figure&gt;
+&lt;/div&gt;
+&lt;div class=&quot;gallery-item&quot;&gt;
+  &lt;figure class=&quot;gallery-image&quot;&gt;
+    &lt;img src=&quot;https://i.imgur.com/f0OIhSab.jpg&quot; alt=&quot;The view south from the bridge, toward the Ambassador Bridge and the twin spires of Ste. Anne de Detroit church.&quot; /&gt;
+    &lt;figcaption&gt;
+      The view south from the bridge, toward the Ambassador Bridge and the twin spires of Ste. Anne de Detroit church. (&lt;a href=&quot;https://i.imgur.com/f0OIhSa.jpg&quot;&gt;embiggen&lt;/a&gt;)
+    &lt;/figcaption&gt;
+  &lt;/figure&gt;
+&lt;/div&gt;
+&lt;div class=&quot;gallery-item&quot;&gt;
+  &lt;figure class=&quot;gallery-image&quot;&gt;
+    &lt;img src=&quot;https://i.imgur.com/8fAEPQEb.jpg&quot; alt=&quot;The view north from the bridge, toward Corktown and Core City.&quot; /&gt;
+    &lt;figcaption&gt;
+      The view north from the bridge, toward Corktown and Core City. (&lt;a href=&quot;https://i.imgur.com/8fAEPQE.jpg&quot;&gt;embiggen&lt;/a&gt;)
+    &lt;/figcaption&gt;
+  &lt;/figure&gt;
+&lt;/div&gt;
+&lt;div class=&quot;gallery-item&quot;&gt;
+  &lt;figure class=&quot;gallery-image&quot;&gt;
+    &lt;img src=&quot;https://i.imgur.com/8bSS5Dqb.jpg&quot; alt=&quot;A statue on the east end of the bridge, Spiral Kinship by Hubert Massey.&quot; /&gt;
+    &lt;figcaption&gt;
+      A statue on the east end of the bridge, Spiral Kinship by Hubert Massey. (&lt;a href=&quot;https://i.imgur.com/8bSS5Dq.jpg&quot;&gt;embiggen&lt;/a&gt;)
+    &lt;/figcaption&gt;
+  &lt;/figure&gt;
+&lt;/div&gt;
+&lt;div class=&quot;gallery-item&quot;&gt;
+  &lt;figure class=&quot;gallery-image&quot;&gt;
+    &lt;img src=&quot;https://i.imgur.com/AKTtLm6b.jpg&quot; alt=&quot;Spiral Kinship's information plaque.&quot; /&gt;
+    &lt;figcaption&gt;
+      Spiral Kinship's information plaque. (&lt;a href=&quot;https://i.imgur.com/AKTtLm6.jpg&quot;&gt;embiggen&lt;/a&gt;)
+    &lt;/figcaption&gt;
+  &lt;/figure&gt;
+&lt;/div&gt;
+&lt;div class=&quot;gallery-item&quot;&gt;
+  &lt;figure class=&quot;gallery-image&quot;&gt;
+    &lt;img src=&quot;https://i.imgur.com/7EZuCMRb.jpg&quot; alt=&quot;A mosaic on the east end of the bridge, The Spiral of Life by Hubert Massey.&quot; /&gt;
+    &lt;figcaption&gt;
+      A mosaic on the east end of the bridge, The Spiral of Life by Hubert Massey. (&lt;a href=&quot;https://i.imgur.com/7EZuCMR.jpg&quot;&gt;embiggen&lt;/a&gt;)
+    &lt;/figcaption&gt;
+  &lt;/figure&gt;
+&lt;/div&gt;
+&lt;div class=&quot;gallery-item&quot;&gt;
+  &lt;figure class=&quot;gallery-image&quot;&gt;
+    &lt;img src=&quot;https://i.imgur.com/5FXQQoUb.jpg&quot; alt=&quot;The Spiral of Life's information plaque.&quot; /&gt;
+    &lt;figcaption&gt;
+      The Spiral of Life's information plaque. (&lt;a href=&quot;https://i.imgur.com/5FXQQoU.jpg&quot;&gt;embiggen&lt;/a&gt;)
+    &lt;/figcaption&gt;
+  &lt;/figure&gt;
+&lt;/div&gt;
+&lt;div class=&quot;gallery-item&quot;&gt;
+  &lt;figure class=&quot;gallery-image&quot;&gt;
+    &lt;img src=&quot;https://i.imgur.com/zH23aCFb.jpg&quot; alt=&quot;A row of bike racks in the bridge plaza.&quot; /&gt;
+    &lt;figcaption&gt;
+      A row of bike racks in the bridge plaza. (&lt;a href=&quot;https://i.imgur.com/zH23aCF.jpg&quot;&gt;embiggen&lt;/a&gt;)
+    &lt;/figcaption&gt;
+  &lt;/figure&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;p&gt;Mentioned in captions:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;a href=&quot;https://detroit.curbed.com/2020/1/16/21068713/bagley-street-mexicantown-detroit-shared-street&quot;&gt;Bagley Shared Street&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://www.fordfund.org/FRECSouthwest&quot;&gt;FREC&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://www.facebook.com/pages/Plaza-Del-Norte/115952085132134&quot;&gt;Plaza del Norte&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://ste-anne.org/&quot;&gt;Ste. Anne de Detroit&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Transcriptions of the artworks’ information plaques:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;strong&gt;Spiral Kinship&lt;/strong&gt;: The globe form represents universal kinship between 
+ both countries and the aluminium spiral, unity. ¶ Aluminium Sculpture, 
+ Hubert Massey, Detroit MI © 2010. ¶ Commissioned by the Michigan 
+ Department of Transportation.&lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;The Spiral of Life&lt;/strong&gt;: This mural is inspired by a resident’s comment at a 
+ community forum about how life spirals onward, and that challenges take you 
+ to a higher place. ¶ A hand grasps a ribbon of fabric that flows 
+ throughout the artwork and bears the patterning of the community’s diverse 
+ cultural groups. The resilience of the community and its orientation toward 
+ families is celebrated and its culture and history is illustrated by the spires of 
+ St. Anne’s Church, which is set at a diagonal near the center of the 
+ composition, and the Ambassador Bridge and the Detroit River in the upper right.
+ ¶ The three sisters – corn, squash, and beans – and other vegetation 
+ refer to urban farming since many people who came to Detroit were farm workers. 
+ The migrations to and from Mexico are represented by a suitcase in the lower 
+ left. ¶ Along the top are images of extended families set amidst a 
+ decorative pattern of spirals and the perimeter of the composition displays 
+ Detroit’s surrounding landscape in a spiral. ¶ Ceramic Tile Mosaic Mural, 
+ Hubert Massey, Detroit MI © 2010. ¶ Commissioned by the Michigan 
+ Department of Transportation. ¶ Artwork production space provided by 
+ Ladybug Gallery, Detroit MI&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;div id=&quot;82a8ebfb-bc89-4d3c-be5d-e8053bbadfd1&quot; style=&quot;width:600px;height:400px;&quot; class=&quot; jekyll-map&quot;&gt;&lt;/div&gt;
+&lt;script type=&quot;text/javascript&quot;&gt;
+  jekyllMaps.register(
+    '82a8ebfb-bc89-4d3c-be5d-e8053bbadfd1',
+    [{&quot;latitude&quot;:42.312019,&quot;longitude&quot;:-83.095055,&quot;title&quot;:&quot;I-75 and Ferdinand Street&quot;,&quot;icon&quot;:null,&quot;url&quot;:&quot;&quot;,&quot;url_text&quot;:null,&quot;image&quot;:&quot;&quot;,&quot;popup_html&quot;:&quot;&quot;},{&quot;latitude&quot;:42.315236,&quot;longitude&quot;:-83.086764,&quot;title&quot;:&quot;I-75 and Hubbard Street&quot;,&quot;icon&quot;:null,&quot;url&quot;:&quot;&quot;,&quot;url_text&quot;:null,&quot;image&quot;:&quot;&quot;,&quot;popup_html&quot;:&quot;&quot;},{&quot;latitude&quot;:42.323977,&quot;longitude&quot;:-83.083219,&quot;title&quot;:&quot;Bagley Pedestrian Bridge&quot;,&quot;icon&quot;:null,&quot;url&quot;:&quot;&quot;,&quot;url_text&quot;:null,&quot;image&quot;:&quot;&quot;,&quot;popup_html&quot;:&quot;&quot;}],
+    {&quot;baseUrl&quot;:&quot;/pedbridge-project&quot;,&quot;useCluster&quot;:true,&quot;showMarker&quot;:true,&quot;showMarkerPopup&quot;:true,&quot;markerIcon&quot;:null,&quot;styles&quot;:&quot;[]&quot;}
+  );
+&lt;/script&gt;</content>
+
+      
+      
+      
+      
+      
+
+      
+
+      
+        <category term="i75" />
+      
+
+      
+
+      
+        <summary type="html">This post is a compilation of all the extant pedestrian bridges across I-75 in Southwest Detroit. Similarly to the Lower Lodge post, I didn’t necessarily ride these bridges in order or on the same day, so I will present them from south to north. I live in Southwest Detroit, so this post will be a bit more opinionated and text-heavy than most of my other posts.</summary>
+      
+
+      
+      
+    </entry>
+  
+  
+  
+    <entry>
+      
+      <title type="html">Lower Lodge (Downtown to WSU)</title>
+      
+      
+      <link href="https://alisonc.net/pedbridge-project/m10/i94/lower-lodge/" rel="alternate" type="text/html" title="Lower Lodge (Downtown to WSU)" />
+      
+      <published>2020-07-28T18:12:00+00:00</published>
+      <updated>2020-07-28T18:12:00+00:00</updated>
+      <id>https://alisonc.net/pedbridge-project/m10/i94/lower-lodge</id>
+      <content type="html" xml:base="https://alisonc.net/pedbridge-project/m10/i94/lower-lodge/">&lt;p&gt;This post is a compilation of all the pedestrian bridges across the Lodge 
+Freeway from downtown to Wayne State University/I-94, plus the Trumbull Crossing 
+bridge across I-94 because its southern end is on the WSU athletic campus. I 
+didn’t necessarily ride these bridges in order or on the same day, so I’m 
+going to present them from south to north (up from downtown).&lt;/p&gt;
+
+&lt;!-- fold --&gt;
+
+&lt;p&gt;The southernmost bridge across the Lodge is also the only covered bridge. 
+It connects the &lt;a href=&quot;https://detroitmi.gov/departments/municipal-parking-department&quot;&gt;municipal parking deck&lt;/a&gt; at &lt;strong&gt;900 West Jefferson Avenue&lt;/strong&gt; with 
+the rear of the &lt;strong&gt;&lt;a href=&quot;https://www.tcfcenterdetroit.com/&quot;&gt;TCF Center&lt;/a&gt;&lt;/strong&gt;. This has been my favourite pedbridge in Detroit
+for a while, since the cylindrical shape with porthole windows makes it look 
+like an airplane or a space station.&lt;/p&gt;
+
+&lt;p&gt;The TCF Center is obviously closed due to the 
+covid-19 pandemic, and I didn’t attempt to enter the 900 West Jefferson deck 
+(which is open &lt;em&gt;Special Events and Holidays as needed&lt;/em&gt; according to its website; 
+I don’t think Sunday 12 July 2020 counted as either), so the best I can do is a 
+few shots from afar.&lt;/p&gt;
+
+&lt;div class=&quot;gallery&quot;&gt;
+&lt;div class=&quot;gallery-item&quot;&gt;
+  &lt;figure class=&quot;gallery-image&quot;&gt;
+    &lt;img src=&quot;https://i.imgur.com/E6HnkBZb.jpg&quot; alt=&quot;Looking south from Third Street at Fort Street. Fort Street Presbyterian Church is on the left, and Wayne County Community College District's Downtown Campus is on the right.&quot; /&gt;
+    &lt;figcaption&gt;
+      Looking south from Third Street at Fort Street. Fort Street Presbyterian Church is on the left, and Wayne County Community College District's Downtown Campus is on the right. (&lt;a href=&quot;https://i.imgur.com/E6HnkBZ.jpg&quot;&gt;embiggen&lt;/a&gt;)
+    &lt;/figcaption&gt;
+  &lt;/figure&gt;
+&lt;/div&gt;
+&lt;div class=&quot;gallery-item&quot;&gt;
+  &lt;figure class=&quot;gallery-image&quot;&gt;
+    &lt;img src=&quot;https://i.imgur.com/B2aJCM2b.jpg&quot; alt=&quot;A panorama taken from WCCCD Fort Street Plaza. The helical ramp up to the TCF Center's roof deck is on the left, and the 900 West Jefferson deck is on the right.&quot; /&gt;
+    &lt;figcaption&gt;
+      A panorama taken from WCCCD Fort Street Plaza. The helical ramp up to the TCF Center's roof deck is on the left, and the 900 West Jefferson deck is on the right. (&lt;a href=&quot;https://i.imgur.com/B2aJCM2.jpg&quot;&gt;embiggen&lt;/a&gt;)
+    &lt;/figcaption&gt;
+  &lt;/figure&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;p&gt;Mentioned in captions:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;a href=&quot;https://www.fortstreet.org/&quot;&gt;Fort Street Presbyterian Church&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;http://www.wcccd.edu/&quot;&gt;Wayne County Community College District&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://www.tcfcenterdetroit.com/parking&quot;&gt;TCF Center roof deck&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;The next bridge to the north is &lt;strong&gt;Fort Street Plaza&lt;/strong&gt;, an overpass park on the
+Wayne County Community College District &lt;a href=&quot;http://www.wcccd.edu/WCCCDcampus/Downtown/&quot;&gt;Downtown campus&lt;/a&gt;. (It’s my opinion 
+that overpass parks count as pedbridges. They’re structures crossing a freeway 
+upon which vehicular traffic is forbidden. If this were the Suburban Pedbridge 
+Project, I’d consider &lt;a href=&quot;https://commons.wikimedia.org/wiki/File:Interstate_696_pedestrian_plazas_Oak_Park.jpg&quot;&gt;Oak Park’s pedestrian plazas&lt;/a&gt; over I-696 fair game.)
+The Plaza includes a stepped amphitheatre area and a grassy area, and there 
+was formerly a more traditional pedbridge over the Lodge just south of it.
+According to historical Street View imagery, that bridge was demolished sometime 
+between July 2016 and August 2018.&lt;/p&gt;
+
+&lt;div class=&quot;gallery&quot;&gt;
+&lt;div class=&quot;gallery-item&quot;&gt;
+  &lt;figure class=&quot;gallery-image&quot;&gt;
+    &lt;img src=&quot;https://i.imgur.com/foHznctb.jpg&quot; alt=&quot;The Plaza, looking northwest from its southeast corner.&quot; /&gt;
+    &lt;figcaption&gt;
+      The Plaza, looking northwest from its southeast corner. (&lt;a href=&quot;https://i.imgur.com/foHznct.jpg&quot;&gt;embiggen&lt;/a&gt;)
+    &lt;/figcaption&gt;
+  &lt;/figure&gt;
+&lt;/div&gt;
+&lt;div class=&quot;gallery-item&quot;&gt;
+  &lt;figure class=&quot;gallery-image&quot;&gt;
+    &lt;img src=&quot;https://i.imgur.com/q0m4R0Cb.jpg&quot; alt=&quot;Looking toward downtown. There's an area of newer concrete where the demolished bridge used to connect.&quot; /&gt;
+    &lt;figcaption&gt;
+      Looking toward downtown. There's an area of newer concrete where the demolished bridge used to connect. (&lt;a href=&quot;https://i.imgur.com/q0m4R0C.jpg&quot;&gt;embiggen&lt;/a&gt;)
+    &lt;/figcaption&gt;
+  &lt;/figure&gt;
+&lt;/div&gt;
+&lt;div class=&quot;gallery-item&quot;&gt;
+  &lt;figure class=&quot;gallery-image&quot;&gt;
+    &lt;img src=&quot;https://i.imgur.com/3kNbcMRb.jpg&quot; alt=&quot;&amp;ldquo;Decolonize!&amp;rdquo; graffiti on the west wall. Also, an area of newer concrete where the demolished bridge used to connect.&quot; /&gt;
+    &lt;figcaption&gt;
+      &amp;ldquo;Decolonize!&amp;rdquo; graffiti on the west wall. Also, an area of newer concrete where the demolished bridge used to connect. (&lt;a href=&quot;https://i.imgur.com/3kNbcMR.jpg&quot;&gt;embiggen&lt;/a&gt;)
+    &lt;/figcaption&gt;
+  &lt;/figure&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;p&gt;The &lt;strong&gt;Porter Street&lt;/strong&gt; bridge is tucked in between &lt;a href=&quot;https://mhtdetroit.org/&quot;&gt;Most Holy Trinity Parish&lt;/a&gt; 
+on &lt;a href=&quot;https://en.wikipedia.org/wiki/Corktown,_Detroit&quot;&gt;Corktown&lt;/a&gt;’s eastern border and the &lt;del&gt;Pig Farm&lt;/del&gt; 
+&lt;a href=&quot;https://en.wikipedia.org/wiki/Detroit_Public_Safety_Headquarters&quot;&gt;Detroit Public Safety Headquarters&lt;/a&gt;. I’m always a little uneasy riding across
+it, since my usual route involves going east across the bridge and a bit of wrong-way 
+sidewalk riding up the Lodge Service Drive and Howard Street to get downtown. 
+I’m afraid that a DPD cop or federal security officer with nothing better to do 
+will harass me for that &lt;a href=&quot;https://www.lmb.org/bike-mi/michigan-compiled-laws-mcl-bicycles-and-the-law/&quot;&gt;perfectly legal&lt;/a&gt; biking manoeuvre.&lt;/p&gt;
+
+&lt;div class=&quot;gallery&quot;&gt;
+&lt;div class=&quot;gallery-item&quot;&gt;
+  &lt;figure class=&quot;gallery-image&quot;&gt;
+    &lt;img src=&quot;https://i.imgur.com/uGQBO9fb.jpg&quot; alt=&quot;Approaching the bridge from Most Holy Trinity, looking across it to DPSH.&quot; /&gt;
+    &lt;figcaption&gt;
+      Approaching the bridge from Most Holy Trinity, looking across it to DPSH. (&lt;a href=&quot;https://i.imgur.com/uGQBO9f.jpg&quot;&gt;embiggen&lt;/a&gt;)
+    &lt;/figcaption&gt;
+  &lt;/figure&gt;
+&lt;/div&gt;
+&lt;div class=&quot;gallery-item&quot;&gt;
+  &lt;figure class=&quot;gallery-image&quot;&gt;
+    &lt;img src=&quot;https://i.imgur.com/JuFM9uTb.jpg&quot; alt=&quot;Looking south toward... a LED message sign. Also the Detroit/Windsor World Trade Center, visible on the right.&quot; /&gt;
+    &lt;figcaption&gt;
+      Looking south toward... a LED message sign. Also the Detroit/Windsor World Trade Center, visible on the right. (&lt;a href=&quot;https://i.imgur.com/JuFM9uT.jpg&quot;&gt;embiggen&lt;/a&gt;)
+    &lt;/figcaption&gt;
+  &lt;/figure&gt;
+&lt;/div&gt;
+&lt;div class=&quot;gallery-item&quot;&gt;
+  &lt;figure class=&quot;gallery-image&quot;&gt;
+    &lt;img src=&quot;https://i.imgur.com/6rEJOyHb.jpg&quot; alt=&quot;Looking north toward MotorCity Casino Hotel.&quot; /&gt;
+    &lt;figcaption&gt;
+      Looking north toward MotorCity Casino Hotel. (&lt;a href=&quot;https://i.imgur.com/6rEJOyH.jpg&quot;&gt;embiggen&lt;/a&gt;)
+    &lt;/figcaption&gt;
+  &lt;/figure&gt;
+&lt;/div&gt;
+&lt;div class=&quot;gallery-item&quot;&gt;
+  &lt;figure class=&quot;gallery-image&quot;&gt;
+    &lt;img src=&quot;https://i.imgur.com/lQbTzwGb.jpg&quot; alt=&quot;Looking west from the back of DPSH, toward Most Holy Trinity.&quot; /&gt;
+    &lt;figcaption&gt;
+      Looking west from the back of DPSH, toward Most Holy Trinity. (&lt;a href=&quot;https://i.imgur.com/lQbTzwG.jpg&quot;&gt;embiggen&lt;/a&gt;)
+    &lt;/figcaption&gt;
+  &lt;/figure&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;p&gt;Mentioned in captions:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;a href=&quot;http://www.wtcdw.com&quot;&gt;Detroit/Windsor World Trade Center&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Speaking of &lt;a href=&quot;https://www.motorcitycasino.com/default.aspx&quot;&gt;MotorCity Casino Hotel&lt;/a&gt;, that’s very near the &lt;strong&gt;Spruce Street&lt;/strong&gt; bridge, 
+which connects MCCH’s surface lots to a small warehouse district along 
+Grand River Avenue and Fifth Street.&lt;/p&gt;
+
+&lt;div class=&quot;gallery&quot;&gt;
+&lt;div class=&quot;gallery-item&quot;&gt;
+  &lt;figure class=&quot;gallery-image&quot;&gt;
+    &lt;img src=&quot;https://i.imgur.com/xRhIIwDb.jpg&quot; alt=&quot;Looking eastward along the bridge toward the warehouse district. There's no curb cut on this side.&quot; /&gt;
+    &lt;figcaption&gt;
+      Looking eastward along the bridge toward the warehouse district. There's no curb cut on this side. (&lt;a href=&quot;https://i.imgur.com/xRhIIwD.jpg&quot;&gt;embiggen&lt;/a&gt;)
+    &lt;/figcaption&gt;
+  &lt;/figure&gt;
+&lt;/div&gt;
+&lt;div class=&quot;gallery-item&quot;&gt;
+  &lt;figure class=&quot;gallery-image&quot;&gt;
+    &lt;img src=&quot;https://i.imgur.com/tyWhrJcb.jpg&quot; alt=&quot;The view south toward downtown.&quot; /&gt;
+    &lt;figcaption&gt;
+      The view south toward downtown. (&lt;a href=&quot;https://i.imgur.com/tyWhrJc.jpg&quot;&gt;embiggen&lt;/a&gt;)
+    &lt;/figcaption&gt;
+  &lt;/figure&gt;
+&lt;/div&gt;
+&lt;div class=&quot;gallery-item&quot;&gt;
+  &lt;figure class=&quot;gallery-image&quot;&gt;
+    &lt;img src=&quot;https://i.imgur.com/YLvHMnnb.jpg&quot; alt=&quot;The view north toward Temple Street and Core City.&quot; /&gt;
+    &lt;figcaption&gt;
+      The view north toward Temple Street and Core City. (&lt;a href=&quot;https://i.imgur.com/YLvHMnn.jpg&quot;&gt;embiggen&lt;/a&gt;)
+    &lt;/figcaption&gt;
+  &lt;/figure&gt;
+&lt;/div&gt;
+&lt;div class=&quot;gallery-item&quot;&gt;
+  &lt;figure class=&quot;gallery-image&quot;&gt;
+    &lt;img src=&quot;https://i.imgur.com/IyA4Ao5b.jpg&quot; alt=&quot;Looking west toward the casino. This is a good crosswalk, with curb cuts and tactile bumps.&quot; /&gt;
+    &lt;figcaption&gt;
+      Looking west toward the casino. This is a good crosswalk, with curb cuts and tactile bumps. (&lt;a href=&quot;https://i.imgur.com/IyA4Ao5.jpg&quot;&gt;embiggen&lt;/a&gt;)
+    &lt;/figcaption&gt;
+  &lt;/figure&gt;
+&lt;/div&gt;
+&lt;div class=&quot;gallery-item&quot;&gt;
+  &lt;figure class=&quot;gallery-image&quot;&gt;
+    &lt;img src=&quot;https://i.imgur.com/dRZbivwb.jpg&quot; alt=&quot;A view of MotorCity Casino Hotel from across the Lodge.&quot; /&gt;
+    &lt;figcaption&gt;
+      A view of MotorCity Casino Hotel from across the Lodge. (&lt;a href=&quot;https://i.imgur.com/dRZbivw.jpg&quot;&gt;embiggen&lt;/a&gt;)
+    &lt;/figcaption&gt;
+  &lt;/figure&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;p&gt;The next bridge up the Lodge is &lt;strong&gt;Selden Street&lt;/strong&gt;, which connects the 
+&lt;a href=&quot;http://woodbridgeestates.com/&quot;&gt;Woodbridge Estates&lt;/a&gt; apartment and condo community with the &lt;a href=&quot;https://en.wikipedia.org/wiki/Cass_Corridor&quot;&gt;Cass Corridor&lt;/a&gt;/&lt;a href=&quot;https://en.wikipedia.org/wiki/Midtown_Detroit&quot;&gt;Midtown&lt;/a&gt;
+commercial districts and the under-construction &lt;a href=&quot;https://www.midtownwestdetroit.com/&quot;&gt;Midtown West&lt;/a&gt; condo building.
+The neighborhood streets in Woodbridge Estates are all 
+named after Motown musicians and music groups, e.g. Miracles Drive, Temptations 
+Drive, and Contours Lane.&lt;/p&gt;
+
+&lt;div class=&quot;gallery&quot;&gt;
+&lt;div class=&quot;gallery-item&quot;&gt;
+  &lt;figure class=&quot;gallery-image&quot;&gt;
+    &lt;img src=&quot;https://i.imgur.com/hnvrZeGb.jpg&quot; alt=&quot;Approaching the Selden bridge from Woodbridge Estates.&quot; /&gt;
+    &lt;figcaption&gt;
+      Approaching the Selden bridge from Woodbridge Estates. (&lt;a href=&quot;https://i.imgur.com/hnvrZeG.jpg&quot;&gt;embiggen&lt;/a&gt;)
+    &lt;/figcaption&gt;
+  &lt;/figure&gt;
+&lt;/div&gt;
+&lt;div class=&quot;gallery-item&quot;&gt;
+  &lt;figure class=&quot;gallery-image&quot;&gt;
+    &lt;img src=&quot;https://i.imgur.com/2TfImvYb.jpg&quot; alt=&quot;A pile of leaves and trash accumulated on the west ramp. I should bring a rake, bin bags, and my bike trailer and clean this up sometime.&quot; /&gt;
+    &lt;figcaption&gt;
+      A pile of leaves and trash accumulated on the west ramp. I should bring a rake, bin bags, and my bike trailer and clean this up sometime. (&lt;a href=&quot;https://i.imgur.com/2TfImvY.jpg&quot;&gt;embiggen&lt;/a&gt;)
+    &lt;/figcaption&gt;
+  &lt;/figure&gt;
+&lt;/div&gt;
+&lt;div class=&quot;gallery-item&quot;&gt;
+  &lt;figure class=&quot;gallery-image&quot;&gt;
+    &lt;img src=&quot;https://i.imgur.com/zgIypJbb.jpg&quot; alt=&quot;Looking east along the bridge, toward Midtown and the site of Midtown West.&quot; /&gt;
+    &lt;figcaption&gt;
+      Looking east along the bridge, toward Midtown and the site of Midtown West. (&lt;a href=&quot;https://i.imgur.com/zgIypJb.jpg&quot;&gt;embiggen&lt;/a&gt;)
+    &lt;/figcaption&gt;
+  &lt;/figure&gt;
+&lt;/div&gt;
+&lt;div class=&quot;gallery-item&quot;&gt;
+  &lt;figure class=&quot;gallery-image&quot;&gt;
+    &lt;img src=&quot;https://i.imgur.com/daejpNeb.jpg&quot; alt=&quot;The view south, toward MotorCity Casino Hotel and downtown. One of the Woodbridge Estates highrises is visible.&quot; /&gt;
+    &lt;figcaption&gt;
+      The view south, toward MotorCity Casino Hotel and downtown. One of the Woodbridge Estates highrises is visible. (&lt;a href=&quot;https://i.imgur.com/daejpNe.jpg&quot;&gt;embiggen&lt;/a&gt;)
+    &lt;/figcaption&gt;
+  &lt;/figure&gt;
+&lt;/div&gt;
+&lt;div class=&quot;gallery-item&quot;&gt;
+  &lt;figure class=&quot;gallery-image&quot;&gt;
+    &lt;img src=&quot;https://i.imgur.com/t8cSgGXb.jpg&quot; alt=&quot;The view north, toward Wayne State University. The former Experiencia Preparatory Academy is on the Lodge Service Drive on the right.&quot; /&gt;
+    &lt;figcaption&gt;
+      The view north, toward Wayne State University. The former Experiencia Preparatory Academy is on the Lodge Service Drive on the right. (&lt;a href=&quot;https://i.imgur.com/t8cSgGX.jpg&quot;&gt;embiggen&lt;/a&gt;)
+    &lt;/figcaption&gt;
+  &lt;/figure&gt;
+&lt;/div&gt;
+&lt;div class=&quot;gallery-item&quot;&gt;
+  &lt;figure class=&quot;gallery-image&quot;&gt;
+    &lt;img src=&quot;https://i.imgur.com/hzACGLxb.jpg&quot; alt=&quot;Looking west across the bridge, toward Woodbridge Estates.&quot; /&gt;
+    &lt;figcaption&gt;
+      Looking west across the bridge, toward Woodbridge Estates. (&lt;a href=&quot;https://i.imgur.com/hzACGLx.jpg&quot;&gt;embiggen&lt;/a&gt;)
+    &lt;/figcaption&gt;
+  &lt;/figure&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;p&gt;Mentioned in captions:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;a href=&quot;https://www.nmu.edu/charterschools/experiencia-preparatory-academy&quot;&gt;Experiencia Preparatory Academy&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;&lt;strong&gt;Canfield Avenue&lt;/strong&gt; is the northern border of Woodbridge Estates, and also 
+connects the &lt;a href=&quot;https://continentalmgt.com/view-listing/?listing_id=1313&quot;&gt;Calumet Townhomes&lt;/a&gt; with &lt;a href=&quot;https://www.detroitnews.com/story/business/autos/ford/2015/06/15/ford-uaw-open-ballpark/71255920/&quot;&gt;William Clay Ford Field&lt;/a&gt;
+and the former &lt;a href=&quot;https://edmonson.geeacademies.net/&quot;&gt;GEE Edmonson Academy&lt;/a&gt; and &lt;a href=&quot;https://en.wikipedia.org/wiki/Detroit_Day_School_for_the_Deaf&quot;&gt;Detroit Day School for the Deaf&lt;/a&gt;.&lt;/p&gt;
+
+&lt;div class=&quot;gallery&quot;&gt;
+&lt;div class=&quot;gallery-item&quot;&gt;
+  &lt;figure class=&quot;gallery-image&quot;&gt;
+    &lt;img src=&quot;https://i.imgur.com/IDsbkt7b.jpg&quot; alt=&quot;Approaching the Canfield bridge from Calumet Townhomes.&quot; /&gt;
+    &lt;figcaption&gt;
+      Approaching the Canfield bridge from Calumet Townhomes. (&lt;a href=&quot;https://i.imgur.com/IDsbkt7.jpg&quot;&gt;embiggen&lt;/a&gt;)
+    &lt;/figcaption&gt;
+  &lt;/figure&gt;
+&lt;/div&gt;
+&lt;div class=&quot;gallery-item&quot;&gt;
+  &lt;figure class=&quot;gallery-image&quot;&gt;
+    &lt;img src=&quot;https://i.imgur.com/KHdTK4Ob.jpg&quot; alt=&quot;Looking west along the bridge.&quot; /&gt;
+    &lt;figcaption&gt;
+      Looking west along the bridge. (&lt;a href=&quot;https://i.imgur.com/KHdTK4O.jpg&quot;&gt;embiggen&lt;/a&gt;)
+    &lt;/figcaption&gt;
+  &lt;/figure&gt;
+&lt;/div&gt;
+&lt;div class=&quot;gallery-item&quot;&gt;
+  &lt;figure class=&quot;gallery-image&quot;&gt;
+    &lt;img src=&quot;https://i.imgur.com/6K0nnznb.jpg&quot; alt=&quot;The view north toward WSU.&quot; /&gt;
+    &lt;figcaption&gt;
+      The view north toward WSU. (&lt;a href=&quot;https://i.imgur.com/6K0nnzn.jpg&quot;&gt;embiggen&lt;/a&gt;)
+    &lt;/figcaption&gt;
+  &lt;/figure&gt;
+&lt;/div&gt;
+&lt;div class=&quot;gallery-item&quot;&gt;
+  &lt;figure class=&quot;gallery-image&quot;&gt;
+    &lt;img src=&quot;https://i.imgur.com/38APCqmb.jpg&quot; alt=&quot;The view south, toward Woodbridge Estates, MotorCity Casino Hotel, and downtown.&quot; /&gt;
+    &lt;figcaption&gt;
+      The view south, toward Woodbridge Estates, MotorCity Casino Hotel, and downtown. (&lt;a href=&quot;https://i.imgur.com/38APCqm.jpg&quot;&gt;embiggen&lt;/a&gt;)
+    &lt;/figcaption&gt;
+  &lt;/figure&gt;
+&lt;/div&gt;
+&lt;div class=&quot;gallery-item&quot;&gt;
+  &lt;figure class=&quot;gallery-image&quot;&gt;
+    &lt;img src=&quot;https://i.imgur.com/WWQgMVZb.jpg&quot; alt=&quot;Looking east from the west end of the bridge.&quot; /&gt;
+    &lt;figcaption&gt;
+      Looking east from the west end of the bridge. (&lt;a href=&quot;https://i.imgur.com/WWQgMVZ.jpg&quot;&gt;embiggen&lt;/a&gt;)
+    &lt;/figcaption&gt;
+  &lt;/figure&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;p&gt;The two northernmost bridges of this post both have one end in the 
+&lt;a href=&quot;https://wsuathletics.com/facilities&quot;&gt;Wayne State University&lt;/a&gt;. The more southerly of the two is 
+signed as &lt;strong&gt;Merrick Street&lt;/strong&gt;, though I just think of it as the &lt;em&gt;WSU Athletics&lt;/em&gt;
+pedbridge. It’s very Wayne State-themed.&lt;/p&gt;
+
+&lt;div class=&quot;gallery&quot;&gt;
+&lt;div class=&quot;gallery-item&quot;&gt;
+  &lt;figure class=&quot;gallery-image&quot;&gt;
+    &lt;img src=&quot;https://i.imgur.com/9qb7NBSb.jpg&quot; alt=&quot;Looking southeast at the west end of the Merrick bridge. Manoogian Hall is in the distance.&quot; /&gt;
+    &lt;figcaption&gt;
+      Looking southeast at the west end of the Merrick bridge. Manoogian Hall is in the distance. (&lt;a href=&quot;https://i.imgur.com/9qb7NBS.jpg&quot;&gt;embiggen&lt;/a&gt;)
+    &lt;/figcaption&gt;
+  &lt;/figure&gt;
+&lt;/div&gt;
+&lt;div class=&quot;gallery-item&quot;&gt;
+  &lt;figure class=&quot;gallery-image&quot;&gt;
+    &lt;img src=&quot;https://i.imgur.com/pzJ3f26b.jpg&quot; alt=&quot;Looking east along the bridge, toward WSU's main campus.&quot; /&gt;
+    &lt;figcaption&gt;
+      Looking east along the bridge, toward WSU's main campus. (&lt;a href=&quot;https://i.imgur.com/pzJ3f26.jpg&quot;&gt;embiggen&lt;/a&gt;)
+    &lt;/figcaption&gt;
+  &lt;/figure&gt;
+&lt;/div&gt;
+&lt;div class=&quot;gallery-item&quot;&gt;
+  &lt;figure class=&quot;gallery-image&quot;&gt;
+    &lt;img src=&quot;https://i.imgur.com/cRGcSU4b.jpg&quot; alt=&quot;w&quot; /&gt;
+    &lt;figcaption&gt;
+      w (&lt;a href=&quot;https://i.imgur.com/cRGcSU4.jpg&quot;&gt;embiggen&lt;/a&gt;)
+    &lt;/figcaption&gt;
+  &lt;/figure&gt;
+&lt;/div&gt;
+&lt;div class=&quot;gallery-item&quot;&gt;
+  &lt;figure class=&quot;gallery-image&quot;&gt;
+    &lt;img src=&quot;https://i.imgur.com/w9hR1Eeb.jpg&quot; alt=&quot;The view south, toward MCCH, downtown, etc.&quot; /&gt;
+    &lt;figcaption&gt;
+      The view south, toward MCCH, downtown, etc. (&lt;a href=&quot;https://i.imgur.com/w9hR1Ee.jpg&quot;&gt;embiggen&lt;/a&gt;)
+    &lt;/figcaption&gt;
+  &lt;/figure&gt;
+&lt;/div&gt;
+&lt;div class=&quot;gallery-item&quot;&gt;
+  &lt;figure class=&quot;gallery-image&quot;&gt;
+    &lt;img src=&quot;https://i.imgur.com/mnZP93qb.jpg&quot; alt=&quot;The view north, toward the I-94 interchange that's under construction.&quot; /&gt;
+    &lt;figcaption&gt;
+      The view north, toward the I-94 interchange that's under construction. (&lt;a href=&quot;https://i.imgur.com/mnZP93q.jpg&quot;&gt;embiggen&lt;/a&gt;)
+    &lt;/figcaption&gt;
+  &lt;/figure&gt;
+&lt;/div&gt;
+&lt;div class=&quot;gallery-item&quot;&gt;
+  &lt;figure class=&quot;gallery-image&quot;&gt;
+    &lt;img src=&quot;https://i.imgur.com/kWrf83eb.jpg&quot; alt=&quot;&amp;ldquo;Cycling Is Not a Crime&amp;rdquo; sticker on the handrail of the east ramp.&quot; /&gt;
+    &lt;figcaption&gt;
+      &amp;ldquo;Cycling Is Not a Crime&amp;rdquo; sticker on the handrail of the east ramp. (&lt;a href=&quot;https://i.imgur.com/kWrf83e.jpg&quot;&gt;embiggen&lt;/a&gt;)
+    &lt;/figcaption&gt;
+  &lt;/figure&gt;
+&lt;/div&gt;
+&lt;div class=&quot;gallery-item&quot;&gt;
+  &lt;figure class=&quot;gallery-image&quot;&gt;
+    &lt;img src=&quot;https://i.imgur.com/mdAsX9cb.jpg&quot; alt=&quot;The east ramp, painted up in Wayne State colours.&quot; /&gt;
+    &lt;figcaption&gt;
+      The east ramp, painted up in Wayne State colours. (&lt;a href=&quot;https://i.imgur.com/mdAsX9c.jpg&quot;&gt;embiggen&lt;/a&gt;)
+    &lt;/figcaption&gt;
+  &lt;/figure&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;p&gt;Mentioned in captions:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;a href=&quot;http://maps.wayne.edu/?q=manoogian+hall&quot;&gt;Manoogian Hall&lt;/a&gt; (not to be confused 
+with the &lt;a href=&quot;https://360.aua.am/explore-aua/manoogian-hall/&quot;&gt;similarly named auditorium&lt;/a&gt; 
+on the campus of the American University of Armenia)&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://www.orucase.com/products/cycling-is-not-a-crime-sticker&quot;&gt;Cycling Is Not a Crime&lt;/a&gt; sticker&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;The other WSU Athletic Campus pedbridge, and the last one on today’s tour, isn’t 
+actually across the Lodge. It’s the &lt;strong&gt;Brooklyn Avenue&lt;/strong&gt; (signed)/&lt;strong&gt;Trumbull Crossing&lt;/strong&gt;
+(what I think of it as) bridge across I-94, which links the &lt;a href=&quot;https://www.apartmentguide.com/apartments/Michigan/Detroit/Trumbull-Crossing/77586/&quot;&gt;Trumbull Crossing&lt;/a&gt; highrise with 
+&lt;a href=&quot;https://wsuathletics.com/facilities/tom-adams-field/99&quot;&gt;Adams Field&lt;/a&gt;, WSU’s football stadium.&lt;/p&gt;
+
+&lt;div class=&quot;gallery&quot;&gt;
+&lt;div class=&quot;gallery-item&quot;&gt;
+  &lt;figure class=&quot;gallery-image&quot;&gt;
+    &lt;img src=&quot;https://i.imgur.com/peLB0Qab.jpg&quot; alt=&quot;Approaching the Brooklyn Avenue bridge from the grounds of Trumbull Crossing. A curb means that folks on wheels (bicycles, wheelchairs, etc) can't approach it from the driveway.&quot; /&gt;
+    &lt;figcaption&gt;
+      Approaching the Brooklyn Avenue bridge from the grounds of Trumbull Crossing. A curb means that folks on wheels (bicycles, wheelchairs, etc) can't approach it from the driveway. (&lt;a href=&quot;https://i.imgur.com/peLB0Qa.jpg&quot;&gt;embiggen&lt;/a&gt;)
+    &lt;/figcaption&gt;
+  &lt;/figure&gt;
+&lt;/div&gt;
+&lt;div class=&quot;gallery-item&quot;&gt;
+  &lt;figure class=&quot;gallery-image&quot;&gt;
+    &lt;img src=&quot;https://i.imgur.com/9IKjH7Db.jpg&quot; alt=&quot;And poor pavement condition around the sewer hole cover means that it's difficult even to approach it from the sidewalk.&quot; /&gt;
+    &lt;figcaption&gt;
+      And poor pavement condition around the sewer hole cover means that it's difficult even to approach it from the sidewalk. (&lt;a href=&quot;https://i.imgur.com/9IKjH7D.jpg&quot;&gt;embiggen&lt;/a&gt;)
+    &lt;/figcaption&gt;
+  &lt;/figure&gt;
+&lt;/div&gt;
+&lt;div class=&quot;gallery-item&quot;&gt;
+  &lt;figure class=&quot;gallery-image&quot;&gt;
+    &lt;img src=&quot;https://i.imgur.com/Nc68D4Jb.jpg&quot; alt=&quot;Looking south down the bridge. More pavement in poor repair.&quot; /&gt;
+    &lt;figcaption&gt;
+      Looking south down the bridge. More pavement in poor repair. (&lt;a href=&quot;https://i.imgur.com/Nc68D4J.jpg&quot;&gt;embiggen&lt;/a&gt;)
+    &lt;/figcaption&gt;
+  &lt;/figure&gt;
+&lt;/div&gt;
+&lt;div class=&quot;gallery-item&quot;&gt;
+  &lt;figure class=&quot;gallery-image&quot;&gt;
+    &lt;img src=&quot;https://i.imgur.com/kWkrSZ9b.jpg&quot; alt=&quot;The view east toward the Lodge Freeway interchange.&quot; /&gt;
+    &lt;figcaption&gt;
+      The view east toward the Lodge Freeway interchange. (&lt;a href=&quot;https://i.imgur.com/kWkrSZ9.jpg&quot;&gt;embiggen&lt;/a&gt;)
+    &lt;/figcaption&gt;
+  &lt;/figure&gt;
+&lt;/div&gt;
+&lt;div class=&quot;gallery-item&quot;&gt;
+  &lt;figure class=&quot;gallery-image&quot;&gt;
+    &lt;img src=&quot;https://i.imgur.com/APsyLcxb.jpg&quot; alt=&quot;The view west toward Trumbull Avenue.&quot; /&gt;
+    &lt;figcaption&gt;
+      The view west toward Trumbull Avenue. (&lt;a href=&quot;https://i.imgur.com/APsyLcx.jpg&quot;&gt;embiggen&lt;/a&gt;)
+    &lt;/figcaption&gt;
+  &lt;/figure&gt;
+&lt;/div&gt;
+&lt;div class=&quot;gallery-item&quot;&gt;
+  &lt;figure class=&quot;gallery-image&quot;&gt;
+    &lt;img src=&quot;https://i.imgur.com/i7Ud327b.jpg&quot; alt=&quot;Trumbull Crossing.&quot; /&gt;
+    &lt;figcaption&gt;
+      Trumbull Crossing. (&lt;a href=&quot;https://i.imgur.com/i7Ud327.jpg&quot;&gt;embiggen&lt;/a&gt;)
+    &lt;/figcaption&gt;
+  &lt;/figure&gt;
+&lt;/div&gt;
+&lt;div class=&quot;gallery-item&quot;&gt;
+  &lt;figure class=&quot;gallery-image&quot;&gt;
+    &lt;img src=&quot;https://i.imgur.com/oY0QvVXb.jpg&quot; alt=&quot;The helical ramp on the bridge's south end.&quot; /&gt;
+    &lt;figcaption&gt;
+      The helical ramp on the bridge's south end. (&lt;a href=&quot;https://i.imgur.com/oY0QvVX.jpg&quot;&gt;embiggen&lt;/a&gt;)
+    &lt;/figcaption&gt;
+  &lt;/figure&gt;
+&lt;/div&gt;
+&lt;div class=&quot;gallery-item&quot;&gt;
+  &lt;figure class=&quot;gallery-image&quot;&gt;
+    &lt;img src=&quot;https://i.imgur.com/t6Ipqvlb.jpg&quot; alt=&quot;Adams Field.&quot; /&gt;
+    &lt;figcaption&gt;
+      Adams Field. (&lt;a href=&quot;https://i.imgur.com/t6Ipqvl.jpg&quot;&gt;embiggen&lt;/a&gt;)
+    &lt;/figcaption&gt;
+  &lt;/figure&gt;
+&lt;/div&gt;
+&lt;div class=&quot;gallery-item&quot;&gt;
+  &lt;figure class=&quot;gallery-image&quot;&gt;
+    &lt;img src=&quot;https://i.imgur.com/nMBduhgb.jpg&quot; alt=&quot;The iron supports for the ramp. I wonder if the spindly concrete beams were deemed insufficient.&quot; /&gt;
+    &lt;figcaption&gt;
+      The iron supports for the ramp. I wonder if the spindly concrete beams were deemed insufficient. (&lt;a href=&quot;https://i.imgur.com/nMBduhg.jpg&quot;&gt;embiggen&lt;/a&gt;)
+    &lt;/figcaption&gt;
+  &lt;/figure&gt;
+&lt;/div&gt;
+&lt;div class=&quot;gallery-item&quot;&gt;
+  &lt;figure class=&quot;gallery-image&quot;&gt;
+    &lt;img src=&quot;https://i.imgur.com/V7VlMDtb.jpg&quot; alt=&quot;A panorama from Adams Field to Trumbull Crossing.&quot; /&gt;
+    &lt;figcaption&gt;
+      A panorama from Adams Field to Trumbull Crossing. (&lt;a href=&quot;https://i.imgur.com/V7VlMDt.jpg&quot;&gt;embiggen&lt;/a&gt;)
+    &lt;/figcaption&gt;
+  &lt;/figure&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div id=&quot;b971c8d7-f5cc-45b6-baa9-189777ad0337&quot; style=&quot;width:600px;height:400px;&quot; class=&quot; jekyll-map&quot;&gt;&lt;/div&gt;
+&lt;script type=&quot;text/javascript&quot;&gt;
+  jekyllMaps.register(
+    'b971c8d7-f5cc-45b6-baa9-189777ad0337',
+    [{&quot;latitude&quot;:42.327011,&quot;longitude&quot;:-83.054851,&quot;title&quot;:&quot;Fort Street Plaza&quot;,&quot;icon&quot;:null,&quot;url&quot;:&quot;&quot;,&quot;url_text&quot;:null,&quot;image&quot;:&quot;&quot;,&quot;popup_html&quot;:&quot;&quot;},{&quot;latitude&quot;:42.330028,&quot;longitude&quot;:-83.059693,&quot;title&quot;:&quot;Lodge Freeway and Porter Street&quot;,&quot;icon&quot;:null,&quot;url&quot;:&quot;&quot;,&quot;url_text&quot;:null,&quot;image&quot;:&quot;&quot;,&quot;popup_html&quot;:&quot;&quot;},{&quot;latitude&quot;:42.337676,&quot;longitude&quot;:-83.065563,&quot;title&quot;:&quot;Lodge Freeway and Spruce Street&quot;,&quot;icon&quot;:null,&quot;url&quot;:&quot;&quot;,&quot;url_text&quot;:null,&quot;image&quot;:&quot;&quot;,&quot;popup_html&quot;:&quot;&quot;},{&quot;latitude&quot;:42.345891,&quot;longitude&quot;:-83.069277,&quot;title&quot;:&quot;Lodge Freeway and Selden Street&quot;,&quot;icon&quot;:null,&quot;url&quot;:&quot;&quot;,&quot;url_text&quot;:null,&quot;image&quot;:&quot;&quot;,&quot;popup_html&quot;:&quot;&quot;},{&quot;latitude&quot;:42.349563,&quot;longitude&quot;:-83.070973,&quot;title&quot;:&quot;Lodge Freeway and Canfield Street&quot;,&quot;icon&quot;:null,&quot;url&quot;:&quot;&quot;,&quot;url_text&quot;:null,&quot;image&quot;:&quot;&quot;,&quot;popup_html&quot;:&quot;&quot;},{&quot;latitude&quot;:42.355532,&quot;longitude&quot;:-83.074476,&quot;title&quot;:&quot;Lodge Freeway and Merrick Avenue (WSU Athletic Complex)&quot;,&quot;icon&quot;:null,&quot;url&quot;:&quot;&quot;,&quot;url_text&quot;:null,&quot;image&quot;:&quot;&quot;,&quot;popup_html&quot;:&quot;&quot;},{&quot;latitude&quot;:42.357303,&quot;longitude&quot;:-83.079089,&quot;title&quot;:&quot;I-94 and Brooklyn Avenue (Trumbull Crossing)&quot;,&quot;icon&quot;:null,&quot;url&quot;:&quot;&quot;,&quot;url_text&quot;:null,&quot;image&quot;:&quot;&quot;,&quot;popup_html&quot;:&quot;&quot;}],
+    {&quot;baseUrl&quot;:&quot;/pedbridge-project&quot;,&quot;useCluster&quot;:true,&quot;showMarker&quot;:true,&quot;showMarkerPopup&quot;:true,&quot;markerIcon&quot;:null,&quot;styles&quot;:&quot;[]&quot;}
+  );
+&lt;/script&gt;</content>
+
+      
+      
+      
+      
+      
+
+      
+
+      
+        <category term="m10" />
+      
+        <category term="i94" />
+      
+
+      
+
+      
+        <summary type="html">This post is a compilation of all the pedestrian bridges across the Lodge Freeway from downtown to Wayne State University/I-94, plus the Trumbull Crossing bridge across I-94 because its southern end is on the WSU athletic campus. I didn’t necessarily ride these bridges in order or on the same day, so I’m going to present them from south to north (up from downtown).</summary>
+      
+
+      
+      
+    </entry>
+  
+  
+  
+    <entry>
+      
+      <title type="html">Hazel Park updates</title>
+      
+      
+      <link href="https://alisonc.net/pedbridge-project/i75/hazel-park-update/" rel="alternate" type="text/html" title="Hazel Park updates" />
+      
+      <published>2020-07-18T22:47:00+00:00</published>
+      <updated>2020-07-18T22:47:00+00:00</updated>
+      <id>https://alisonc.net/pedbridge-project/i75/hazel-park-update</id>
+      <content type="html" xml:base="https://alisonc.net/pedbridge-project/i75/hazel-park-update/">&lt;p&gt;&lt;strong&gt;Update 2020-07-22&lt;/strong&gt;: Added dashcam frame grabs illustrating the recent
+developments in Hazel Park.&lt;/p&gt;
+
+&lt;p&gt;This past Thursday I was driving down I-75 on the way back from &lt;a href=&quot;https://www.microcenter.com/site/stores/madison-heights.aspx&quot;&gt;Micro Center&lt;/a&gt;.
+I discovered that the bridgescapes in Hazel Park have changed significantly since 
+&lt;a href=&quot;/pedbridge-project/i75/bonus-hazel-park/&quot;&gt;my last post&lt;/a&gt;.&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;There’s now a sound-isolating wall between the freeway and Hazelcrest Place 
+apartments, near the &lt;strong&gt;Orchard Avenue&lt;/strong&gt; bridge.&lt;/li&gt;
+  &lt;li&gt;The &lt;strong&gt;Harry Avenue&lt;/strong&gt; new pedbridge is open to the public, even as it still 
+has some scaffolding on its outside.&lt;/li&gt;
+  &lt;li&gt;The &lt;strong&gt;Bernhard Avenue&lt;/strong&gt; old pedbridge has been demolished (and with it, the 
+memorial to Jynx), and work has begun on its replacement.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Unfortunately, we didn’t have time to take new photos on Thursday. On 2020-07-22, 
+I was passing through the area again and this time I remembered to take the SD 
+card out of my dashcam and take some frame grabs, which are below.&lt;/p&gt;
+
+&lt;div class=&quot;gallery&quot;&gt;
+&lt;div class=&quot;gallery-item&quot;&gt;
+  &lt;figure class=&quot;gallery-image&quot;&gt;
+    &lt;img src=&quot;https://i.imgur.com/YRhmnxYb.jpg&quot; alt=&quot;The sound-isolating wall between I-75 and Hazelcrest Place apartments.&quot; /&gt;
+    &lt;figcaption&gt;
+      The sound-isolating wall between I-75 and Hazelcrest Place apartments. (&lt;a href=&quot;https://i.imgur.com/YRhmnxY.jpg&quot;&gt;embiggen&lt;/a&gt;)
+    &lt;/figcaption&gt;
+  &lt;/figure&gt;
+&lt;/div&gt;
+&lt;div class=&quot;gallery-item&quot;&gt;
+  &lt;figure class=&quot;gallery-image&quot;&gt;
+    &lt;img src=&quot;https://i.imgur.com/g3KUqNmb.jpg&quot; alt=&quot;The Harry Avenue new bridge.&quot; /&gt;
+    &lt;figcaption&gt;
+      The Harry Avenue new bridge. (&lt;a href=&quot;https://i.imgur.com/g3KUqNm.jpg&quot;&gt;embiggen&lt;/a&gt;)
+    &lt;/figcaption&gt;
+  &lt;/figure&gt;
+&lt;/div&gt;
+&lt;div class=&quot;gallery-item&quot;&gt;
+  &lt;figure class=&quot;gallery-image&quot;&gt;
+    &lt;img src=&quot;https://i.imgur.com/jNQSxqeb.jpg&quot; alt=&quot;The Bernhard Avenue new bridge under construction.&quot; /&gt;
+    &lt;figcaption&gt;
+      The Bernhard Avenue new bridge under construction. (&lt;a href=&quot;https://i.imgur.com/jNQSxqe.jpg&quot;&gt;embiggen&lt;/a&gt;)
+    &lt;/figcaption&gt;
+  &lt;/figure&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;p&gt;Also, sorry for the lack of updates. I’ve been busy with things like helping a 
+friend clean out his house, job interviews, and lamenting the recent heat wave 
+in Detroit. I documented all the bridges along the Lodge south of I-94 this past 
+Tuesday, and I’m going to document all the bridges along I-75 between Ferdinand
+(the southernmost currently open bridge) and Leland (in Midtown) tomorrow morning.&lt;/p&gt;</content>
+
+      
+      
+      
+      
+      
+
+      
+
+      
+        <category term="i75" />
+      
+
+      
+
+      
+        <summary type="html">Update 2020-07-22: Added dashcam frame grabs illustrating the recent developments in Hazel Park. This past Thursday I was driving down I-75 on the way back from Micro Center. I discovered that the bridgescapes in Hazel Park have changed significantly since my last post. There’s now a sound-isolating wall between the freeway and Hazelcrest Place apartments, near the Orchard Avenue bridge. The Harry Avenue new pedbridge is open to the public, even as it still has some scaffolding on its outside. The Bernhard Avenue old pedbridge has been demolished (and with it, the memorial to Jynx), and work has begun on its replacement. Unfortunately, we didn’t have time to take new photos on Thursday. On 2020-07-22, I was passing through the area again and this time I remembered to take the SD card out of my dashcam and take some frame grabs, which are below. The sound-isolating wall between I-75 and Hazelcrest Place apartments. (embiggen) The Harry Avenue new bridge. (embiggen) The Bernhard Avenue new bridge under construction. (embiggen) Also, sorry for the lack of updates. I’ve been busy with things like helping a friend clean out his house, job interviews, and lamenting the recent heat wave in Detroit. I documented all the bridges along the Lodge south of I-94 this past Tuesday, and I’m going to document all the bridges along I-75 between Ferdinand (the southernmost currently open bridge) and Leland (in Midtown) tomorrow morning.</summary>
+      
+
+      
+      
+    </entry>
+  
+  
+  
+    <entry>
+      
+      <title type="html">Bonus: Hazel Park</title>
+      
+      
+      <link href="https://alisonc.net/pedbridge-project/i75/bonus-hazel-park/" rel="alternate" type="text/html" title="Bonus: Hazel Park" />
+      
+      <published>2020-06-22T23:50:00+00:00</published>
+      <updated>2020-06-22T23:50:00+00:00</updated>
+      <id>https://alisonc.net/pedbridge-project/i75/bonus-hazel-park</id>
+      <content type="html" xml:base="https://alisonc.net/pedbridge-project/i75/bonus-hazel-park/">&lt;p&gt;&lt;strong&gt;Update 2020-07-22&lt;/strong&gt;: See &lt;a href=&quot;/pedbridge-project/i75/hazel-park-update/&quot;&gt;Hazel Park updates&lt;/a&gt; for the state of Hazel Park’s pedbridges
+as of late July 2020.&lt;/p&gt;
+
+&lt;p&gt;I really don’t have an excuse for delaying this post so long, considering I 
+rode across all the pedestrian bridges in Hazel Park &lt;em&gt;ten days ago&lt;/em&gt; on 
+the morning of 12 June. My route started at &lt;a href=&quot;https://twitter.com/fishsummitTV&quot;&gt;my partner&lt;/a&gt;’s house, which is 
+only a couple blocks from Hazel Park’s &lt;a href=&quot;http://oaklandcounty115.com/2018/10/24/explore-green-acres-park-in-hazel-park/&quot;&gt;Green Acres Park&lt;/a&gt; and 
+&lt;a href=&quot;https://www.hazelparkschools.org/schools/programs/invest-roosevelt-alternative-high-school/&quot;&gt;Invest Roosevelt High School&lt;/a&gt;. The &lt;strong&gt;Browning Avenue&lt;/strong&gt; pedestrian bridge, 
+the northernmost in Hazel Park, connects that park and school with the 
+neighbourhood across I-75 to its east.&lt;/p&gt;
+
+&lt;!-- fold --&gt;
+
+&lt;div class=&quot;gallery&quot;&gt;
+&lt;div class=&quot;gallery-item&quot;&gt;
+  &lt;figure class=&quot;gallery-image&quot;&gt;
+    &lt;img src=&quot;https://i.imgur.com/jJsAP3ab.jpg&quot; alt=&quot;Approaching the Browning bridge from the west.&quot; /&gt;
+    &lt;figcaption&gt;
+      Approaching the Browning bridge from the west. (&lt;a href=&quot;https://i.imgur.com/jJsAP3a.jpg&quot;&gt;embiggen&lt;/a&gt;)
+    &lt;/figcaption&gt;
+  &lt;/figure&gt;
+&lt;/div&gt;
+&lt;div class=&quot;gallery-item&quot;&gt;
+  &lt;figure class=&quot;gallery-image&quot;&gt;
+    &lt;img src=&quot;https://i.imgur.com/mer3Zf0b.jpg&quot; alt=&quot;A tree that grew through the railing and was (mostly) removed.&quot; /&gt;
+    &lt;figcaption&gt;
+      A tree that grew through the railing and was (mostly) removed. (&lt;a href=&quot;https://i.imgur.com/mer3Zf0.jpg&quot;&gt;embiggen&lt;/a&gt;)
+    &lt;/figcaption&gt;
+  &lt;/figure&gt;
+&lt;/div&gt;
+&lt;div class=&quot;gallery-item&quot;&gt;
+  &lt;figure class=&quot;gallery-image&quot;&gt;
+    &lt;img src=&quot;https://i.imgur.com/CnCHA75b.jpg&quot; alt=&quot;Looking east down the bridge.&quot; /&gt;
+    &lt;figcaption&gt;
+      Looking east down the bridge. (&lt;a href=&quot;https://i.imgur.com/CnCHA75.jpg&quot;&gt;embiggen&lt;/a&gt;)
+    &lt;/figcaption&gt;
+  &lt;/figure&gt;
+&lt;/div&gt;
+&lt;div class=&quot;gallery-item&quot;&gt;
+  &lt;figure class=&quot;gallery-image&quot;&gt;
+    &lt;img src=&quot;https://i.imgur.com/2eqbOpbb.jpg&quot; alt=&quot;Looking south from the bridge, toward 8 Mile. I-75 in Hazel Park is undergoing a massive reconstruction project that's disrupting vehicular traffic through the city.&quot; /&gt;
+    &lt;figcaption&gt;
+      Looking south from the bridge, toward 8 Mile. I-75 in Hazel Park is undergoing a massive reconstruction project that's disrupting vehicular traffic through the city. (&lt;a href=&quot;https://i.imgur.com/2eqbOpb.jpg&quot;&gt;embiggen&lt;/a&gt;)
+    &lt;/figcaption&gt;
+  &lt;/figure&gt;
+&lt;/div&gt;
+&lt;div class=&quot;gallery-item&quot;&gt;
+  &lt;figure class=&quot;gallery-image&quot;&gt;
+    &lt;img src=&quot;https://i.imgur.com/hQEp4JYb.jpg&quot; alt=&quot;Looking north from the bridge, toward the I-696 interchange. Landmark Community Church is visible on the east side of I-75.&quot; /&gt;
+    &lt;figcaption&gt;
+      Looking north from the bridge, toward the I-696 interchange. Landmark Community Church is visible on the east side of I-75. (&lt;a href=&quot;https://i.imgur.com/hQEp4JY.jpg&quot;&gt;embiggen&lt;/a&gt;)
+    &lt;/figcaption&gt;
+  &lt;/figure&gt;
+&lt;/div&gt;
+&lt;div class=&quot;gallery-item&quot;&gt;
+  &lt;figure class=&quot;gallery-image&quot;&gt;
+    &lt;img src=&quot;https://i.imgur.com/q3xGsBZb.jpg&quot; alt=&quot;The helical ramp on the east side of the Browning bridge. Note orange netting blocking foot/bike traffic into the construction zone.&quot; /&gt;
+    &lt;figcaption&gt;
+      The helical ramp on the east side of the Browning bridge. Note orange netting blocking foot/bike traffic into the construction zone. (&lt;a href=&quot;https://i.imgur.com/q3xGsBZ.jpg&quot;&gt;embiggen&lt;/a&gt;)
+    &lt;/figcaption&gt;
+  &lt;/figure&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;p&gt;Mentioned in captions:&lt;/p&gt;
+&lt;ul&gt;
+  &lt;li&gt;&lt;a href=&quot;https://www.clickondetroit.com/traffic/2020/03/04/i-75-bridge-demolitions-expected-to-cause-traffic-jams-travel-issues-in-hazel-park/&quot;&gt;disrupting vehicular traffic&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;http://www.landmarkcommunity.org/&quot;&gt;Landmark Community Church&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;The next bridge to the south is &lt;strong&gt;Orchard Avenue&lt;/strong&gt;, whose eastern end is 
+in the parking lot of &lt;a href=&quot;https://www.apartmentguide.com/apartments/Michigan/Hazel-Park/Hazelcrest-Place-Apartments/100034455/&quot;&gt;Hazelcrest Place Apartments&lt;/a&gt;.&lt;/p&gt;
+
+&lt;div class=&quot;gallery&quot;&gt;
+&lt;div class=&quot;gallery-item&quot;&gt;
+  &lt;figure class=&quot;gallery-image&quot;&gt;
+    &lt;img src=&quot;https://i.imgur.com/YLLQhAbb.jpg&quot; alt=&quot;Approaching the Orchard bridge from the Hazelcrest Place parking lot.&quot; /&gt;
+    &lt;figcaption&gt;
+      Approaching the Orchard bridge from the Hazelcrest Place parking lot. (&lt;a href=&quot;https://i.imgur.com/YLLQhAb.jpg&quot;&gt;embiggen&lt;/a&gt;)
+    &lt;/figcaption&gt;
+  &lt;/figure&gt;
+&lt;/div&gt;
+&lt;div class=&quot;gallery-item&quot;&gt;
+  &lt;figure class=&quot;gallery-image&quot;&gt;
+    &lt;img src=&quot;https://i.imgur.com/2y1b2aEb.jpg&quot; alt=&quot;Hazelcrest Place Apartments.&quot; /&gt;
+    &lt;figcaption&gt;
+      Hazelcrest Place Apartments. (&lt;a href=&quot;https://i.imgur.com/2y1b2aE.jpg&quot;&gt;embiggen&lt;/a&gt;)
+    &lt;/figcaption&gt;
+  &lt;/figure&gt;
+&lt;/div&gt;
+&lt;div class=&quot;gallery-item&quot;&gt;
+  &lt;figure class=&quot;gallery-image&quot;&gt;
+    &lt;img src=&quot;https://i.imgur.com/ZZbRKmMb.jpg&quot; alt=&quot;Looking west down the bridge. The Steven Arms Apartments are visible on the right.&quot; /&gt;
+    &lt;figcaption&gt;
+      Looking west down the bridge. The Steven Arms Apartments are visible on the right. (&lt;a href=&quot;https://i.imgur.com/ZZbRKmM.jpg&quot;&gt;embiggen&lt;/a&gt;)
+    &lt;/figcaption&gt;
+  &lt;/figure&gt;
+&lt;/div&gt;
+&lt;div class=&quot;gallery-item&quot;&gt;
+  &lt;figure class=&quot;gallery-image&quot;&gt;
+    &lt;img src=&quot;https://i.imgur.com/fQ56IARb.jpg&quot; alt=&quot;Looking south from the bridge. First Baptist Church is visible on the west side of I-75.&quot; /&gt;
+    &lt;figcaption&gt;
+      Looking south from the bridge. First Baptist Church is visible on the west side of I-75. (&lt;a href=&quot;https://i.imgur.com/fQ56IAR.jpg&quot;&gt;embiggen&lt;/a&gt;)
+    &lt;/figcaption&gt;
+  &lt;/figure&gt;
+&lt;/div&gt;
+&lt;div class=&quot;gallery-item&quot;&gt;
+  &lt;figure class=&quot;gallery-image&quot;&gt;
+    &lt;img src=&quot;https://i.imgur.com/F3oFrmcb.jpg&quot; alt=&quot;Looking north from the bridge, toward the under-construction Woodward Heights Boulevard vehicle bridge.&quot; /&gt;
+    &lt;figcaption&gt;
+      Looking north from the bridge, toward the under-construction Woodward Heights Boulevard vehicle bridge. (&lt;a href=&quot;https://i.imgur.com/F3oFrmc.jpg&quot;&gt;embiggen&lt;/a&gt;)
+    &lt;/figcaption&gt;
+  &lt;/figure&gt;
+&lt;/div&gt;
+  &lt;div class=&quot;gallery-item&quot;&gt;
+  &lt;figure class=&quot;gallery-image&quot;&gt;
+    &lt;img src=&quot;https://i.imgur.com/BWlKD5Wb.jpg&quot; alt=&quot;A new concrete pillar, which means the Orchard bridge will probably be replaced as part of the I-75 roadworks.&quot; /&gt;
+    &lt;figcaption&gt;
+      A new concrete pillar, which means the Orchard bridge will probably be replaced as part of the I-75 roadworks. (&lt;a href=&quot;https://i.imgur.com/BWlKD5W.jpg&quot;&gt;embiggen&lt;/a&gt;)
+    &lt;/figcaption&gt;
+  &lt;/figure&gt;
+&lt;/div&gt;
+&lt;div class=&quot;gallery-item&quot;&gt;
+  &lt;figure class=&quot;gallery-image&quot;&gt;
+    &lt;img src=&quot;https://i.imgur.com/zbci6gyb.jpg&quot; alt=&quot;Looking east toward the bridge from the west side of Orchard Avenue.&quot; /&gt;
+    &lt;figcaption&gt;
+      Looking east toward the bridge from the west side of Orchard Avenue. (&lt;a href=&quot;https://i.imgur.com/zbci6gy.jpg&quot;&gt;embiggen&lt;/a&gt;)
+    &lt;/figcaption&gt;
+  &lt;/figure&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;p&gt;Mentioned in captions:&lt;/p&gt;
+&lt;ul&gt;
+  &lt;li&gt;&lt;a href=&quot;https://goo.gl/maps/jhFmQBLEtkB5p4uHA&quot;&gt;Steven Arms Apartments&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://fbchazelpark.com/&quot;&gt;First Baptist Church&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;The next bridge, &lt;strong&gt;Highland Avenue&lt;/strong&gt;, is on the south side of 9 Mile Road, 
+i.e. less than a mile 
+of straight north-south distance to the Detroit city limits. The barriers 
+in front of bridge ramps that block vehicle access to them (and also block 
+desirepaths) get a lot stronger on this side of 9 Mile. Coincidence? You 
+decide. Also, I apparently forgot to take photos of the view down I-75 
+from each side of the bridge.&lt;/p&gt;
+
+&lt;div class=&quot;gallery&quot;&gt;
+&lt;div class=&quot;gallery-item&quot;&gt;
+  &lt;figure class=&quot;gallery-image&quot;&gt;
+    &lt;img src=&quot;https://i.imgur.com/0DMGNxrb.jpg&quot; alt=&quot;The south end of the Highland bridge, with Tabernacle Baptist Church in the background.&quot; /&gt;
+    &lt;figcaption&gt;
+      The south end of the Highland bridge, with Tabernacle Baptist Church in the background. (&lt;a href=&quot;https://i.imgur.com/0DMGNxr.jpg&quot;&gt;embiggen&lt;/a&gt;)
+    &lt;/figcaption&gt;
+  &lt;/figure&gt;
+&lt;/div&gt;
+&lt;div class=&quot;gallery-item&quot;&gt;
+  &lt;figure class=&quot;gallery-image&quot;&gt;
+    &lt;img src=&quot;https://i.imgur.com/2aQddfxb.jpg&quot; alt=&quot;Looking north down the bridge.&quot; /&gt;
+    &lt;figcaption&gt;
+      Looking north down the bridge. (&lt;a href=&quot;https://i.imgur.com/2aQddfx.jpg&quot;&gt;embiggen&lt;/a&gt;)
+    &lt;/figcaption&gt;
+  &lt;/figure&gt;
+&lt;/div&gt;
+&lt;div class=&quot;gallery-item&quot;&gt;
+  &lt;figure class=&quot;gallery-image&quot;&gt;
+    &lt;img src=&quot;https://i.imgur.com/QeFFvpIb.jpg&quot; alt=&quot;Looking down the north ramp, toward the vehicle/desirepath blocker that I really really didn't want to yeet my bike into.&quot; /&gt;
+    &lt;figcaption&gt;
+      Looking down the north ramp, toward the vehicle/desirepath blocker that I really really didn't want to yeet my bike into. (&lt;a href=&quot;https://i.imgur.com/QeFFvpI.jpg&quot;&gt;embiggen&lt;/a&gt;)
+    &lt;/figcaption&gt;
+  &lt;/figure&gt;
+&lt;/div&gt;
+&lt;div class=&quot;gallery-item&quot;&gt;
+  &lt;figure class=&quot;gallery-image&quot;&gt;
+    &lt;img src=&quot;https://i.imgur.com/qvhGY4Nb.jpg&quot; alt=&quot;Looking up the north ramp.&quot; /&gt;
+    &lt;figcaption&gt;
+      Looking up the north ramp. (&lt;a href=&quot;https://i.imgur.com/qvhGY4N.jpg&quot;&gt;embiggen&lt;/a&gt;)
+    &lt;/figcaption&gt;
+  &lt;/figure&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;p&gt;Mentioned in captions:&lt;/p&gt;
+&lt;ul&gt;
+  &lt;li&gt;&lt;a href=&quot;http://www.tbchp.org/&quot;&gt;Tabernacle Baptist Church&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;The new &lt;strong&gt;Harry Avenue&lt;/strong&gt; bridge is currently under construction. This replaces 
+a bridge that was in service up to at least 2018, according to Street View imagery. The old bridge looks very similar to Hazel Park’s other pedbridges, 
+so I’m guessing the rest of them will be demolished and replaced ere long.&lt;/p&gt;
+
+&lt;p&gt;I hope the new Harry bridge is finished by September, since 
+&lt;a href=&quot;https://www.hazelparkschools.org/schools/elementary/united-oaks-elementary/&quot;&gt;United Oaks Elementary&lt;/a&gt; lies at its east end.&lt;/p&gt;
+
+&lt;div class=&quot;gallery&quot;&gt;
+&lt;div class=&quot;gallery-item&quot;&gt;
+  &lt;figure class=&quot;gallery-image&quot;&gt;
+    &lt;img src=&quot;https://i.imgur.com/aTdUUrxb.jpg&quot; alt=&quot;Wide shot of the under-construction Harry bridge.&quot; /&gt;
+    &lt;figcaption&gt;
+      Wide shot of the under-construction Harry bridge. (&lt;a href=&quot;https://i.imgur.com/aTdUUrx.jpg&quot;&gt;embiggen&lt;/a&gt;)
+    &lt;/figcaption&gt;
+  &lt;/figure&gt;
+&lt;/div&gt;
+&lt;div class=&quot;gallery-item&quot;&gt;
+  &lt;figure class=&quot;gallery-image&quot;&gt;
+    &lt;img src=&quot;https://i.imgur.com/sb8fOqeb.jpg&quot; alt=&quot;The new bridge's west ramp, featuring some snazzy brick faux-finishing on the pillars. Still not as pretty as the Cathedral Street bridge, though.&quot; /&gt;
+    &lt;figcaption&gt;
+      The new bridge's west ramp, featuring some snazzy brick faux-finishing on the pillars. Still not as pretty as the Cathedral Street bridge, though. (&lt;a href=&quot;https://i.imgur.com/sb8fOqe.jpg&quot;&gt;embiggen&lt;/a&gt;)
+    &lt;/figcaption&gt;
+  &lt;/figure&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;p&gt;Mentioned in captions:&lt;/p&gt;
+&lt;ul&gt;
+  &lt;li&gt;&lt;a href=&quot;/pedbridge-project/m39/i75/southfield-fwy/&quot;&gt;Cathedral Street bridge&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;The southernmost pedbridge in Hazel Park is &lt;strong&gt;Bernhard Avenue&lt;/strong&gt;, which is 
+five blocks north of 8 Mile Road.&lt;/p&gt;
+
+&lt;div class=&quot;gallery&quot;&gt;
+&lt;div class=&quot;gallery-item&quot;&gt;
+  &lt;figure class=&quot;gallery-image&quot;&gt;
+    &lt;img src=&quot;https://i.imgur.com/VJn8F4tb.jpg&quot; alt=&quot;The east ramp of the Bernhard bridge.&quot; /&gt;
+    &lt;figcaption&gt;
+      The east ramp of the Bernhard bridge. (&lt;a href=&quot;https://i.imgur.com/VJn8F4t.jpg&quot;&gt;embiggen&lt;/a&gt;)
+    &lt;/figcaption&gt;
+  &lt;/figure&gt;
+&lt;/div&gt;
+&lt;div class=&quot;gallery-item&quot;&gt;
+  &lt;figure class=&quot;gallery-image&quot;&gt;
+    &lt;img src=&quot;https://i.imgur.com/gdlPww0b.jpg&quot; alt=&quot;The anti-vehicle barrier at the foot of the east ramp.&quot; /&gt;
+    &lt;figcaption&gt;
+      The anti-vehicle barrier at the foot of the east ramp. (&lt;a href=&quot;https://i.imgur.com/gdlPww0.jpg&quot;&gt;embiggen&lt;/a&gt;)
+    &lt;/figcaption&gt;
+  &lt;/figure&gt;
+&lt;/div&gt;
+&lt;div class=&quot;gallery-item&quot;&gt;
+  &lt;figure class=&quot;gallery-image&quot;&gt;
+    &lt;img src=&quot;https://i.imgur.com/zhwpQrdb.jpg&quot; alt=&quot;Looking west down the bridge.&quot; /&gt;
+    &lt;figcaption&gt;
+      Looking west down the bridge. (&lt;a href=&quot;https://i.imgur.com/zhwpQrd.jpg&quot;&gt;embiggen&lt;/a&gt;)
+    &lt;/figcaption&gt;
+  &lt;/figure&gt;
+&lt;/div&gt;
+&lt;div class=&quot;gallery-item&quot;&gt;
+  &lt;figure class=&quot;gallery-image&quot;&gt;
+    &lt;img src=&quot;https://i.imgur.com/7PGUhczb.jpg&quot; alt=&quot;Looking north, toward the under-construction Harry bridge.&quot; /&gt;
+    &lt;figcaption&gt;
+      Looking north, toward the under-construction Harry bridge. (&lt;a href=&quot;https://i.imgur.com/7PGUhcz.jpg&quot;&gt;embiggen&lt;/a&gt;)
+    &lt;/figcaption&gt;
+  &lt;/figure&gt;
+&lt;/div&gt;
+&lt;div class=&quot;gallery-item&quot;&gt;
+  &lt;figure class=&quot;gallery-image&quot;&gt;
+    &lt;img src=&quot;https://i.imgur.com/fGSODZgb.jpg&quot; alt=&quot;Looking south, toward the 8 Mile Road interchange.&quot; /&gt;
+    &lt;figcaption&gt;
+      Looking south, toward the 8 Mile Road interchange. (&lt;a href=&quot;https://i.imgur.com/fGSODZg.jpg&quot;&gt;embiggen&lt;/a&gt;)
+    &lt;/figcaption&gt;
+  &lt;/figure&gt;
+&lt;/div&gt;
+&lt;div class=&quot;gallery-item&quot;&gt;
+  &lt;figure class=&quot;gallery-image&quot;&gt;
+    &lt;img src=&quot;https://i.imgur.com/T1jTloIb.jpg&quot; alt=&quot;A concrete pillar for the bridge's replacement.&quot; /&gt;
+    &lt;figcaption&gt;
+      A concrete pillar for the bridge's replacement. (&lt;a href=&quot;https://i.imgur.com/T1jTloI.jpg&quot;&gt;embiggen&lt;/a&gt;)
+    &lt;/figcaption&gt;
+  &lt;/figure&gt;
+&lt;/div&gt;
+&lt;div class=&quot;gallery-item&quot;&gt;
+  &lt;figure class=&quot;gallery-image&quot;&gt;
+    &lt;img src=&quot;https://i.imgur.com/AEP9OGIb.jpg&quot; alt=&quot;Graffiti on the bridge, which reads &amp;ldquo;RIP Jynx 2/23/89 - 5/16/19&amp;rdquo;. It's kind of sad that this tribute will only last a little over a year.&quot; /&gt;
+    &lt;figcaption&gt;
+      Graffiti on the bridge, which reads &amp;ldquo;RIP Jynx 2/23/89 - 5/16/19&amp;rdquo;. It's kind of sad that this tribute will only last a little over a year. (&lt;a href=&quot;https://i.imgur.com/AEP9OGI.jpg&quot;&gt;embiggen&lt;/a&gt;)
+    &lt;/figcaption&gt;
+  &lt;/figure&gt;
+&lt;/div&gt;
+&lt;div class=&quot;gallery-item&quot;&gt;
+  &lt;figure class=&quot;gallery-image&quot;&gt;
+    &lt;img src=&quot;https://i.imgur.com/sG4riWpb.jpg&quot; alt=&quot;Looking down the bridge's west ramp at the anti-vehicle barrier.&quot; /&gt;
+    &lt;figcaption&gt;
+      Looking down the bridge's west ramp at the anti-vehicle barrier. (&lt;a href=&quot;https://i.imgur.com/sG4riWp.jpg&quot;&gt;embiggen&lt;/a&gt;)
+    &lt;/figcaption&gt;
+  &lt;/figure&gt;
+&lt;/div&gt;
+&lt;div class=&quot;gallery-item&quot;&gt;
+  &lt;figure class=&quot;gallery-image&quot;&gt;
+    &lt;img src=&quot;https://i.imgur.com/Odk1Ksib.jpg&quot; alt=&quot;A lump of asphalt bridging the height difference between the bridge ramp and the sidewalk. This isn't ADA compliant!&quot; /&gt;
+    &lt;figcaption&gt;
+      A lump of asphalt bridging the height difference between the bridge ramp and the sidewalk. This isn't ADA compliant! (&lt;a href=&quot;https://i.imgur.com/Odk1Ksi.jpg&quot;&gt;embiggen&lt;/a&gt;)
+    &lt;/figcaption&gt;
+  &lt;/figure&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;p&gt;&lt;strong&gt;Addendum&lt;/strong&gt;: I was curious about who &lt;em&gt;Jynx&lt;/em&gt; was. Armed with nothing but a 
+date of birth, date of death, and the vague hunch that they lived, died, or 
+were buried in Michigan, I was able to find this &lt;a href=&quot;https://www.findagrave.com/memorial/203751536/amanda-rose-roeske&quot;&gt;Find A Grave entry&lt;/a&gt;. 
+Jynx’s full name was &lt;em&gt;Amanda Rose Roeske&lt;/em&gt;, and she’s buried in &lt;a href=&quot;https://www.findagrave.com/cemetery/702/hiawatha-cemetery&quot;&gt;Hiawatha Cemetery&lt;/a&gt;
+in the Upper Peninsula. May her memory be a blessing.&lt;/p&gt;
+
+&lt;div id=&quot;1da09301-c8ee-49e9-8733-ee393eb7fc40&quot; style=&quot;width:600px;height:400px;&quot; class=&quot; jekyll-map&quot;&gt;&lt;/div&gt;
+&lt;script type=&quot;text/javascript&quot;&gt;
+  jekyllMaps.register(
+    '1da09301-c8ee-49e9-8733-ee393eb7fc40',
+    [{&quot;latitude&quot;:42.471153,&quot;longitude&quot;:-83.110076,&quot;title&quot;:&quot;I-75 and Browning Avenue&quot;,&quot;icon&quot;:null,&quot;url&quot;:&quot;&quot;,&quot;url_text&quot;:null,&quot;image&quot;:&quot;&quot;,&quot;popup_html&quot;:&quot;&quot;},{&quot;latitude&quot;:42.465095,&quot;longitude&quot;:-83.107531,&quot;title&quot;:&quot;I-75 and Orchard Avenue&quot;,&quot;icon&quot;:null,&quot;url&quot;:&quot;&quot;,&quot;url_text&quot;:null,&quot;image&quot;:&quot;&quot;,&quot;popup_html&quot;:&quot;&quot;},{&quot;latitude&quot;:42.45829,&quot;longitude&quot;:-83.10005,&quot;title&quot;:&quot;I-75 and Highland Avenue&quot;,&quot;icon&quot;:null,&quot;url&quot;:&quot;&quot;,&quot;url_text&quot;:null,&quot;image&quot;:&quot;&quot;,&quot;popup_html&quot;:&quot;&quot;},{&quot;latitude&quot;:42.455894,&quot;longitude&quot;:-83.096283,&quot;title&quot;:&quot;I-75 and Harry Avenue&quot;,&quot;icon&quot;:null,&quot;url&quot;:&quot;&quot;,&quot;url_text&quot;:null,&quot;image&quot;:&quot;&quot;,&quot;popup_html&quot;:&quot;&quot;},{&quot;latitude&quot;:42.451152,&quot;longitude&quot;:-83.095052,&quot;title&quot;:&quot;I-75 and Bernhard Avenue&quot;,&quot;icon&quot;:null,&quot;url&quot;:&quot;&quot;,&quot;url_text&quot;:null,&quot;image&quot;:&quot;&quot;,&quot;popup_html&quot;:&quot;&quot;}],
+    {&quot;baseUrl&quot;:&quot;/pedbridge-project&quot;,&quot;useCluster&quot;:true,&quot;showMarker&quot;:true,&quot;showMarkerPopup&quot;:true,&quot;markerIcon&quot;:null,&quot;styles&quot;:&quot;[]&quot;}
+  );
+&lt;/script&gt;</content>
+
+      
+      
+      
+      
+      
+
+      
+
+      
+        <category term="i75" />
+      
+
+      
+
+      
+        <summary type="html">Update 2020-07-22: See Hazel Park updates for the state of Hazel Park’s pedbridges as of late July 2020. I really don’t have an excuse for delaying this post so long, considering I rode across all the pedestrian bridges in Hazel Park ten days ago on the morning of 12 June. My route started at my partner’s house, which is only a couple blocks from Hazel Park’s Green Acres Park and Invest Roosevelt High School. The Browning Avenue pedestrian bridge, the northernmost in Hazel Park, connects that park and school with the neighbourhood across I-75 to its east.</summary>
+      
+
+      
+      
+    </entry>
+  
+  
+  
+    <entry>
+      
+      <title type="html">I-94 Westside</title>
+      
+      
+      <link href="https://alisonc.net/pedbridge-project/i94/94-westside/" rel="alternate" type="text/html" title="I-94 Westside" />
+      
+      <published>2020-06-15T16:50:00+00:00</published>
+      <updated>2020-06-15T16:50:00+00:00</updated>
+      <id>https://alisonc.net/pedbridge-project/i94/94-westside</id>
+      <content type="html" xml:base="https://alisonc.net/pedbridge-project/i94/94-westside/">&lt;p&gt;Last Saturday (6 June), I re-attempted &lt;a href=&quot;/pedbridge-project/i94/94-roosevelt/&quot;&gt;24 May’s ride&lt;/a&gt; on a morning with more 
+pleasant weather. I completed it this time and didn’t bother to re-photograph 
+the Roosevelt Avenue bridge, 
+which makes &lt;strong&gt;Tarnów Street&lt;/strong&gt; the first bridge documented on this ride. 
+I believe the street is named for the &lt;a href=&quot;https://en.wikipedia.org/wiki/Tarn%C3%B3w&quot;&gt;Polish city&lt;/a&gt;, since it’s next to 
+Chopin Street which is most likely named for the &lt;a href=&quot;https://en.wikipedia.org/wiki/Fr%C3%A9d%C3%A9ric_Chopin&quot;&gt;Polish composer&lt;/a&gt;. 
+Detroit has a long history of Polish immigration, and there’s even a 
+&lt;a href=&quot;https://www.detroitpolonia.org&quot;&gt;West Side Detroit Polish American Historical Society&lt;/a&gt;.&lt;/p&gt;
+
+&lt;!-- fold --&gt;
+
+&lt;div class=&quot;gallery&quot;&gt;
+&lt;div class=&quot;gallery-item&quot;&gt;
+  &lt;figure class=&quot;gallery-image&quot;&gt;
+    &lt;img src=&quot;https://i.imgur.com/FzJ9Bprb.jpg&quot; alt=&quot;Approaching the Tarnów bridge from the north. It's kind of hidden by the trees on the berm.&quot; /&gt;
+    &lt;figcaption&gt;
+      Approaching the Tarnów bridge from the north. It's kind of hidden by the trees on the berm. (&lt;a href=&quot;https://i.imgur.com/FzJ9Bpr.jpg&quot;&gt;embiggen&lt;/a&gt;)
+    &lt;/figcaption&gt;
+  &lt;/figure&gt;
+&lt;/div&gt;
+&lt;div class=&quot;gallery-item&quot;&gt;
+  &lt;figure class=&quot;gallery-image&quot;&gt;
+    &lt;img src=&quot;https://i.imgur.com/bwrIKgbb.jpg&quot; alt=&quot;Looking southward down the bridge.&quot; /&gt;
+    &lt;figcaption&gt;
+      Looking southward down the bridge. (&lt;a href=&quot;https://i.imgur.com/bwrIKgb.jpg&quot;&gt;embiggen&lt;/a&gt;)
+    &lt;/figcaption&gt;
+  &lt;/figure&gt;
+&lt;/div&gt;
+&lt;div class=&quot;gallery-item&quot;&gt;
+  &lt;figure class=&quot;gallery-image&quot;&gt;
+    &lt;img src=&quot;https://i.imgur.com/x9EZECSb.jpg&quot; alt=&quot;View east from the bridge, toward downtown.&quot; /&gt;
+    &lt;figcaption&gt;
+      View east from the bridge, toward downtown. (&lt;a href=&quot;https://i.imgur.com/x9EZECS.jpg&quot;&gt;embiggen&lt;/a&gt;)
+    &lt;/figcaption&gt;
+  &lt;/figure&gt;
+&lt;/div&gt;
+&lt;div class=&quot;gallery-item&quot;&gt;
+  &lt;figure class=&quot;gallery-image&quot;&gt;
+    &lt;img src=&quot;https://i.imgur.com/Zueu1npb.jpg&quot; alt=&quot;View west from the bridge, toward Dearborn.&quot; /&gt;
+    &lt;figcaption&gt;
+      View west from the bridge, toward Dearborn. (&lt;a href=&quot;https://i.imgur.com/Zueu1np.jpg&quot;&gt;embiggen&lt;/a&gt;)
+    &lt;/figcaption&gt;
+  &lt;/figure&gt;
+&lt;/div&gt;
+&lt;div class=&quot;gallery-item&quot;&gt;
+  &lt;figure class=&quot;gallery-image&quot;&gt;
+    &lt;img src=&quot;https://i.imgur.com/vysNQyEb.jpg&quot; alt=&quot;Approaching the bridge from the south. It has a ramp on the south side, but not on the north side.&quot; /&gt;
+    &lt;figcaption&gt;
+      Approaching the bridge from the south. It has a ramp on the south side, but not on the north side. (&lt;a href=&quot;https://i.imgur.com/vysNQyE.jpg&quot;&gt;embiggen&lt;/a&gt;)
+    &lt;/figcaption&gt;
+  &lt;/figure&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;p&gt;The next bridge west is &lt;strong&gt;Lumley Street&lt;/strong&gt;, whose south end connects to the 
+parking lot of Kay Beauty Supply.&lt;/p&gt;
+
+&lt;div class=&quot;gallery&quot;&gt;
+&lt;div class=&quot;gallery-item&quot;&gt;
+  &lt;figure class=&quot;gallery-image&quot;&gt;
+    &lt;img src=&quot;https://i.imgur.com/YxQKxsQb.jpg&quot; alt=&quot;Approaching the Lumley bridge from the south. Yes, that is a low-hanging overhead wire; I ducked under it.&quot; /&gt;
+    &lt;figcaption&gt;
+      Approaching the Lumley bridge from the south. Yes, that is a low-hanging overhead wire; I ducked under it. (&lt;a href=&quot;https://i.imgur.com/YxQKxsQ.jpg&quot;&gt;embiggen&lt;/a&gt;)
+    &lt;/figcaption&gt;
+  &lt;/figure&gt;
+&lt;/div&gt;
+&lt;div class=&quot;gallery-item&quot;&gt;
+  &lt;figure class=&quot;gallery-image&quot;&gt;
+    &lt;img src=&quot;https://i.imgur.com/GJmfuahb.jpg&quot; alt=&quot;Looking northward down the bridge.&quot; /&gt;
+    &lt;figcaption&gt;
+      Looking northward down the bridge. (&lt;a href=&quot;https://i.imgur.com/GJmfuah.jpg&quot;&gt;embiggen&lt;/a&gt;)
+    &lt;/figcaption&gt;
+  &lt;/figure&gt;
+&lt;/div&gt;
+&lt;div class=&quot;gallery-item&quot;&gt;
+  &lt;figure class=&quot;gallery-image&quot;&gt;
+    &lt;img src=&quot;https://i.imgur.com/BTrCgIRb.jpg&quot; alt=&quot;View east from the bridge, toward downtown.&quot; /&gt;
+    &lt;figcaption&gt;
+      View east from the bridge, toward downtown. (&lt;a href=&quot;https://i.imgur.com/BTrCgIR.jpg&quot;&gt;embiggen&lt;/a&gt;)
+    &lt;/figcaption&gt;
+  &lt;/figure&gt;
+&lt;/div&gt;
+&lt;div class=&quot;gallery-item&quot;&gt;
+  &lt;figure class=&quot;gallery-image&quot;&gt;
+    &lt;img src=&quot;https://i.imgur.com/BnqSutlb.jpg&quot; alt=&quot;View west from the bridge, toward Dearborn.&quot; /&gt;
+    &lt;figcaption&gt;
+      View west from the bridge, toward Dearborn. (&lt;a href=&quot;https://i.imgur.com/BnqSutl.jpg&quot;&gt;embiggen&lt;/a&gt;)
+    &lt;/figcaption&gt;
+  &lt;/figure&gt;
+&lt;/div&gt;
+&lt;div class=&quot;gallery-item&quot;&gt;
+  &lt;figure class=&quot;gallery-image&quot;&gt;
+    &lt;img src=&quot;https://i.imgur.com/dOdXCkKb.jpg&quot; alt=&quot;Approaching the bridge from the north, where it connects to the I-94 frontage road.&quot; /&gt;
+    &lt;figcaption&gt;
+      Approaching the bridge from the north, where it connects to the I-94 frontage road. (&lt;a href=&quot;https://i.imgur.com/dOdXCkK.jpg&quot;&gt;embiggen&lt;/a&gt;)
+    &lt;/figcaption&gt;
+  &lt;/figure&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;p&gt;The westernmost pedestrian bridge across I-94 in Detroit is &lt;strong&gt;Trenton Street&lt;/strong&gt;, 
+which links a residential street with businesses on Michigan Avenue and 
+&lt;a href=&quot;http://www.universalpsa.org/&quot;&gt;Universal Academy&lt;/a&gt; further south down Trenton Street.&lt;/p&gt;
+
+&lt;div class=&quot;gallery&quot;&gt;
+&lt;div class=&quot;gallery-item&quot;&gt;
+  &lt;figure class=&quot;gallery-image&quot;&gt;
+    &lt;img src=&quot;https://i.imgur.com/jGvsLYwb.jpg&quot; alt=&quot;Approaching the Trenton bridge from the north, at the end of a residential dead-end street Also, cat!&quot; /&gt;
+    &lt;figcaption&gt;
+      Approaching the Trenton bridge from the north, at the end of a residential dead-end street Also, cat! (&lt;a href=&quot;https://i.imgur.com/jGvsLYw.jpg&quot;&gt;embiggen&lt;/a&gt;)
+    &lt;/figcaption&gt;
+  &lt;/figure&gt;
+&lt;/div&gt;
+&lt;div class=&quot;gallery-item&quot;&gt;
+  &lt;figure class=&quot;gallery-image&quot;&gt;
+    &lt;img src=&quot;https://i.imgur.com/DRUyLLTb.jpg&quot; alt=&quot;Looking southward down the bridge.&quot; /&gt;
+    &lt;figcaption&gt;
+      Looking southward down the bridge. (&lt;a href=&quot;https://i.imgur.com/DRUyLLT.jpg&quot;&gt;embiggen&lt;/a&gt;)
+    &lt;/figcaption&gt;
+  &lt;/figure&gt;
+&lt;/div&gt;
+&lt;div class=&quot;gallery-item&quot;&gt;
+  &lt;figure class=&quot;gallery-image&quot;&gt;
+    &lt;img src=&quot;https://i.imgur.com/QJasWF0b.jpg&quot; alt=&quot;View east from the bridge, toward downtown. Nobody follows that 55mph speed limit.&quot; /&gt;
+    &lt;figcaption&gt;
+      View east from the bridge, toward downtown. Nobody follows that 55mph speed limit. (&lt;a href=&quot;https://i.imgur.com/QJasWF0.jpg&quot;&gt;embiggen&lt;/a&gt;)
+    &lt;/figcaption&gt;
+  &lt;/figure&gt;
+&lt;/div&gt;
+&lt;div class=&quot;gallery-item&quot;&gt;
+  &lt;figure class=&quot;gallery-image&quot;&gt;
+    &lt;img src=&quot;https://i.imgur.com/3ZLxzlDb.jpg&quot; alt=&quot;View west from the bridge, toward Dearborn.&quot; /&gt;
+    &lt;figcaption&gt;
+      View west from the bridge, toward Dearborn. (&lt;a href=&quot;https://i.imgur.com/3ZLxzlD.jpg&quot;&gt;embiggen&lt;/a&gt;)
+    &lt;/figcaption&gt;
+  &lt;/figure&gt;
+&lt;/div&gt;
+&lt;div class=&quot;gallery-item&quot;&gt;
+  &lt;figure class=&quot;gallery-image&quot;&gt;
+    &lt;img src=&quot;https://i.imgur.com/jksPEZRb.jpg&quot; alt=&quot;Approaching the bridge from the south.&quot; /&gt;
+    &lt;figcaption&gt;
+      Approaching the bridge from the south. (&lt;a href=&quot;https://i.imgur.com/jksPEZR.jpg&quot;&gt;embiggen&lt;/a&gt;)
+    &lt;/figcaption&gt;
+  &lt;/figure&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div id=&quot;63d1c2d8-c77b-46e2-af00-94b5f4955962&quot; style=&quot;width:600px;height:400px;&quot; class=&quot; jekyll-map&quot;&gt;&lt;/div&gt;
+&lt;script type=&quot;text/javascript&quot;&gt;
+  jekyllMaps.register(
+    '63d1c2d8-c77b-46e2-af00-94b5f4955962',
+    [{&quot;latitude&quot;:42.333073,&quot;longitude&quot;:-83.136001,&quot;title&quot;:&quot;I-94 and Tarnów Street&quot;,&quot;icon&quot;:null,&quot;url&quot;:&quot;&quot;,&quot;url_text&quot;:null,&quot;image&quot;:&quot;&quot;,&quot;popup_html&quot;:&quot;&quot;},{&quot;latitude&quot;:42.33181,&quot;longitude&quot;:-83.141783,&quot;title&quot;:&quot;I-94 and Lumley Street&quot;,&quot;icon&quot;:null,&quot;url&quot;:&quot;&quot;,&quot;url_text&quot;:null,&quot;image&quot;:&quot;&quot;,&quot;popup_html&quot;:&quot;&quot;},{&quot;latitude&quot;:42.330813,&quot;longitude&quot;:-83.148023,&quot;title&quot;:&quot;I-94 and Trenton Street&quot;,&quot;icon&quot;:null,&quot;url&quot;:&quot;&quot;,&quot;url_text&quot;:null,&quot;image&quot;:&quot;&quot;,&quot;popup_html&quot;:&quot;&quot;}],
+    {&quot;baseUrl&quot;:&quot;/pedbridge-project&quot;,&quot;useCluster&quot;:true,&quot;showMarker&quot;:true,&quot;showMarkerPopup&quot;:true,&quot;markerIcon&quot;:null,&quot;styles&quot;:&quot;[]&quot;}
+  );
+&lt;/script&gt;</content>
+
+      
+      
+      
+      
+      
+
+      
+
+      
+        <category term="i94" />
+      
+
+      
+
+      
+        <summary type="html">Last Saturday (6 June), I re-attempted 24 May’s ride on a morning with more pleasant weather. I completed it this time and didn’t bother to re-photograph the Roosevelt Avenue bridge, which makes Tarnów Street the first bridge documented on this ride. I believe the street is named for the Polish city, since it’s next to Chopin Street which is most likely named for the Polish composer. Detroit has a long history of Polish immigration, and there’s even a West Side Detroit Polish American Historical Society.</summary>
+      
+
+      
+      
+    </entry>
+  
+  
+  
+    <entry>
+      
+      <title type="html">Southfield Freeway + Bagley Pedestrian Bridge</title>
+      
+      
+      <link href="https://alisonc.net/pedbridge-project/m39/i75/southfield-fwy/" rel="alternate" type="text/html" title="Southfield Freeway + Bagley Pedestrian Bridge" />
+      
+      <published>2020-06-02T16:20:00+00:00</published>
+      <updated>2020-06-02T16:20:00+00:00</updated>
+      <id>https://alisonc.net/pedbridge-project/m39/i75/southfield-fwy</id>
+      <content type="html" xml:base="https://alisonc.net/pedbridge-project/m39/i75/southfield-fwy/">&lt;p&gt;Last Saturday (30 May), I picked up my friend &lt;a href=&quot;https://twitter.com/ShadowFoxNixill&quot;&gt;Nixill&lt;/a&gt;’s Kroger order for him, 
+then we took a car trip down the Southfield Freeway to document the pedbridges 
+there. Nix wants to build his aerial photography portfolio, and we both saw a 
+Pedbridge Project trip as a good way to do that.&lt;/p&gt;
+
+&lt;!-- fold --&gt;
+
+&lt;p&gt;We started at the &lt;strong&gt;&lt;a href=&quot;https://inhabitat.com/bagley-pedestrian-bridge-in-detroit-provides-safe-access-to-canada/&quot;&gt;Bagley Pedestrian Bridge&lt;/a&gt;&lt;/strong&gt; in Southwest Detroit after stopping 
+at my apartment to drop off a frozen pizza that I’d added to his Kroger order. 
+I only took a few photos as this bridge is easy for me to ride my bike to, and 
+I’d like to photograph it after dark because of the lighting on it and the 
+nearby &lt;a href=&quot;https://en.wikipedia.org/wiki/Ambassador_Bridge&quot;&gt;Ambassador Bridge&lt;/a&gt;.&lt;/p&gt;
+
+&lt;div class=&quot;gallery&quot;&gt;
+&lt;div class=&quot;gallery-item&quot;&gt;
+  &lt;figure class=&quot;gallery-image&quot;&gt;
+    &lt;img src=&quot;https://i.imgur.com/o4Z2Iu5b.jpg&quot; alt=&quot;The Bagley Pedestrian Bridge sign on the west side of the bridge.&quot; /&gt;
+    &lt;figcaption&gt;
+      The Bagley Pedestrian Bridge sign on the west side of the bridge. (&lt;a href=&quot;https://i.imgur.com/o4Z2Iu5.jpg&quot;&gt;embiggen&lt;/a&gt;)
+    &lt;/figcaption&gt;
+  &lt;/figure&gt;
+&lt;/div&gt;
+&lt;div class=&quot;gallery-item&quot;&gt;
+  &lt;figure class=&quot;gallery-image&quot;&gt;
+    &lt;img src=&quot;https://i.imgur.com/Mh2lruKb.jpg&quot; alt=&quot;A planter behind the sign.&quot; /&gt;
+    &lt;figcaption&gt;
+      A planter behind the sign. (&lt;a href=&quot;https://i.imgur.com/Mh2lruK.jpg&quot;&gt;embiggen&lt;/a&gt;)
+    &lt;/figcaption&gt;
+  &lt;/figure&gt;
+&lt;/div&gt;
+&lt;div class=&quot;gallery-item&quot;&gt;
+  &lt;figure class=&quot;gallery-image&quot;&gt;
+    &lt;img src=&quot;https://i.imgur.com/A8EWf1Kb.jpg&quot; alt=&quot;View westbound down the bridge, toward the Bagley Shared Street. (Taken by Nix with his drone)&quot; /&gt;
+    &lt;figcaption&gt;
+      View westbound down the bridge, toward the Bagley Shared Street. (Taken by Nix with his drone) (&lt;a href=&quot;https://i.imgur.com/A8EWf1K.jpg&quot;&gt;embiggen&lt;/a&gt;)
+    &lt;/figcaption&gt;
+  &lt;/figure&gt;
+&lt;/div&gt;
+&lt;div class=&quot;gallery-item&quot;&gt;
+  &lt;figure class=&quot;gallery-image&quot;&gt;
+    &lt;img src=&quot;https://i.imgur.com/N3bg63bb.jpg&quot; alt=&quot;View eastbound down the bridge, toward FREC and Plaza del Norte. There were a couple skateboarders on the bridge. (Taken by Nix with his drone)&quot; /&gt;
+    &lt;figcaption&gt;
+      View eastbound down the bridge, toward FREC and Plaza del Norte. There were a couple skateboarders on the bridge. (Taken by Nix with his drone) (&lt;a href=&quot;https://i.imgur.com/N3bg63b.jpg&quot;&gt;embiggen&lt;/a&gt;)
+    &lt;/figcaption&gt;
+  &lt;/figure&gt;
+&lt;/div&gt;
+&lt;div class=&quot;gallery-item&quot;&gt;
+  &lt;figure class=&quot;gallery-image&quot;&gt;
+    &lt;img src=&quot;https://i.imgur.com/piKxAlLb.jpg&quot; alt=&quot;View eastbound from the west end of the bridge. (Taken by Nix with his drone)&quot; /&gt;
+    &lt;figcaption&gt;
+      View eastbound from the west end of the bridge. (Taken by Nix with his drone) (&lt;a href=&quot;https://i.imgur.com/piKxAlL.jpg&quot;&gt;embiggen&lt;/a&gt;)
+    &lt;/figcaption&gt;
+  &lt;/figure&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;p&gt;Mentioned in captions:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;a href=&quot;https://detroit.curbed.com/2020/1/16/21068713/bagley-street-mexicantown-detroit-shared-street&quot;&gt;Bagley Shared Street&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://www.fordfund.org/FRECSouthwest&quot;&gt;FREC&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://www.facebook.com/pages/Plaza-Del-Norte/115952085132134&quot;&gt;Plaza del Norte&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;After the Bagley bridge, we headed up to the suburbs for some errands, then back 
+down to the city to document the pedbridges on the Southfield Freeway from north 
+to south. The northernmost bridge carries &lt;strong&gt;Vassar Drive&lt;/strong&gt; across the freeway; when 
+we parked up on Vassar the residents of a house on the corner informed us the 
+bridge was closed. Normally, what I’d do here is photograph the barricade on the 
+side of the bridge I approached it from, then cross the freeway and photograph 
+the barricade on the other side. Since Nix and his drone were with me, though, 
+he got aerial shots of the bridge and of the views to the north and south. We 
+found out that the bridge was closed due to poor pavement conditions.&lt;/p&gt;
+
+&lt;div class=&quot;gallery&quot;&gt;
+&lt;div class=&quot;gallery-item&quot;&gt;
+  &lt;figure class=&quot;gallery-image&quot;&gt;
+    &lt;img src=&quot;https://i.imgur.com/JeHxqyab.jpg&quot; alt=&quot;Eastern approach, showing multiple barricades up the helical ramp and at the main span.&quot; /&gt;
+    &lt;figcaption&gt;
+      Eastern approach, showing multiple barricades up the helical ramp and at the main span. (&lt;a href=&quot;https://i.imgur.com/JeHxqya.jpg&quot;&gt;embiggen&lt;/a&gt;)
+    &lt;/figcaption&gt;
+  &lt;/figure&gt;
+&lt;/div&gt;
+&lt;div class=&quot;gallery-item&quot;&gt;
+  &lt;figure class=&quot;gallery-image&quot;&gt;
+    &lt;img src=&quot;https://i.imgur.com/6AnRtXIb.jpg&quot; alt=&quot;View north toward 8 Mile Road/city limits. (aerial)&quot; /&gt;
+    &lt;figcaption&gt;
+      View north toward 8 Mile Road/city limits. (aerial) (&lt;a href=&quot;https://i.imgur.com/6AnRtXI.jpg&quot;&gt;embiggen&lt;/a&gt;)
+    &lt;/figcaption&gt;
+  &lt;/figure&gt;
+&lt;/div&gt;
+&lt;div class=&quot;gallery-item&quot;&gt;
+  &lt;figure class=&quot;gallery-image&quot;&gt;
+    &lt;img src=&quot;https://i.imgur.com/bfLAATdb.jpg&quot; alt=&quot;View south toward the 7 Mile Road and McNichols Road exits. (aerial)&quot; /&gt;
+    &lt;figcaption&gt;
+      View south toward the 7 Mile Road and McNichols Road exits. (aerial) (&lt;a href=&quot;https://i.imgur.com/bfLAATd.jpg&quot;&gt;embiggen&lt;/a&gt;)
+    &lt;/figcaption&gt;
+  &lt;/figure&gt;
+&lt;/div&gt;
+&lt;div class=&quot;gallery-item&quot;&gt;
+  &lt;figure class=&quot;gallery-image&quot;&gt;
+    &lt;img src=&quot;https://i.imgur.com/ZXBc5xHb.jpg&quot; alt=&quot;3/4 view from the southwest. (aerial)&quot; /&gt;
+    &lt;figcaption&gt;
+      3/4 view from the southwest. (aerial) (&lt;a href=&quot;https://i.imgur.com/ZXBc5xH.jpg&quot;&gt;embiggen&lt;/a&gt;)
+    &lt;/figcaption&gt;
+  &lt;/figure&gt;
+&lt;/div&gt;
+&lt;div class=&quot;gallery-item&quot;&gt;
+  &lt;figure class=&quot;gallery-image&quot;&gt;
+    &lt;img src=&quot;https://i.imgur.com/V9FCitKb.jpg&quot; alt=&quot;3/4 view from the northeast. (aerial)&quot; /&gt;
+    &lt;figcaption&gt;
+      3/4 view from the northeast. (aerial) (&lt;a href=&quot;https://i.imgur.com/V9FCitK.jpg&quot;&gt;embiggen&lt;/a&gt;)
+    &lt;/figcaption&gt;
+  &lt;/figure&gt;
+&lt;/div&gt;
+&lt;div class=&quot;gallery-item&quot;&gt;
+  &lt;figure class=&quot;gallery-image&quot;&gt;
+    &lt;img src=&quot;https://i.imgur.com/jPIs5M9b.jpg&quot; alt=&quot;Western approach, showing overgrown vegetation and multiple barricades. (aerial)&quot; /&gt;
+    &lt;figcaption&gt;
+      Western approach, showing overgrown vegetation and multiple barricades. (aerial) (&lt;a href=&quot;https://i.imgur.com/jPIs5M9.jpg&quot;&gt;embiggen&lt;/a&gt;)
+    &lt;/figcaption&gt;
+  &lt;/figure&gt;
+&lt;/div&gt;
+&lt;div class=&quot;gallery-item&quot;&gt;
+  &lt;figure class=&quot;gallery-image&quot;&gt;
+    &lt;img src=&quot;https://i.imgur.com/Y6k2hyXb.jpg&quot; alt=&quot;Wooden and wire barricade at the start of the main span. (aerial)&quot; /&gt;
+    &lt;figcaption&gt;
+      Wooden and wire barricade at the start of the main span. (aerial) (&lt;a href=&quot;https://i.imgur.com/Y6k2hyX.jpg&quot;&gt;embiggen&lt;/a&gt;)
+    &lt;/figcaption&gt;
+  &lt;/figure&gt;
+&lt;/div&gt;
+&lt;div class=&quot;gallery-item&quot;&gt;
+  &lt;figure class=&quot;gallery-image&quot;&gt;
+    &lt;img src=&quot;https://i.imgur.com/q6jZS54b.jpg&quot; alt=&quot;An aerial view of the bridge, showing poor pavement condition. (aerial)&quot; /&gt;
+    &lt;figcaption&gt;
+      An aerial view of the bridge, showing poor pavement condition. (aerial) (&lt;a href=&quot;https://i.imgur.com/q6jZS54.jpg&quot;&gt;embiggen&lt;/a&gt;)
+    &lt;/figcaption&gt;
+  &lt;/figure&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;p&gt;The next pedbridge to the south was &lt;strong&gt;Glendale Street&lt;/strong&gt;, which had been &lt;a href=&quot;https://www.google.com/maps/@42.382835,-83.21707,3a,75y,149.48h,89.79t/data=!3m6!1e1!3m4!1sVc4qXYRYYjWNZwbIkzRYDw!2e0!7i3328!8i1664&quot;&gt;disused since 2007&lt;/a&gt;
+according to historical Google Street View imagery. It was &lt;a href=&quot;https://www.michigan.gov/mdot/0,4616,7-151--452003--,00.html&quot;&gt;demolished in 2017&lt;/a&gt; 
+but (as of Saturday) is still mapped on Google Maps. 
+We photographed the former sites of the helical ramps and what would have been 
+the view south from the bridge.&lt;/p&gt;
+
+&lt;div class=&quot;gallery&quot;&gt;
+&lt;div class=&quot;gallery-item&quot;&gt;
+  &lt;figure class=&quot;gallery-image&quot;&gt;
+    &lt;img src=&quot;https://i.imgur.com/KAYHNGJb.jpg&quot; alt=&quot;The former site of the bridge's helical ramp on the east side of the freeway.&quot; /&gt;
+    &lt;figcaption&gt;
+      The former site of the bridge's helical ramp on the east side of the freeway. (&lt;a href=&quot;https://i.imgur.com/KAYHNGJ.jpg&quot;&gt;embiggen&lt;/a&gt;)
+    &lt;/figcaption&gt;
+  &lt;/figure&gt;
+&lt;/div&gt;
+&lt;div class=&quot;gallery-item&quot;&gt;
+  &lt;figure class=&quot;gallery-image&quot;&gt;
+    &lt;img src=&quot;https://i.imgur.com/zowobyIb.jpg&quot; alt=&quot;A Google Maps screenshot showing the now-nonexistent bridge.&quot; /&gt;
+    &lt;figcaption&gt;
+      A Google Maps screenshot showing the now-nonexistent bridge. (&lt;a href=&quot;https://i.imgur.com/zowobyI.jpg&quot;&gt;embiggen&lt;/a&gt;)
+    &lt;/figcaption&gt;
+  &lt;/figure&gt;
+&lt;/div&gt;
+&lt;div class=&quot;gallery-item&quot;&gt;
+  &lt;figure class=&quot;gallery-image&quot;&gt;
+    &lt;img src=&quot;https://i.imgur.com/xovxGI4b.jpg&quot; alt=&quot;View south toward the I-96 interchange. (aerial)&quot; /&gt;
+    &lt;figcaption&gt;
+      View south toward the I-96 interchange. (aerial) (&lt;a href=&quot;https://i.imgur.com/xovxGI4.jpg&quot;&gt;embiggen&lt;/a&gt;)
+    &lt;/figcaption&gt;
+  &lt;/figure&gt;
+&lt;/div&gt;
+&lt;div class=&quot;gallery-item&quot;&gt;
+  &lt;figure class=&quot;gallery-image&quot;&gt;
+    &lt;img src=&quot;https://i.imgur.com/MfrtEw8b.jpg&quot; alt=&quot;The former site of the helical ramp on the east side. (aerial)&quot; /&gt;
+    &lt;figcaption&gt;
+      The former site of the helical ramp on the east side. (aerial) (&lt;a href=&quot;https://i.imgur.com/MfrtEw8.jpg&quot;&gt;embiggen&lt;/a&gt;)
+    &lt;/figcaption&gt;
+  &lt;/figure&gt;
+&lt;/div&gt;
+&lt;div class=&quot;gallery-item&quot;&gt;
+  &lt;figure class=&quot;gallery-image&quot;&gt;
+    &lt;img src=&quot;https://i.imgur.com/h6XKytzb.jpg&quot; alt=&quot;The former site of the helical ramp on the west side. (aerial)&quot; /&gt;
+    &lt;figcaption&gt;
+      The former site of the helical ramp on the west side. (aerial) (&lt;a href=&quot;https://i.imgur.com/h6XKytz.jpg&quot;&gt;embiggen&lt;/a&gt;)
+    &lt;/figcaption&gt;
+  &lt;/figure&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;p&gt;We followed the freeway south to the gorgeous, recently constructed &lt;strong&gt;Cathedral Street&lt;/strong&gt; 
+bridge. In 2014, it was &lt;a href=&quot;https://www.freep.com/story/news/local/michigan/detroit/2014/09/26/southfield-freeway-pedestrian-bridge-collapse/16252769/&quot;&gt;knocked down by a truck travelling on the freeway&lt;/a&gt;, 
+resulting in the death of the truck’s driver. Without the bridge, students at 
+nearby &lt;a href=&quot;https://www.detroitk12.org/Cody&quot;&gt;Cody High School&lt;/a&gt; faced a significantly longer walk across the freeway, 
+as the next nearest crossings are at Fitzpatrick Street (1/4 mile to the north)
+and Joy Road (1/4 mile to the south). MDOT &lt;a href=&quot;https://www.detroitnews.com/story/news/local/detroit-city/2015/09/25/mdot-replacing-southfield-freeway-pedestrian-bridges/72792010/&quot;&gt;replaced the bridge&lt;/a&gt; the following 
+year, incorporating lighting and aesthetic improvements. That news article 
+also claims that the Vassar Drive pedbridge was to be replaced in 2017; 
+that obviously didn’t happen.&lt;/p&gt;
+
+&lt;div class=&quot;gallery&quot;&gt;
+&lt;div class=&quot;gallery-item&quot;&gt;
+  &lt;figure class=&quot;gallery-image&quot;&gt;
+    &lt;img src=&quot;https://i.imgur.com/YJ3IAdOb.jpg&quot; alt=&quot;A sign on the southbound service drive warning motorists of the pedestrian crossing ahead.&quot; /&gt;
+    &lt;figcaption&gt;
+      A sign on the southbound service drive warning motorists of the pedestrian crossing ahead. (&lt;a href=&quot;https://i.imgur.com/YJ3IAdO.jpg&quot;&gt;embiggen&lt;/a&gt;)
+    &lt;/figcaption&gt;
+  &lt;/figure&gt;
+&lt;/div&gt;
+&lt;div class=&quot;gallery-item&quot;&gt;
+  &lt;figure class=&quot;gallery-image&quot;&gt;
+    &lt;img src=&quot;https://i.imgur.com/TVsZL3ub.jpg&quot; alt=&quot;The well-marked pedestrian crossing.&quot; /&gt;
+    &lt;figcaption&gt;
+      The well-marked pedestrian crossing. (&lt;a href=&quot;https://i.imgur.com/TVsZL3u.jpg&quot;&gt;embiggen&lt;/a&gt;)
+    &lt;/figcaption&gt;
+  &lt;/figure&gt;
+&lt;/div&gt;
+&lt;div class=&quot;gallery-item&quot;&gt;
+  &lt;figure class=&quot;gallery-image&quot;&gt;
+    &lt;img src=&quot;https://i.imgur.com/SojngYeb.jpg&quot; alt=&quot;The western approach.&quot; /&gt;
+    &lt;figcaption&gt;
+      The western approach. (&lt;a href=&quot;https://i.imgur.com/SojngYe.jpg&quot;&gt;embiggen&lt;/a&gt;)
+    &lt;/figcaption&gt;
+  &lt;/figure&gt;
+&lt;/div&gt;
+&lt;div class=&quot;gallery-item&quot;&gt;
+  &lt;figure class=&quot;gallery-image&quot;&gt;
+    &lt;img src=&quot;https://i.imgur.com/WMfFfohb.jpg&quot; alt=&quot;Detail of the bas-re-leafs on the western ramp.&quot; /&gt;
+    &lt;figcaption&gt;
+      Detail of the bas-re-leafs on the western ramp. (&lt;a href=&quot;https://i.imgur.com/WMfFfoh.jpg&quot;&gt;embiggen&lt;/a&gt;)
+    &lt;/figcaption&gt;
+  &lt;/figure&gt;
+&lt;/div&gt;
+&lt;div class=&quot;gallery-item&quot;&gt;
+  &lt;figure class=&quot;gallery-image&quot;&gt;
+    &lt;img src=&quot;https://i.imgur.com/OnzCEVpb.jpg&quot; alt=&quot;&amp;ldquo;Growing Together&amp;rdquo; logo and solar-powered streetlamp.&quot; /&gt;
+    &lt;figcaption&gt;
+      &amp;ldquo;Growing Together&amp;rdquo; logo and solar-powered streetlamp. (&lt;a href=&quot;https://i.imgur.com/OnzCEVp.jpg&quot;&gt;embiggen&lt;/a&gt;)
+    &lt;/figcaption&gt;
+  &lt;/figure&gt;
+&lt;/div&gt;
+&lt;div class=&quot;gallery-item&quot;&gt;
+  &lt;figure class=&quot;gallery-image&quot;&gt;
+    &lt;img src=&quot;https://i.imgur.com/GkZFTnFb.jpg&quot; alt=&quot;View north from the bridge; the I-96 interchange is visible in the distance.&quot; /&gt;
+    &lt;figcaption&gt;
+      View north from the bridge; the I-96 interchange is visible in the distance. (&lt;a href=&quot;https://i.imgur.com/GkZFTnF.jpg&quot;&gt;embiggen&lt;/a&gt;)
+    &lt;/figcaption&gt;
+  &lt;/figure&gt;
+&lt;/div&gt;
+&lt;div class=&quot;gallery-item&quot;&gt;
+  &lt;figure class=&quot;gallery-image&quot;&gt;
+    &lt;img src=&quot;https://i.imgur.com/mijNFUxb.jpg&quot; alt=&quot;View south toward Joy Road and Warren Avenue.&quot; /&gt;
+    &lt;figcaption&gt;
+      View south toward Joy Road and Warren Avenue. (&lt;a href=&quot;https://i.imgur.com/mijNFUx.jpg&quot;&gt;embiggen&lt;/a&gt;)
+    &lt;/figcaption&gt;
+  &lt;/figure&gt;
+&lt;/div&gt;
+&lt;div class=&quot;gallery-item&quot;&gt;
+  &lt;figure class=&quot;gallery-image&quot;&gt;
+    &lt;img src=&quot;https://i.imgur.com/w1P3Klub.jpg&quot; alt=&quot;View west down Cathedral Street.&quot; /&gt;
+    &lt;figcaption&gt;
+      View west down Cathedral Street. (&lt;a href=&quot;https://i.imgur.com/w1P3Klu.jpg&quot;&gt;embiggen&lt;/a&gt;)
+    &lt;/figcaption&gt;
+  &lt;/figure&gt;
+&lt;/div&gt;
+&lt;div class=&quot;gallery-item&quot;&gt;
+  &lt;figure class=&quot;gallery-image&quot;&gt;
+    &lt;img src=&quot;https://i.imgur.com/0bDlV4Xb.jpg&quot; alt=&quot;3/4 view from the northeast. The ramp on the west side is longer because the service drive is at a lower elevation. (aerial)&quot; /&gt;
+    &lt;figcaption&gt;
+      3/4 view from the northeast. The ramp on the west side is longer because the service drive is at a lower elevation. (aerial) (&lt;a href=&quot;https://i.imgur.com/0bDlV4X.jpg&quot;&gt;embiggen&lt;/a&gt;)
+    &lt;/figcaption&gt;
+  &lt;/figure&gt;
+&lt;/div&gt;
+&lt;div class=&quot;gallery-item&quot;&gt;
+  &lt;figure class=&quot;gallery-image&quot;&gt;
+    &lt;img src=&quot;https://i.imgur.com/plgCZyHb.jpg&quot; alt=&quot;3/4 view from the southwest. (aerial)&quot; /&gt;
+    &lt;figcaption&gt;
+      3/4 view from the southwest. (aerial) (&lt;a href=&quot;https://i.imgur.com/plgCZyH.jpg&quot;&gt;embiggen&lt;/a&gt;)
+    &lt;/figcaption&gt;
+  &lt;/figure&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;p&gt;Finally, the southernmost pedbridge across the Southfield Freeway is &lt;strong&gt;Sawyer Street&lt;/strong&gt;, 
+which connects the Warrendale neighbourhood west of the freeway to the Simanek Playfield and 
+former Ruddiman Middle School/Cody High 9th grade campus.&lt;/p&gt;
+
+&lt;div class=&quot;gallery&quot;&gt;
+&lt;div class=&quot;gallery-item&quot;&gt;
+  &lt;figure class=&quot;gallery-image&quot;&gt;
+    &lt;img src=&quot;https://i.imgur.com/ngkglFUb.jpg&quot; alt=&quot;Approaching the bridge from the west. No, there isn't a curb cut.&quot; /&gt;
+    &lt;figcaption&gt;
+      Approaching the bridge from the west. No, there isn't a curb cut. (&lt;a href=&quot;https://i.imgur.com/ngkglFU.jpg&quot;&gt;embiggen&lt;/a&gt;)
+    &lt;/figcaption&gt;
+  &lt;/figure&gt;
+&lt;/div&gt;
+&lt;div class=&quot;gallery-item&quot;&gt;
+  &lt;figure class=&quot;gallery-image&quot;&gt;
+    &lt;img src=&quot;https://i.imgur.com/aeAjHQHb.jpg&quot; alt=&quot;A drainage grate that isn't flush with the pavement. This is a trip hazard and a hazard to folks making their way across the bridge on wheels.&quot; /&gt;
+    &lt;figcaption&gt;
+      A drainage grate that isn't flush with the pavement. This is a trip hazard and a hazard to folks making their way across the bridge on wheels. (&lt;a href=&quot;https://i.imgur.com/aeAjHQH.jpg&quot;&gt;embiggen&lt;/a&gt;)
+    &lt;/figcaption&gt;
+  &lt;/figure&gt;
+&lt;/div&gt;
+&lt;div class=&quot;gallery-item&quot;&gt;
+  &lt;figure class=&quot;gallery-image&quot;&gt;
+    &lt;img src=&quot;https://i.imgur.com/GLFog2vb.jpg&quot; alt=&quot;Nix's drone.&quot; /&gt;
+    &lt;figcaption&gt;
+      Nix's drone. (&lt;a href=&quot;https://i.imgur.com/GLFog2v.jpg&quot;&gt;embiggen&lt;/a&gt;)
+    &lt;/figcaption&gt;
+  &lt;/figure&gt;
+&lt;/div&gt;
+&lt;div class=&quot;gallery-item&quot;&gt;
+  &lt;figure class=&quot;gallery-image&quot;&gt;
+    &lt;img src=&quot;https://i.imgur.com/Z5pZWy9b.jpg&quot; alt=&quot;View north toward Tireman Avenue and Joy Road.&quot; /&gt;
+    &lt;figcaption&gt;
+      View north toward Tireman Avenue and Joy Road. (&lt;a href=&quot;https://i.imgur.com/Z5pZWy9.jpg&quot;&gt;embiggen&lt;/a&gt;)
+    &lt;/figcaption&gt;
+  &lt;/figure&gt;
+&lt;/div&gt;
+&lt;div class=&quot;gallery-item&quot;&gt;
+  &lt;figure class=&quot;gallery-image&quot;&gt;
+    &lt;img src=&quot;https://i.imgur.com/MDo0XW2b.jpg&quot; alt=&quot;View south toward Warren Avenue and Ford Road.&quot; /&gt;
+    &lt;figcaption&gt;
+      View south toward Warren Avenue and Ford Road. (&lt;a href=&quot;https://i.imgur.com/MDo0XW2.jpg&quot;&gt;embiggen&lt;/a&gt;)
+    &lt;/figcaption&gt;
+  &lt;/figure&gt;
+&lt;/div&gt;
+&lt;div class=&quot;gallery-item&quot;&gt;
+  &lt;figure class=&quot;gallery-image&quot;&gt;
+    &lt;img src=&quot;https://i.imgur.com/BHrRJJMb.jpg&quot; alt=&quot;&amp;ldquo;Fuck TJ&amp;rdquo; graffiti on the bridge.&quot; /&gt;
+    &lt;figcaption&gt;
+      &amp;ldquo;Fuck TJ&amp;rdquo; graffiti on the bridge. (&lt;a href=&quot;https://i.imgur.com/BHrRJJM.jpg&quot;&gt;embiggen&lt;/a&gt;)
+    &lt;/figcaption&gt;
+  &lt;/figure&gt;
+&lt;/div&gt;
+&lt;div class=&quot;gallery-item&quot;&gt;
+  &lt;figure class=&quot;gallery-image&quot;&gt;
+    &lt;img src=&quot;https://i.imgur.com/8xzqbGQb.jpg&quot; alt=&quot;Plywood bolted over missing drainage grates. Another trip/wheels hazard.&quot; /&gt;
+    &lt;figcaption&gt;
+      Plywood bolted over missing drainage grates. Another trip/wheels hazard. (&lt;a href=&quot;https://i.imgur.com/8xzqbGQ.jpg&quot;&gt;embiggen&lt;/a&gt;)
+    &lt;/figcaption&gt;
+  &lt;/figure&gt;
+&lt;/div&gt;
+&lt;div class=&quot;gallery-item&quot;&gt;
+  &lt;figure class=&quot;gallery-image&quot;&gt;
+    &lt;img src=&quot;https://i.imgur.com/ubtw8zgb.jpg&quot; alt=&quot;View of the bridge and the service drive from the east. The wall has more of the bas-re-leafs on it that we initially saw on the Cathedral bridge.&quot; /&gt;
+    &lt;figcaption&gt;
+      View of the bridge and the service drive from the east. The wall has more of the bas-re-leafs on it that we initially saw on the Cathedral bridge. (&lt;a href=&quot;https://i.imgur.com/ubtw8zg.jpg&quot;&gt;embiggen&lt;/a&gt;)
+    &lt;/figcaption&gt;
+  &lt;/figure&gt;
+&lt;/div&gt;
+&lt;div class=&quot;gallery-item&quot;&gt;
+  &lt;figure class=&quot;gallery-image&quot;&gt;
+    &lt;img src=&quot;https://i.imgur.com/JNeBSGob.jpg&quot; alt=&quot;The former Ruddiman Middle School/Cody 9th grade campus.&quot; /&gt;
+    &lt;figcaption&gt;
+      The former Ruddiman Middle School/Cody 9th grade campus. (&lt;a href=&quot;https://i.imgur.com/JNeBSGo.jpg&quot;&gt;embiggen&lt;/a&gt;)
+    &lt;/figcaption&gt;
+  &lt;/figure&gt;
+&lt;/div&gt;
+&lt;div class=&quot;gallery-item&quot;&gt;
+  &lt;figure class=&quot;gallery-image&quot;&gt;
+    &lt;img src=&quot;https://i.imgur.com/TNEdgCTb.jpg&quot; alt=&quot;Some of the few remaining fancy railing sections, on the east side of the bridge. (aerial)&quot; /&gt;
+    &lt;figcaption&gt;
+      Some of the few remaining fancy railing sections, on the east side of the bridge. (aerial) (&lt;a href=&quot;https://i.imgur.com/TNEdgCT.jpg&quot;&gt;embiggen&lt;/a&gt;)
+    &lt;/figcaption&gt;
+  &lt;/figure&gt;
+&lt;/div&gt;
+&lt;div class=&quot;gallery-item&quot;&gt;
+  &lt;figure class=&quot;gallery-image&quot;&gt;
+    &lt;img src=&quot;https://i.imgur.com/A2zIWjdb.jpg&quot; alt=&quot;Sousveillance via drone. (aerial)&quot; /&gt;
+    &lt;figcaption&gt;
+      Sousveillance via drone. (aerial) (&lt;a href=&quot;https://i.imgur.com/A2zIWjd.jpg&quot;&gt;embiggen&lt;/a&gt;)
+    &lt;/figcaption&gt;
+  &lt;/figure&gt;
+&lt;/div&gt;
+&lt;div class=&quot;gallery-item&quot;&gt;
+  &lt;figure class=&quot;gallery-image&quot;&gt;
+    &lt;img src=&quot;https://i.imgur.com/vME18Nsb.jpg&quot; alt=&quot;3/4 view from the northwest. (aerial)&quot; /&gt;
+    &lt;figcaption&gt;
+      3/4 view from the northwest. (aerial) (&lt;a href=&quot;https://i.imgur.com/vME18Ns.jpg&quot;&gt;embiggen&lt;/a&gt;)
+    &lt;/figcaption&gt;
+  &lt;/figure&gt;
+&lt;/div&gt;
+&lt;div class=&quot;gallery-item&quot;&gt;
+  &lt;figure class=&quot;gallery-image&quot;&gt;
+    &lt;img src=&quot;https://i.imgur.com/SDPdVtab.jpg&quot; alt=&quot;3/4 view from the southwest. (aerial)&quot; /&gt;
+    &lt;figcaption&gt;
+      3/4 view from the southwest. (aerial) (&lt;a href=&quot;https://i.imgur.com/SDPdVta.jpg&quot;&gt;embiggen&lt;/a&gt;)
+    &lt;/figcaption&gt;
+  &lt;/figure&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div id=&quot;f703a846-8029-4dfc-bad1-3a85aae19355&quot; style=&quot;width:600px;height:400px;&quot; class=&quot; jekyll-map&quot;&gt;&lt;/div&gt;
+&lt;script type=&quot;text/javascript&quot;&gt;
+  jekyllMaps.register(
+    'f703a846-8029-4dfc-bad1-3a85aae19355',
+    [{&quot;latitude&quot;:42.323977,&quot;longitude&quot;:-83.083219,&quot;title&quot;:&quot;Bagley Pedestrian Bridge&quot;,&quot;icon&quot;:null,&quot;url&quot;:&quot;&quot;,&quot;url_text&quot;:null,&quot;image&quot;:&quot;&quot;,&quot;popup_html&quot;:&quot;&quot;},{&quot;latitude&quot;:42.433786,&quot;longitude&quot;:-83.219479,&quot;title&quot;:&quot;Southfield Freeway and Vassar Drive&quot;,&quot;icon&quot;:null,&quot;url&quot;:&quot;&quot;,&quot;url_text&quot;:null,&quot;image&quot;:&quot;&quot;,&quot;popup_html&quot;:&quot;&quot;},{&quot;latitude&quot;:42.382634,&quot;longitude&quot;:-83.217434,&quot;title&quot;:&quot;Southfield Freeway and Glendale Street&quot;,&quot;icon&quot;:null,&quot;url&quot;:&quot;&quot;,&quot;url_text&quot;:null,&quot;image&quot;:&quot;&quot;,&quot;popup_html&quot;:&quot;&quot;},{&quot;latitude&quot;:42.361479,&quot;longitude&quot;:-83.216421,&quot;title&quot;:&quot;Southfield Freeway and Cathedral Street&quot;,&quot;icon&quot;:null,&quot;url&quot;:&quot;&quot;,&quot;url_text&quot;:null,&quot;image&quot;:&quot;&quot;,&quot;popup_html&quot;:&quot;&quot;},{&quot;latitude&quot;:42.346523,&quot;longitude&quot;:-83.216194,&quot;title&quot;:&quot;Southfield Freeway and Sawyer Street&quot;,&quot;icon&quot;:null,&quot;url&quot;:&quot;&quot;,&quot;url_text&quot;:null,&quot;image&quot;:&quot;&quot;,&quot;popup_html&quot;:&quot;&quot;}],
+    {&quot;baseUrl&quot;:&quot;/pedbridge-project&quot;,&quot;useCluster&quot;:true,&quot;showMarker&quot;:true,&quot;showMarkerPopup&quot;:true,&quot;markerIcon&quot;:null,&quot;styles&quot;:&quot;[]&quot;}
+  );
+&lt;/script&gt;</content>
+
+      
+      
+      
+      
+      
+
+      
+
+      
+        <category term="m39" />
+      
+        <category term="i75" />
+      
+
+      
+
+      
+        <summary type="html">Last Saturday (30 May), I picked up my friend Nixill’s Kroger order for him, then we took a car trip down the Southfield Freeway to document the pedbridges there. Nix wants to build his aerial photography portfolio, and we both saw a Pedbridge Project trip as a good way to do that.</summary>
+      
+
+      
+      
+    </entry>
+  
+  
+  
+    <entry>
+      
+      <title type="html">Lodge Freeway and Holden Street</title>
+      
+      
+      <link href="https://alisonc.net/pedbridge-project/m10/lodge-holden/" rel="alternate" type="text/html" title="Lodge Freeway and Holden Street" />
+      
+      <published>2020-05-27T15:19:00+00:00</published>
+      <updated>2020-05-27T15:19:00+00:00</updated>
+      <id>https://alisonc.net/pedbridge-project/m10/lodge-holden</id>
+      <content type="html" xml:base="https://alisonc.net/pedbridge-project/m10/lodge-holden/">&lt;p&gt;This morning, I had to go to &lt;a href=&quot;https://www.henryford.com/locations/henry-ford-hospital&quot;&gt;Henry Ford Hospital&lt;/a&gt;
+to have blood work done, a Post Office to drop off a couple packages, and 
+&lt;a href=&quot;https://www.wholefoodsmarket.com/stores/detroit&quot;&gt;Whole Foods Market&lt;/a&gt; to blow 
+like $70 in gift cards on food and nice body care supplies I wouldn’t otherwise be 
+able to afford. I was finished at the hospital around 8:40 and had a few minutes 
+to kill before the Post Office on Milwaukee opened at 9:00, so I was able to 
+detour a bit, pass a townhouse complex named for &lt;a href=&quot;https://en.wikipedia.org/wiki/Elijah_McCoy&quot;&gt;the real McCoy&lt;/a&gt;, 
+and cross a pedbridge in an area that’s quite secluded considering 
+its proximity to New Center, Midtown, and Henry Ford Hospital.&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&quot;https://www.strava.com/activities/3519842508&quot;&gt;Strava activity link&lt;/a&gt;&lt;/p&gt;
+
+&lt;div class=&quot;gallery&quot;&gt;
+&lt;div class=&quot;gallery-item&quot;&gt;
+  &lt;figure class=&quot;gallery-image&quot;&gt;
+    &lt;img src=&quot;https://i.imgur.com/snqvDCHb.jpg&quot; alt=&quot;Eastbound approach. There is indeed a curb cut; it's just off camera to the bottom right.&quot; /&gt;
+    &lt;figcaption&gt;
+      Eastbound approach. There is indeed a curb cut; it's just off camera to the bottom right. (&lt;a href=&quot;https://i.imgur.com/snqvDCH.jpg&quot;&gt;embiggen&lt;/a&gt;)
+    &lt;/figcaption&gt;
+  &lt;/figure&gt;
+&lt;/div&gt;
+&lt;div class=&quot;gallery-item&quot;&gt;
+  &lt;figure class=&quot;gallery-image&quot;&gt;
+    &lt;img src=&quot;https://i.imgur.com/nHy1VA5b.jpg&quot; alt=&quot;View eastbound over the bridge. The red paint is a nice change from the usual blue or grey.&quot; /&gt;
+    &lt;figcaption&gt;
+      View eastbound over the bridge. The red paint is a nice change from the usual blue or grey. (&lt;a href=&quot;https://i.imgur.com/nHy1VA5.jpg&quot;&gt;embiggen&lt;/a&gt;)
+    &lt;/figcaption&gt;
+  &lt;/figure&gt;
+&lt;/div&gt;
+&lt;div class=&quot;gallery-item&quot;&gt;
+  &lt;figure class=&quot;gallery-image&quot;&gt;
+    &lt;img src=&quot;https://i.imgur.com/mrylabBb.jpg&quot; alt=&quot;My bike and trailer on the bridge. I'm not usually going to take photos of my bike, but this is serious Reddit fodder right here.&quot; /&gt;
+    &lt;figcaption&gt;
+      My bike and trailer on the bridge. I'm not usually going to take photos of my bike, but this is serious Reddit fodder right here. (&lt;a href=&quot;https://i.imgur.com/mrylabB.jpg&quot;&gt;embiggen&lt;/a&gt;)
+    &lt;/figcaption&gt;
+  &lt;/figure&gt;
+&lt;/div&gt;
+&lt;div class=&quot;gallery-item&quot;&gt;
+  &lt;figure class=&quot;gallery-image&quot;&gt;
+    &lt;img src=&quot;https://i.imgur.com/KzzKQT0b.jpg&quot; alt=&quot;View north. Henry Ford Hospital is to the left, and the big brick building to the right is the New Center U-Haul truck rental and storage facility.&quot; /&gt;
+    &lt;figcaption&gt;
+      View north. Henry Ford Hospital is to the left, and the big brick building to the right is the New Center U-Haul truck rental and storage facility. (&lt;a href=&quot;https://i.imgur.com/KzzKQT0.jpg&quot;&gt;embiggen&lt;/a&gt;)
+    &lt;/figcaption&gt;
+  &lt;/figure&gt;
+&lt;/div&gt;
+&lt;div class=&quot;gallery-item&quot;&gt;
+  &lt;figure class=&quot;gallery-image&quot;&gt;
+    &lt;img src=&quot;https://i.imgur.com/5dNvezXb.jpg&quot; alt=&quot;View south towards downtown. You can just barely see the Renaissance Center on the horizon.&quot; /&gt;
+    &lt;figcaption&gt;
+      View south towards downtown. You can just barely see the Renaissance Center on the horizon. (&lt;a href=&quot;https://i.imgur.com/5dNvezX.jpg&quot;&gt;embiggen&lt;/a&gt;)
+    &lt;/figcaption&gt;
+  &lt;/figure&gt;
+&lt;/div&gt;
+&lt;div class=&quot;gallery-item&quot;&gt;
+  &lt;figure class=&quot;gallery-image&quot;&gt;
+    &lt;img src=&quot;https://i.imgur.com/hPAEGrCb.jpg&quot; alt=&quot;Westbound approach, featuring a nice desirepath and my bike trailer's safety flag.&quot; /&gt;
+    &lt;figcaption&gt;
+      Westbound approach, featuring a nice desirepath and my bike trailer's safety flag. (&lt;a href=&quot;https://i.imgur.com/hPAEGrC.jpg&quot;&gt;embiggen&lt;/a&gt;)
+    &lt;/figcaption&gt;
+  &lt;/figure&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;!-- fold --&gt;
+
+&lt;p&gt;Mentioned in captions:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;a href=&quot;https://www.eahoraebike.com/collections/eahora-folding-ebike/products/eahora-x3-e-pas-ebike&quot;&gt;My bike (Eahora X3)&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://retrospec.com/products/rover-hauler-cargo-foldable-bike-trailer&quot;&gt;My trailer (Retrospec Rover Hauler)&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://www.uhaul.com/Locations/Truck-Rentals-near-Detroit-MI-48202/754024/&quot;&gt;New Center U-Haul&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://gmrencen.com/&quot;&gt;Renaissance Center&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://en.wikipedia.org/wiki/Desire_path&quot;&gt;Desirepath&lt;/a&gt; (&lt;a href=&quot;https://www.reddit.com/r/DesirePath/&quot;&gt;there’s a subreddit for that&lt;/a&gt;)&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;div id=&quot;9be0ca0c-7065-46ba-bc1d-163d2e94fcf7&quot; style=&quot;width:600px;height:400px;&quot; class=&quot; jekyll-map&quot;&gt;&lt;/div&gt;
+&lt;script type=&quot;text/javascript&quot;&gt;
+  jekyllMaps.register(
+    '9be0ca0c-7065-46ba-bc1d-163d2e94fcf7',
+    [{&quot;latitude&quot;:42.363048,&quot;longitude&quot;:-83.078823,&quot;title&quot;:&quot;Lodge Freeway and Holden Street&quot;,&quot;icon&quot;:null,&quot;url&quot;:&quot;/m10/lodge-holden/&quot;,&quot;url_text&quot;:null,&quot;image&quot;:&quot;&quot;,&quot;popup_html&quot;:&quot;&quot;}],
+    {&quot;baseUrl&quot;:&quot;/pedbridge-project&quot;,&quot;useCluster&quot;:true,&quot;showMarker&quot;:true,&quot;showMarkerPopup&quot;:true,&quot;markerIcon&quot;:null,&quot;styles&quot;:&quot;[]&quot;}
+  );
+&lt;/script&gt;</content>
+
+      
+      
+      
+      
+      
+
+      
+
+      
+        <category term="m10" />
+      
+
+      
+
+      
+        <summary type="html">This morning, I had to go to Henry Ford Hospital to have blood work done, a Post Office to drop off a couple packages, and Whole Foods Market to blow like $70 in gift cards on food and nice body care supplies I wouldn’t otherwise be able to afford. I was finished at the hospital around 8:40 and had a few minutes to kill before the Post Office on Milwaukee opened at 9:00, so I was able to detour a bit, pass a townhouse complex named for the real McCoy, and cross a pedbridge in an area that’s quite secluded considering its proximity to New Center, Midtown, and Henry Ford Hospital. Strava activity link Eastbound approach. There is indeed a curb cut; it's just off camera to the bottom right. (embiggen) View eastbound over the bridge. The red paint is a nice change from the usual blue or grey. (embiggen) My bike and trailer on the bridge. I'm not usually going to take photos of my bike, but this is serious Reddit fodder right here. (embiggen) View north. Henry Ford Hospital is to the left, and the big brick building to the right is the New Center U-Haul truck rental and storage facility. (embiggen) View south towards downtown. You can just barely see the Renaissance Center on the horizon. (embiggen) Westbound approach, featuring a nice desirepath and my bike trailer's safety flag. (embiggen)</summary>
+      
+
+      
+      
+    </entry>
+  
+  
+  
+    <entry>
+      
+      <title type="html">I-94 and Roosevelt</title>
+      
+      
+      <link href="https://alisonc.net/pedbridge-project/i94/94-roosevelt/" rel="alternate" type="text/html" title="I-94 and Roosevelt" />
+      
+      <published>2020-05-24T19:23:00+00:00</published>
+      <updated>2020-05-24T19:23:00+00:00</updated>
+      <id>https://alisonc.net/pedbridge-project/i94/94-roosevelt</id>
+      <content type="html" xml:base="https://alisonc.net/pedbridge-project/i94/94-roosevelt/">&lt;p&gt;I was going to ride from home to Trenton Street and back, to hit the Roosevelt, 
+Tarnow, Lumley, and Trenton bridges across I-94. I gave up at McGraw/Livernois, 
+however, because I was really hot and riding into a headwind. I’m not used 
+to riding in 28°C temperatures.&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&quot;https://www.strava.com/activities/3506269392&quot;&gt;Strava activity link&lt;/a&gt;&lt;/p&gt;
+&lt;div class=&quot;gallery&quot;&gt;
+&lt;div class=&quot;gallery-item&quot;&gt;
+  &lt;figure class=&quot;gallery-image&quot;&gt;
+    &lt;img src=&quot;https://i.imgur.com/BMWu2uCb.jpg&quot; alt=&quot;Northbound approach. Some nice trees.&quot; /&gt;
+    &lt;figcaption&gt;
+      Northbound approach. Some nice trees. (&lt;a href=&quot;https://i.imgur.com/BMWu2uC.jpg&quot;&gt;embiggen&lt;/a&gt;)
+    &lt;/figcaption&gt;
+  &lt;/figure&gt;
+&lt;/div&gt;
+&lt;div class=&quot;gallery-item&quot;&gt;
+  &lt;figure class=&quot;gallery-image&quot;&gt;
+    &lt;img src=&quot;https://i.imgur.com/8DNfuXFb.jpg&quot; alt=&quot;View east.&quot; /&gt;
+    &lt;figcaption&gt;
+      View east. (&lt;a href=&quot;https://i.imgur.com/8DNfuXF.jpg&quot;&gt;embiggen&lt;/a&gt;)
+    &lt;/figcaption&gt;
+  &lt;/figure&gt;
+&lt;/div&gt;
+&lt;div class=&quot;gallery-item&quot;&gt;
+  &lt;figure class=&quot;gallery-image&quot;&gt;
+    &lt;img src=&quot;https://i.imgur.com/l7CWnYYb.jpg&quot; alt=&quot;View west.&quot; /&gt;
+    &lt;figcaption&gt;
+      View west. (&lt;a href=&quot;https://i.imgur.com/l7CWnYY.jpg&quot;&gt;embiggen&lt;/a&gt;)
+    &lt;/figcaption&gt;
+  &lt;/figure&gt;
+&lt;/div&gt;
+&lt;div class=&quot;gallery-item&quot;&gt;
+  &lt;figure class=&quot;gallery-image&quot;&gt;
+    &lt;img src=&quot;https://i.imgur.com/8Pwx0Z8b.jpg&quot; alt=&quot;Southbound approach. A bit of a curb, just enough to throw you off if you're not expecting it.&quot; /&gt;
+    &lt;figcaption&gt;
+      Southbound approach. A bit of a curb, just enough to throw you off if you're not expecting it. (&lt;a href=&quot;https://i.imgur.com/8Pwx0Z8.jpg&quot;&gt;embiggen&lt;/a&gt;)
+    &lt;/figcaption&gt;
+  &lt;/figure&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;!-- fold --&gt;
+&lt;div id=&quot;b007e48b-f12d-45ee-a8b7-6a0c7bba7808&quot; style=&quot;width:600px;height:400px;&quot; class=&quot; jekyll-map&quot;&gt;&lt;/div&gt;
+&lt;script type=&quot;text/javascript&quot;&gt;
+  jekyllMaps.register(
+    'b007e48b-f12d-45ee-a8b7-6a0c7bba7808',
+    [{&quot;latitude&quot;:42.348283,&quot;longitude&quot;:-83.10514,&quot;title&quot;:&quot;I-94 and Roosevelt&quot;,&quot;icon&quot;:null,&quot;url&quot;:&quot;/i94/94-roosevelt/&quot;,&quot;url_text&quot;:null,&quot;image&quot;:&quot;&quot;,&quot;popup_html&quot;:&quot;&quot;}],
+    {&quot;baseUrl&quot;:&quot;/pedbridge-project&quot;,&quot;useCluster&quot;:true,&quot;showMarker&quot;:true,&quot;showMarkerPopup&quot;:true,&quot;markerIcon&quot;:null,&quot;styles&quot;:&quot;[]&quot;}
+  );
+&lt;/script&gt;</content>
+
+      
+      
+      
+      
+      
+
+      
+
+      
+        <category term="i94" />
+      
+
+      
+
+      
+        <summary type="html">I was going to ride from home to Trenton Street and back, to hit the Roosevelt, Tarnow, Lumley, and Trenton bridges across I-94. I gave up at McGraw/Livernois, however, because I was really hot and riding into a headwind. I’m not used to riding in 28°C temperatures. Strava activity link Northbound approach. Some nice trees. (embiggen) View east. (embiggen) View west. (embiggen) Southbound approach. A bit of a curb, just enough to throw you off if you're not expecting it. (embiggen)</summary>
+      
+
+      
+      
+    </entry>
+  
+  
+</feed>

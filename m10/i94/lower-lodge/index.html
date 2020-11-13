@@ -1,0 +1,829 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  
+  
+  <title>Lower Lodge (Downtown to WSU)</title>
+  <meta name="description" content="The Lodge Freeway from downtown to WSU, plus Trumbull Crossing">
+  
+
+  <link rel="stylesheet" href="/pedbridge-project/assets/main.css">
+  <link rel="canonical" href="https://alisonc.net/pedbridge-project/m10/i94/lower-lodge/">
+  
+  
+  <link rel="alternate" type="application/rss+xml" title="Detroit Pedbridge Project" href="https://alisonc.net/pedbridge-project/feed.xml">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/pedbridge-project/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/pedbridge-project/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/pedbridge-project/favicon-16x16.png">
+<link rel="manifest" href="/pedbridge-project/site.webmanifest">
+
+
+  
+  <meta property="og:title" content="Lower Lodge (Downtown to WSU)">
+  <meta property="og:site_name" content="Detroit Pedbridge Project">
+  <meta property="og:url" content="https://alisonc.net/pedbridge-project/m10/i94/lower-lodge/">
+  <meta property="og:description" content="The Lodge Freeway from downtown to WSU, plus Trumbull Crossing">
+  
+  
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:site" content="alisonc42">
+  <meta name="twitter:title" content="Lower Lodge (Downtown to WSU)">
+  <meta name="twitter:description" content="The Lodge Freeway from downtown to WSU, plus Trumbull Crossing">
+  
+    <meta name="twitter:creator" content="alisonc42">
+  
+  
+
+  <link rel="dns-prefetch" href="https://fonts.gstatic.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css?family=Bitter:400,400i,700&display=swap" rel="stylesheet">
+
+  
+
+<script type='text/javascript'>
+  /* global google */
+/* global MarkerClusterer */
+// eslint-disable-next-line no-unused-vars
+var jekyllMaps = (function() {
+  'use strict'
+  var clusterSettings = {}
+  var clusterReady = false
+  var mapReady = false
+  var options = {}
+  var data = []
+  var maps = []
+
+  return {
+    initializeMap: initializeMap,
+    initializeCluster: initializeCluster,
+    register: register
+  }
+
+  /**
+   * Setup Google Maps options and call renderer.
+   */
+  function initializeMap() {
+    options = {
+      mapTypeId: google.maps.MapTypeId.ROADMAP,
+      center: new google.maps.LatLng(0, 0),
+      styles: []
+    }
+    mapReady = true
+    render()
+  }
+
+  /**
+   * Register map data to be rendered once Google Maps API is loaded.
+   *
+   * @param string id
+   * @param Array locations
+   * @param Object settings
+   */
+  function register(id, locations, options) {
+    data.push({ id: id, locations: locations, options: options })
+    render()
+  }
+
+  /**
+   * Render maps data if Google Maps API is loaded.
+   */
+  function render() {
+    if (!mapReady) return
+
+    while (data.length > 0) {
+      var item = data.pop()
+      var bounds = new google.maps.LatLngBounds()
+      var mapOptions = Object.assign({}, options, item.options)
+      var map = new google.maps.Map(
+        document.getElementById(item.id),
+        mapOptions
+      )
+      var infoWindow = new google.maps.InfoWindow()
+      var markers = item.locations.map(createMarker)
+
+      map.fitBounds(bounds)
+      google.maps.event.addListenerOnce(map, 'idle', function() {
+        if (this.customZoom) this.setZoom(this.customZoom)
+      })
+      if (mapOptions.useCluster) {
+        maps.push({ map: map, markers: markers })
+        processCluster()
+      }
+    }
+
+    function createMarker(location) {
+      var position = new google.maps.LatLng(
+        location.latitude,
+        location.longitude
+      )
+      bounds.extend(position)
+      if (!mapOptions.showMarker) return false
+
+      var marker = new google.maps.Marker({
+        position: position,
+        title: location.title,
+        image: location.image,
+        popup_html: location.popup_html,
+        icon: location.icon || mapOptions.markerIcon,
+        url: markerUrl(mapOptions.baseUrl, location.url),
+        url_text: location.url_text,
+        map: map
+      })
+      if (mapOptions.showMarkerPopup) marker.addListener('click', markerPopup)
+
+      return marker
+    }
+
+    function markerUrl(baseUrl, url) {
+      if (/^(https?|\/\/)/.test(url)) return url
+
+      return url.length > 0 ? baseUrl + url : ''
+    }
+
+    function markerPopup() {
+      var content = '<div class="map-info-window"><h5>' + this.title + '</h5>'
+      if (this.popup_html.length > 0) {
+        content += this.popup_html
+      }
+      else {
+        var imageTag =
+          this.image.length > 0 &&
+          '<img src="' + this.image + '" alt="' + this.title + '"/>'
+        if (this.url.length > 0) {
+          var linkContent = imageTag || this.url_text || 'View'
+          content += '<a href="' + this.url + '">' + linkContent + '</a>'
+        } else if (imageTag) {
+          content += imageTag
+        }
+      }
+      content += '</div>'
+      infoWindow.setContent(content)
+      infoWindow.open(map, this)
+    }
+  }
+
+  function initializeCluster(settings) {
+    clusterReady = true
+    clusterSettings = settings || {}
+    processCluster()
+  }
+
+  function processCluster() {
+    if (!clusterReady) return
+
+    while (maps.length > 0) {
+      var obj = maps.pop()
+      // eslint-disable-next-line no-new
+      new MarkerClusterer(obj.map, obj.markers, {
+        gridSize: clusterSettings.grid_size || 25,
+        imagePath:
+          'https://cdn.rawgit.com/googlemaps/js-marker-clusterer/gh-pages/images/m'
+      })
+    }
+  }
+})()
+/* Object.assign polyfill */
+if (typeof Object.assign !== 'function') {
+  Object.assign = function(target) {
+    'use strict'
+    if (target == null) {
+      throw new TypeError('Cannot convert undefined or null to object')
+    }
+
+    target = Object(target)
+    for (var index = 1; index < arguments.length; index++) {
+      var source = arguments[index]
+      if (source != null) {
+        for (var key in source) {
+          if (Object.prototype.hasOwnProperty.call(source, key)) {
+            target[key] = source[key]
+          }
+        }
+      }
+    }
+    return target
+  }
+}
+
+</script>
+</head>
+
+
+  <body>
+
+    <header class="site-header">
+
+  <div class="wrapper">
+
+    <a class="site-title" href="/pedbridge-project/">Detroit Pedbridge Project</a>
+
+    <nav class="site-nav">
+      
+        
+        <a class="page-link" href="/pedbridge-project/about/">About</a>
+      
+        
+        <a class="page-link" href="/pedbridge-project/map/">Map</a>
+      
+        
+        <a class="page-link" href="https://alisonc.net/">alisonc.net</a>
+      
+    </nav>
+
+  </div>
+
+</header>
+
+
+    <main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+
+  <header class="post-header">
+    
+      <h1 class="post-title" itemprop="name headline">Lower Lodge (Downtown to WSU)</h1>
+    
+    <p class="post-meta"><time datetime="2020-07-28T18:12:00+00:00" itemprop="datePublished">Jul 28, 2020</time> •
+  
+    
+    
+      
+    
+      
+        <a href="/pedbridge-project/categories/m10/">m10</a>,
+      
+    
+      
+    
+      
+    
+  
+    
+    
+      
+        <a href="/pedbridge-project/categories/i94/">i94</a>
+      
+    
+      
+    
+      
+    
+      
+    
+  
+
+
+
+</p>
+  </header>
+
+  <div class="post-content" itemprop="articleBody">
+    <p>This post is a compilation of all the pedestrian bridges across the Lodge 
+Freeway from downtown to Wayne State University/I-94, plus the Trumbull Crossing 
+bridge across I-94 because its southern end is on the WSU athletic campus. I 
+didn’t necessarily ride these bridges in order or on the same day, so I’m 
+going to present them from south to north (up from downtown).</p>
+
+<!-- fold -->
+
+<p>The southernmost bridge across the Lodge is also the only covered bridge. 
+It connects the <a href="https://detroitmi.gov/departments/municipal-parking-department">municipal parking deck</a> at <strong>900 West Jefferson Avenue</strong> with 
+the rear of the <strong><a href="https://www.tcfcenterdetroit.com/">TCF Center</a></strong>. This has been my favourite pedbridge in Detroit
+for a while, since the cylindrical shape with porthole windows makes it look 
+like an airplane or a space station.</p>
+
+<p>The TCF Center is obviously closed due to the 
+covid-19 pandemic, and I didn’t attempt to enter the 900 West Jefferson deck 
+(which is open <em>Special Events and Holidays as needed</em> according to its website; 
+I don’t think Sunday 12 July 2020 counted as either), so the best I can do is a 
+few shots from afar.</p>
+
+<div class="gallery">
+<div class="gallery-item">
+  <figure class="gallery-image">
+    <img src="https://i.imgur.com/E6HnkBZb.jpg" alt="Looking south from Third Street at Fort Street. Fort Street Presbyterian Church is on the left, and Wayne County Community College District's Downtown Campus is on the right." />
+    <figcaption>
+      Looking south from Third Street at Fort Street. Fort Street Presbyterian Church is on the left, and Wayne County Community College District's Downtown Campus is on the right. (<a href="https://i.imgur.com/E6HnkBZ.jpg">embiggen</a>)
+    </figcaption>
+  </figure>
+</div>
+<div class="gallery-item">
+  <figure class="gallery-image">
+    <img src="https://i.imgur.com/B2aJCM2b.jpg" alt="A panorama taken from WCCCD Fort Street Plaza. The helical ramp up to the TCF Center's roof deck is on the left, and the 900 West Jefferson deck is on the right." />
+    <figcaption>
+      A panorama taken from WCCCD Fort Street Plaza. The helical ramp up to the TCF Center's roof deck is on the left, and the 900 West Jefferson deck is on the right. (<a href="https://i.imgur.com/B2aJCM2.jpg">embiggen</a>)
+    </figcaption>
+  </figure>
+</div>
+</div>
+
+<p>Mentioned in captions:</p>
+
+<ul>
+  <li><a href="https://www.fortstreet.org/">Fort Street Presbyterian Church</a></li>
+  <li><a href="http://www.wcccd.edu/">Wayne County Community College District</a></li>
+  <li><a href="https://www.tcfcenterdetroit.com/parking">TCF Center roof deck</a></li>
+</ul>
+
+<p>The next bridge to the north is <strong>Fort Street Plaza</strong>, an overpass park on the
+Wayne County Community College District <a href="http://www.wcccd.edu/WCCCDcampus/Downtown/">Downtown campus</a>. (It’s my opinion 
+that overpass parks count as pedbridges. They’re structures crossing a freeway 
+upon which vehicular traffic is forbidden. If this were the Suburban Pedbridge 
+Project, I’d consider <a href="https://commons.wikimedia.org/wiki/File:Interstate_696_pedestrian_plazas_Oak_Park.jpg">Oak Park’s pedestrian plazas</a> over I-696 fair game.)
+The Plaza includes a stepped amphitheatre area and a grassy area, and there 
+was formerly a more traditional pedbridge over the Lodge just south of it.
+According to historical Street View imagery, that bridge was demolished sometime 
+between July 2016 and August 2018.</p>
+
+<div class="gallery">
+<div class="gallery-item">
+  <figure class="gallery-image">
+    <img src="https://i.imgur.com/foHznctb.jpg" alt="The Plaza, looking northwest from its southeast corner." />
+    <figcaption>
+      The Plaza, looking northwest from its southeast corner. (<a href="https://i.imgur.com/foHznct.jpg">embiggen</a>)
+    </figcaption>
+  </figure>
+</div>
+<div class="gallery-item">
+  <figure class="gallery-image">
+    <img src="https://i.imgur.com/q0m4R0Cb.jpg" alt="Looking toward downtown. There's an area of newer concrete where the demolished bridge used to connect." />
+    <figcaption>
+      Looking toward downtown. There's an area of newer concrete where the demolished bridge used to connect. (<a href="https://i.imgur.com/q0m4R0C.jpg">embiggen</a>)
+    </figcaption>
+  </figure>
+</div>
+<div class="gallery-item">
+  <figure class="gallery-image">
+    <img src="https://i.imgur.com/3kNbcMRb.jpg" alt="&ldquo;Decolonize!&rdquo; graffiti on the west wall. Also, an area of newer concrete where the demolished bridge used to connect." />
+    <figcaption>
+      &ldquo;Decolonize!&rdquo; graffiti on the west wall. Also, an area of newer concrete where the demolished bridge used to connect. (<a href="https://i.imgur.com/3kNbcMR.jpg">embiggen</a>)
+    </figcaption>
+  </figure>
+</div>
+</div>
+
+<p>The <strong>Porter Street</strong> bridge is tucked in between <a href="https://mhtdetroit.org/">Most Holy Trinity Parish</a> 
+on <a href="https://en.wikipedia.org/wiki/Corktown,_Detroit">Corktown</a>’s eastern border and the <del>Pig Farm</del> 
+<a href="https://en.wikipedia.org/wiki/Detroit_Public_Safety_Headquarters">Detroit Public Safety Headquarters</a>. I’m always a little uneasy riding across
+it, since my usual route involves going east across the bridge and a bit of wrong-way 
+sidewalk riding up the Lodge Service Drive and Howard Street to get downtown. 
+I’m afraid that a DPD cop or federal security officer with nothing better to do 
+will harass me for that <a href="https://www.lmb.org/bike-mi/michigan-compiled-laws-mcl-bicycles-and-the-law/">perfectly legal</a> biking manoeuvre.</p>
+
+<div class="gallery">
+<div class="gallery-item">
+  <figure class="gallery-image">
+    <img src="https://i.imgur.com/uGQBO9fb.jpg" alt="Approaching the bridge from Most Holy Trinity, looking across it to DPSH." />
+    <figcaption>
+      Approaching the bridge from Most Holy Trinity, looking across it to DPSH. (<a href="https://i.imgur.com/uGQBO9f.jpg">embiggen</a>)
+    </figcaption>
+  </figure>
+</div>
+<div class="gallery-item">
+  <figure class="gallery-image">
+    <img src="https://i.imgur.com/JuFM9uTb.jpg" alt="Looking south toward... a LED message sign. Also the Detroit/Windsor World Trade Center, visible on the right." />
+    <figcaption>
+      Looking south toward... a LED message sign. Also the Detroit/Windsor World Trade Center, visible on the right. (<a href="https://i.imgur.com/JuFM9uT.jpg">embiggen</a>)
+    </figcaption>
+  </figure>
+</div>
+<div class="gallery-item">
+  <figure class="gallery-image">
+    <img src="https://i.imgur.com/6rEJOyHb.jpg" alt="Looking north toward MotorCity Casino Hotel." />
+    <figcaption>
+      Looking north toward MotorCity Casino Hotel. (<a href="https://i.imgur.com/6rEJOyH.jpg">embiggen</a>)
+    </figcaption>
+  </figure>
+</div>
+<div class="gallery-item">
+  <figure class="gallery-image">
+    <img src="https://i.imgur.com/lQbTzwGb.jpg" alt="Looking west from the back of DPSH, toward Most Holy Trinity." />
+    <figcaption>
+      Looking west from the back of DPSH, toward Most Holy Trinity. (<a href="https://i.imgur.com/lQbTzwG.jpg">embiggen</a>)
+    </figcaption>
+  </figure>
+</div>
+</div>
+
+<p>Mentioned in captions:</p>
+
+<ul>
+  <li><a href="http://www.wtcdw.com">Detroit/Windsor World Trade Center</a></li>
+</ul>
+
+<p>Speaking of <a href="https://www.motorcitycasino.com/default.aspx">MotorCity Casino Hotel</a>, that’s very near the <strong>Spruce Street</strong> bridge, 
+which connects MCCH’s surface lots to a small warehouse district along 
+Grand River Avenue and Fifth Street.</p>
+
+<div class="gallery">
+<div class="gallery-item">
+  <figure class="gallery-image">
+    <img src="https://i.imgur.com/xRhIIwDb.jpg" alt="Looking eastward along the bridge toward the warehouse district. There's no curb cut on this side." />
+    <figcaption>
+      Looking eastward along the bridge toward the warehouse district. There's no curb cut on this side. (<a href="https://i.imgur.com/xRhIIwD.jpg">embiggen</a>)
+    </figcaption>
+  </figure>
+</div>
+<div class="gallery-item">
+  <figure class="gallery-image">
+    <img src="https://i.imgur.com/tyWhrJcb.jpg" alt="The view south toward downtown." />
+    <figcaption>
+      The view south toward downtown. (<a href="https://i.imgur.com/tyWhrJc.jpg">embiggen</a>)
+    </figcaption>
+  </figure>
+</div>
+<div class="gallery-item">
+  <figure class="gallery-image">
+    <img src="https://i.imgur.com/YLvHMnnb.jpg" alt="The view north toward Temple Street and Core City." />
+    <figcaption>
+      The view north toward Temple Street and Core City. (<a href="https://i.imgur.com/YLvHMnn.jpg">embiggen</a>)
+    </figcaption>
+  </figure>
+</div>
+<div class="gallery-item">
+  <figure class="gallery-image">
+    <img src="https://i.imgur.com/IyA4Ao5b.jpg" alt="Looking west toward the casino. This is a good crosswalk, with curb cuts and tactile bumps." />
+    <figcaption>
+      Looking west toward the casino. This is a good crosswalk, with curb cuts and tactile bumps. (<a href="https://i.imgur.com/IyA4Ao5.jpg">embiggen</a>)
+    </figcaption>
+  </figure>
+</div>
+<div class="gallery-item">
+  <figure class="gallery-image">
+    <img src="https://i.imgur.com/dRZbivwb.jpg" alt="A view of MotorCity Casino Hotel from across the Lodge." />
+    <figcaption>
+      A view of MotorCity Casino Hotel from across the Lodge. (<a href="https://i.imgur.com/dRZbivw.jpg">embiggen</a>)
+    </figcaption>
+  </figure>
+</div>
+</div>
+
+<p>The next bridge up the Lodge is <strong>Selden Street</strong>, which connects the 
+<a href="http://woodbridgeestates.com/">Woodbridge Estates</a> apartment and condo community with the <a href="https://en.wikipedia.org/wiki/Cass_Corridor">Cass Corridor</a>/<a href="https://en.wikipedia.org/wiki/Midtown_Detroit">Midtown</a>
+commercial districts and the under-construction <a href="https://www.midtownwestdetroit.com/">Midtown West</a> condo building.
+The neighborhood streets in Woodbridge Estates are all 
+named after Motown musicians and music groups, e.g. Miracles Drive, Temptations 
+Drive, and Contours Lane.</p>
+
+<div class="gallery">
+<div class="gallery-item">
+  <figure class="gallery-image">
+    <img src="https://i.imgur.com/hnvrZeGb.jpg" alt="Approaching the Selden bridge from Woodbridge Estates." />
+    <figcaption>
+      Approaching the Selden bridge from Woodbridge Estates. (<a href="https://i.imgur.com/hnvrZeG.jpg">embiggen</a>)
+    </figcaption>
+  </figure>
+</div>
+<div class="gallery-item">
+  <figure class="gallery-image">
+    <img src="https://i.imgur.com/2TfImvYb.jpg" alt="A pile of leaves and trash accumulated on the west ramp. I should bring a rake, bin bags, and my bike trailer and clean this up sometime." />
+    <figcaption>
+      A pile of leaves and trash accumulated on the west ramp. I should bring a rake, bin bags, and my bike trailer and clean this up sometime. (<a href="https://i.imgur.com/2TfImvY.jpg">embiggen</a>)
+    </figcaption>
+  </figure>
+</div>
+<div class="gallery-item">
+  <figure class="gallery-image">
+    <img src="https://i.imgur.com/zgIypJbb.jpg" alt="Looking east along the bridge, toward Midtown and the site of Midtown West." />
+    <figcaption>
+      Looking east along the bridge, toward Midtown and the site of Midtown West. (<a href="https://i.imgur.com/zgIypJb.jpg">embiggen</a>)
+    </figcaption>
+  </figure>
+</div>
+<div class="gallery-item">
+  <figure class="gallery-image">
+    <img src="https://i.imgur.com/daejpNeb.jpg" alt="The view south, toward MotorCity Casino Hotel and downtown. One of the Woodbridge Estates highrises is visible." />
+    <figcaption>
+      The view south, toward MotorCity Casino Hotel and downtown. One of the Woodbridge Estates highrises is visible. (<a href="https://i.imgur.com/daejpNe.jpg">embiggen</a>)
+    </figcaption>
+  </figure>
+</div>
+<div class="gallery-item">
+  <figure class="gallery-image">
+    <img src="https://i.imgur.com/t8cSgGXb.jpg" alt="The view north, toward Wayne State University. The former Experiencia Preparatory Academy is on the Lodge Service Drive on the right." />
+    <figcaption>
+      The view north, toward Wayne State University. The former Experiencia Preparatory Academy is on the Lodge Service Drive on the right. (<a href="https://i.imgur.com/t8cSgGX.jpg">embiggen</a>)
+    </figcaption>
+  </figure>
+</div>
+<div class="gallery-item">
+  <figure class="gallery-image">
+    <img src="https://i.imgur.com/hzACGLxb.jpg" alt="Looking west across the bridge, toward Woodbridge Estates." />
+    <figcaption>
+      Looking west across the bridge, toward Woodbridge Estates. (<a href="https://i.imgur.com/hzACGLx.jpg">embiggen</a>)
+    </figcaption>
+  </figure>
+</div>
+</div>
+
+<p>Mentioned in captions:</p>
+
+<ul>
+  <li><a href="https://www.nmu.edu/charterschools/experiencia-preparatory-academy">Experiencia Preparatory Academy</a></li>
+</ul>
+
+<p><strong>Canfield Avenue</strong> is the northern border of Woodbridge Estates, and also 
+connects the <a href="https://continentalmgt.com/view-listing/?listing_id=1313">Calumet Townhomes</a> with <a href="https://www.detroitnews.com/story/business/autos/ford/2015/06/15/ford-uaw-open-ballpark/71255920/">William Clay Ford Field</a>
+and the former <a href="https://edmonson.geeacademies.net/">GEE Edmonson Academy</a> and <a href="https://en.wikipedia.org/wiki/Detroit_Day_School_for_the_Deaf">Detroit Day School for the Deaf</a>.</p>
+
+<div class="gallery">
+<div class="gallery-item">
+  <figure class="gallery-image">
+    <img src="https://i.imgur.com/IDsbkt7b.jpg" alt="Approaching the Canfield bridge from Calumet Townhomes." />
+    <figcaption>
+      Approaching the Canfield bridge from Calumet Townhomes. (<a href="https://i.imgur.com/IDsbkt7.jpg">embiggen</a>)
+    </figcaption>
+  </figure>
+</div>
+<div class="gallery-item">
+  <figure class="gallery-image">
+    <img src="https://i.imgur.com/KHdTK4Ob.jpg" alt="Looking west along the bridge." />
+    <figcaption>
+      Looking west along the bridge. (<a href="https://i.imgur.com/KHdTK4O.jpg">embiggen</a>)
+    </figcaption>
+  </figure>
+</div>
+<div class="gallery-item">
+  <figure class="gallery-image">
+    <img src="https://i.imgur.com/6K0nnznb.jpg" alt="The view north toward WSU." />
+    <figcaption>
+      The view north toward WSU. (<a href="https://i.imgur.com/6K0nnzn.jpg">embiggen</a>)
+    </figcaption>
+  </figure>
+</div>
+<div class="gallery-item">
+  <figure class="gallery-image">
+    <img src="https://i.imgur.com/38APCqmb.jpg" alt="The view south, toward Woodbridge Estates, MotorCity Casino Hotel, and downtown." />
+    <figcaption>
+      The view south, toward Woodbridge Estates, MotorCity Casino Hotel, and downtown. (<a href="https://i.imgur.com/38APCqm.jpg">embiggen</a>)
+    </figcaption>
+  </figure>
+</div>
+<div class="gallery-item">
+  <figure class="gallery-image">
+    <img src="https://i.imgur.com/WWQgMVZb.jpg" alt="Looking east from the west end of the bridge." />
+    <figcaption>
+      Looking east from the west end of the bridge. (<a href="https://i.imgur.com/WWQgMVZ.jpg">embiggen</a>)
+    </figcaption>
+  </figure>
+</div>
+</div>
+
+<p>The two northernmost bridges of this post both have one end in the 
+<a href="https://wsuathletics.com/facilities">Wayne State University</a>. The more southerly of the two is 
+signed as <strong>Merrick Street</strong>, though I just think of it as the <em>WSU Athletics</em>
+pedbridge. It’s very Wayne State-themed.</p>
+
+<div class="gallery">
+<div class="gallery-item">
+  <figure class="gallery-image">
+    <img src="https://i.imgur.com/9qb7NBSb.jpg" alt="Looking southeast at the west end of the Merrick bridge. Manoogian Hall is in the distance." />
+    <figcaption>
+      Looking southeast at the west end of the Merrick bridge. Manoogian Hall is in the distance. (<a href="https://i.imgur.com/9qb7NBS.jpg">embiggen</a>)
+    </figcaption>
+  </figure>
+</div>
+<div class="gallery-item">
+  <figure class="gallery-image">
+    <img src="https://i.imgur.com/pzJ3f26b.jpg" alt="Looking east along the bridge, toward WSU's main campus." />
+    <figcaption>
+      Looking east along the bridge, toward WSU's main campus. (<a href="https://i.imgur.com/pzJ3f26.jpg">embiggen</a>)
+    </figcaption>
+  </figure>
+</div>
+<div class="gallery-item">
+  <figure class="gallery-image">
+    <img src="https://i.imgur.com/cRGcSU4b.jpg" alt="w" />
+    <figcaption>
+      w (<a href="https://i.imgur.com/cRGcSU4.jpg">embiggen</a>)
+    </figcaption>
+  </figure>
+</div>
+<div class="gallery-item">
+  <figure class="gallery-image">
+    <img src="https://i.imgur.com/w9hR1Eeb.jpg" alt="The view south, toward MCCH, downtown, etc." />
+    <figcaption>
+      The view south, toward MCCH, downtown, etc. (<a href="https://i.imgur.com/w9hR1Ee.jpg">embiggen</a>)
+    </figcaption>
+  </figure>
+</div>
+<div class="gallery-item">
+  <figure class="gallery-image">
+    <img src="https://i.imgur.com/mnZP93qb.jpg" alt="The view north, toward the I-94 interchange that's under construction." />
+    <figcaption>
+      The view north, toward the I-94 interchange that's under construction. (<a href="https://i.imgur.com/mnZP93q.jpg">embiggen</a>)
+    </figcaption>
+  </figure>
+</div>
+<div class="gallery-item">
+  <figure class="gallery-image">
+    <img src="https://i.imgur.com/kWrf83eb.jpg" alt="&ldquo;Cycling Is Not a Crime&rdquo; sticker on the handrail of the east ramp." />
+    <figcaption>
+      &ldquo;Cycling Is Not a Crime&rdquo; sticker on the handrail of the east ramp. (<a href="https://i.imgur.com/kWrf83e.jpg">embiggen</a>)
+    </figcaption>
+  </figure>
+</div>
+<div class="gallery-item">
+  <figure class="gallery-image">
+    <img src="https://i.imgur.com/mdAsX9cb.jpg" alt="The east ramp, painted up in Wayne State colours." />
+    <figcaption>
+      The east ramp, painted up in Wayne State colours. (<a href="https://i.imgur.com/mdAsX9c.jpg">embiggen</a>)
+    </figcaption>
+  </figure>
+</div>
+</div>
+
+<p>Mentioned in captions:</p>
+
+<ul>
+  <li><a href="http://maps.wayne.edu/?q=manoogian+hall">Manoogian Hall</a> (not to be confused 
+with the <a href="https://360.aua.am/explore-aua/manoogian-hall/">similarly named auditorium</a> 
+on the campus of the American University of Armenia)</li>
+  <li><a href="https://www.orucase.com/products/cycling-is-not-a-crime-sticker">Cycling Is Not a Crime</a> sticker</li>
+</ul>
+
+<p>The other WSU Athletic Campus pedbridge, and the last one on today’s tour, isn’t 
+actually across the Lodge. It’s the <strong>Brooklyn Avenue</strong> (signed)/<strong>Trumbull Crossing</strong>
+(what I think of it as) bridge across I-94, which links the <a href="https://www.apartmentguide.com/apartments/Michigan/Detroit/Trumbull-Crossing/77586/">Trumbull Crossing</a> highrise with 
+<a href="https://wsuathletics.com/facilities/tom-adams-field/99">Adams Field</a>, WSU’s football stadium.</p>
+
+<div class="gallery">
+<div class="gallery-item">
+  <figure class="gallery-image">
+    <img src="https://i.imgur.com/peLB0Qab.jpg" alt="Approaching the Brooklyn Avenue bridge from the grounds of Trumbull Crossing. A curb means that folks on wheels (bicycles, wheelchairs, etc) can't approach it from the driveway." />
+    <figcaption>
+      Approaching the Brooklyn Avenue bridge from the grounds of Trumbull Crossing. A curb means that folks on wheels (bicycles, wheelchairs, etc) can't approach it from the driveway. (<a href="https://i.imgur.com/peLB0Qa.jpg">embiggen</a>)
+    </figcaption>
+  </figure>
+</div>
+<div class="gallery-item">
+  <figure class="gallery-image">
+    <img src="https://i.imgur.com/9IKjH7Db.jpg" alt="And poor pavement condition around the sewer hole cover means that it's difficult even to approach it from the sidewalk." />
+    <figcaption>
+      And poor pavement condition around the sewer hole cover means that it's difficult even to approach it from the sidewalk. (<a href="https://i.imgur.com/9IKjH7D.jpg">embiggen</a>)
+    </figcaption>
+  </figure>
+</div>
+<div class="gallery-item">
+  <figure class="gallery-image">
+    <img src="https://i.imgur.com/Nc68D4Jb.jpg" alt="Looking south down the bridge. More pavement in poor repair." />
+    <figcaption>
+      Looking south down the bridge. More pavement in poor repair. (<a href="https://i.imgur.com/Nc68D4J.jpg">embiggen</a>)
+    </figcaption>
+  </figure>
+</div>
+<div class="gallery-item">
+  <figure class="gallery-image">
+    <img src="https://i.imgur.com/kWkrSZ9b.jpg" alt="The view east toward the Lodge Freeway interchange." />
+    <figcaption>
+      The view east toward the Lodge Freeway interchange. (<a href="https://i.imgur.com/kWkrSZ9.jpg">embiggen</a>)
+    </figcaption>
+  </figure>
+</div>
+<div class="gallery-item">
+  <figure class="gallery-image">
+    <img src="https://i.imgur.com/APsyLcxb.jpg" alt="The view west toward Trumbull Avenue." />
+    <figcaption>
+      The view west toward Trumbull Avenue. (<a href="https://i.imgur.com/APsyLcx.jpg">embiggen</a>)
+    </figcaption>
+  </figure>
+</div>
+<div class="gallery-item">
+  <figure class="gallery-image">
+    <img src="https://i.imgur.com/i7Ud327b.jpg" alt="Trumbull Crossing." />
+    <figcaption>
+      Trumbull Crossing. (<a href="https://i.imgur.com/i7Ud327.jpg">embiggen</a>)
+    </figcaption>
+  </figure>
+</div>
+<div class="gallery-item">
+  <figure class="gallery-image">
+    <img src="https://i.imgur.com/oY0QvVXb.jpg" alt="The helical ramp on the bridge's south end." />
+    <figcaption>
+      The helical ramp on the bridge's south end. (<a href="https://i.imgur.com/oY0QvVX.jpg">embiggen</a>)
+    </figcaption>
+  </figure>
+</div>
+<div class="gallery-item">
+  <figure class="gallery-image">
+    <img src="https://i.imgur.com/t6Ipqvlb.jpg" alt="Adams Field." />
+    <figcaption>
+      Adams Field. (<a href="https://i.imgur.com/t6Ipqvl.jpg">embiggen</a>)
+    </figcaption>
+  </figure>
+</div>
+<div class="gallery-item">
+  <figure class="gallery-image">
+    <img src="https://i.imgur.com/nMBduhgb.jpg" alt="The iron supports for the ramp. I wonder if the spindly concrete beams were deemed insufficient." />
+    <figcaption>
+      The iron supports for the ramp. I wonder if the spindly concrete beams were deemed insufficient. (<a href="https://i.imgur.com/nMBduhg.jpg">embiggen</a>)
+    </figcaption>
+  </figure>
+</div>
+<div class="gallery-item">
+  <figure class="gallery-image">
+    <img src="https://i.imgur.com/V7VlMDtb.jpg" alt="A panorama from Adams Field to Trumbull Crossing." />
+    <figcaption>
+      A panorama from Adams Field to Trumbull Crossing. (<a href="https://i.imgur.com/V7VlMDt.jpg">embiggen</a>)
+    </figcaption>
+  </figure>
+</div>
+</div>
+
+<div id="b971c8d7-f5cc-45b6-baa9-189777ad0337" style="width:600px;height:400px;" class=" jekyll-map"></div>
+<script type="text/javascript">
+  jekyllMaps.register(
+    'b971c8d7-f5cc-45b6-baa9-189777ad0337',
+    [{"latitude":42.327011,"longitude":-83.054851,"title":"Fort Street Plaza","icon":null,"url":"","url_text":null,"image":"","popup_html":""},{"latitude":42.330028,"longitude":-83.059693,"title":"Lodge Freeway and Porter Street","icon":null,"url":"","url_text":null,"image":"","popup_html":""},{"latitude":42.337676,"longitude":-83.065563,"title":"Lodge Freeway and Spruce Street","icon":null,"url":"","url_text":null,"image":"","popup_html":""},{"latitude":42.345891,"longitude":-83.069277,"title":"Lodge Freeway and Selden Street","icon":null,"url":"","url_text":null,"image":"","popup_html":""},{"latitude":42.349563,"longitude":-83.070973,"title":"Lodge Freeway and Canfield Street","icon":null,"url":"","url_text":null,"image":"","popup_html":""},{"latitude":42.355532,"longitude":-83.074476,"title":"Lodge Freeway and Merrick Avenue (WSU Athletic Complex)","icon":null,"url":"","url_text":null,"image":"","popup_html":""},{"latitude":42.357303,"longitude":-83.079089,"title":"I-94 and Brooklyn Avenue (Trumbull Crossing)","icon":null,"url":"","url_text":null,"image":"","popup_html":""}],
+    {"baseUrl":"/pedbridge-project","useCluster":true,"showMarker":true,"showMarkerPopup":true,"markerIcon":null,"styles":"[]"}
+  );
+</script>
+
+
+  </div>
+
+  
+
+</article>
+
+      </div>
+    </main>
+
+    <footer class="site-footer">
+
+  <div class="wrapper">
+
+    <p>
+      
+
+&copy;  - Powered by <a href="https://jekyllrb.com">Jekyll</a> &amp; <a href="https://github.com/yous/whiteglass">whiteglass</a> - Subscribe via <a href="https://alisonc.net/pedbridge-project/feed.xml">RSS</a>
+
+    </p>
+
+  </div>
+
+</footer>
+
+
+            <script async defer>
+
+
+            // Load maps only when DOM is loaded
+            document.addEventListener("DOMContentLoaded", function() {
+                if (window.google && window.google.maps && jekyllMaps) {
+                  // Maps script already loaded -> Execute callback method
+                  jekyllMaps.initializeMap();
+                } else if (!('IntersectionObserver' in window) ||
+                !('IntersectionObserverEntry' in window) ||
+                !('intersectionRatio' in window.IntersectionObserverEntry.prototype)) {
+                  // Intersection Observer -> Backup solution : load maps now
+                  lazyLoadGoogleMap();
+                } else {
+                  // Google Maps not loaded & Intersection Observer working -> Enable it
+                  enableMapsObserver();
+                }
+            });
+
+            function enableMapsObserver() {
+              // Enable Observer on all Maps
+              var maps = document.getElementsByClassName('jekyll-map');
+
+              const observer = new IntersectionObserver(function(entries, observer) {
+                // Test if one of the maps is in the viewport
+                var isIntersecting = typeof entries[0].isIntersecting === 'boolean' ? entries[0].isIntersecting : entries[0].intersectionRatio > 0;
+                if (isIntersecting) {
+                  lazyLoadGoogleMap();
+                  observer.disconnect();
+                }
+              });
+
+              for(var i = 0; i < maps.length; i++) {
+                observer.observe(maps[i]);
+              }
+            }
+
+            function lazyLoadGoogleMap() {
+                // If google maps api script not already loaded
+                if(!window.google || !window.google.maps) {
+                  var fjs = document.getElementsByTagName('script')[0];
+                  var js = document.createElement('script');
+                  js.id = 'gmap-api';
+                  js.setAttribute('async', '');
+                  js.setAttribute('defer', '');
+                  js.src = "//maps.google.com/maps/api/js?key=AIzaSyBLS8-GjYsP5N6i7zyJgJA58RmY41PwsBE&callback=jekyllMaps.initializeMap";
+                  fjs.parentNode.insertBefore(js, fjs);
+                }
+            }
+          </script>
+
+
+</body>
+
+</html>
